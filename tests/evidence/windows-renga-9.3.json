@@ -1,0 +1,436 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "bridge_version": "0.1.0",
+  "renga_version": "9.3.32980.0",
+  "sdk_api_reference": "2.50",
+  "environment": {
+    "os": "Windows x64, build 22631",
+    "python": "3.12.14",
+    "renga_edition": "Professional",
+    "comtypes": "1.4.17",
+    "pywin32": "312",
+    "mcp": "2.3.0"
+  },
+  "computer_use_calls": 0,
+  "source_fingerprint": {
+    "algorithm": "sha256-python-sources-v1",
+    "normalization": "utf-8-sig-to-utf-8;CRLF-and-CR-to-LF",
+    "sha256": "59913f84d7bfe059921716344578e2bb24637d2154015982a910436b0d340673",
+    "file_count": 22,
+    "files": [
+      {
+        "path": "src/renga_codex_bridge/__init__.py",
+        "sha256": "1038e5c40670824754119ce05920f6e615369ad1733d02f2137080be8b9ac8ec"
+      },
+      {
+        "path": "src/renga_codex_bridge/audit.py",
+        "sha256": "56eef0092dbddb1e948b4ce01307cf97e5cf8275b669b0c38095599d9805c3f6"
+      },
+      {
+        "path": "src/renga_codex_bridge/capabilities.py",
+        "sha256": "4ffdcffec64ff1b64c36fa0aeba8558e2d1b9b96a59094cb971aedf9f206b52f"
+      },
+      {
+        "path": "src/renga_codex_bridge/catalogs.py",
+        "sha256": "0483ae2d21b8bf47762ad88b46d555ecfa5fdd5c386a109467a83c3be23a77a8"
+      },
+      {
+        "path": "src/renga_codex_bridge/cli.py",
+        "sha256": "1f4604e3eb8f85dd847a3e883c7ecdd474bd3ffbffad13a5412081d27f24672e"
+      },
+      {
+        "path": "src/renga_codex_bridge/config.py",
+        "sha256": "6b986463eb3cead4bbf043a64663f4446f506559e74889d2b4159aa00665eece"
+      },
+      {
+        "path": "src/renga_codex_bridge/dimensions.py",
+        "sha256": "78ec086b7e2d793ef45ec98bd1b9a7780077fb985514f39db325e9e6f95a6941"
+      },
+      {
+        "path": "src/renga_codex_bridge/documentation.py",
+        "sha256": "837ac8b4ac8c17f2082e120166aa598d996c54a25bac39eb3a3fa3f63009056e"
+      },
+      {
+        "path": "src/renga_codex_bridge/geometry.py",
+        "sha256": "76685f7389106a109c677046631bfb4253646c5ca451001023ef82f73c4ba8fd"
+      },
+      {
+        "path": "src/renga_codex_bridge/mcp_server.py",
+        "sha256": "a83842ae668b1baa201bc32b199c183087f3bc18b4d15f2e8ab966203f7d315d"
+      },
+      {
+        "path": "src/renga_codex_bridge/model.py",
+        "sha256": "0cd008903be7ac440cb08d218b57bfb7882aba9e79286799aa447ddf044a073e"
+      },
+      {
+        "path": "src/renga_codex_bridge/operations.py",
+        "sha256": "252cb6f0921b11b563bb14106e954f7e7aae22e8697c207ca8e9c06bcec825c1"
+      },
+      {
+        "path": "src/renga_codex_bridge/orientation.py",
+        "sha256": "de2a6eeb782063ca5bddc36410f2aa0a238a7ffb4aa9e08a0445e9b6f9e43311"
+      },
+      {
+        "path": "src/renga_codex_bridge/ownership.py",
+        "sha256": "faa4a57f1db82185351f7040f9a58be74c16dd6a2e0c93fe4e5f3394a0d36bbe"
+      },
+      {
+        "path": "src/renga_codex_bridge/planning.py",
+        "sha256": "ce499cb945d03c5e3420a63e8bda2b6fe8f58b1dfd0ac31ba3d09ab9b45ca6af"
+      },
+      {
+        "path": "src/renga_codex_bridge/project_info.py",
+        "sha256": "d8a778a7b2ff5cc63465e74461e95dd81c32191ab19eb7b1d9ba5ca4974b8022"
+      },
+      {
+        "path": "src/renga_codex_bridge/runner.py",
+        "sha256": "13f628e0325044b1781c286354463c63e90387ce47de00f3d2d1e97d78917304"
+      },
+      {
+        "path": "src/renga_codex_bridge/safety.py",
+        "sha256": "3ac4b347f034fcb513503971e04de9dc669c4d5da46ff911d7ce0ddbef733cc4"
+      },
+      {
+        "path": "src/renga_codex_bridge/sdk.py",
+        "sha256": "5e19407f89746d47a1b42a082f7e822062df32cc4fbe9c4fc23f837fee23ce70"
+      },
+      {
+        "path": "src/renga_codex_bridge/session.py",
+        "sha256": "4090fa7b6c2f0d2b9bd52245a29c9231042f71e7bc766d1c7338f113177d1ad6"
+      },
+      {
+        "path": "src/renga_codex_bridge/validation.py",
+        "sha256": "eb69a48aa09ab5492a2f22af0043c709badcd0c0f8d38fe07795a1d0b1eee066"
+      },
+      {
+        "path": "src/renga_codex_bridge/worker.py",
+        "sha256": "c1052e5fa063e0128e35b77231adb894f20818f10f68fefda1d382ab61b9c985"
+      }
+    ]
+  },
+  "native_scenario_checks_passed": 53,
+  "suites": [
+    {
+      "suite": "live",
+      "status": "passed",
+      "passed_scenario_checks": 22,
+      "run_timestamp_utc": "20261014T205409525294Z",
+      "checks": [
+        {
+          "check": "owned_sta_connection",
+          "status": "passed"
+        },
+        {
+          "check": "create_wall_floor_manual_room_save_close_reopen",
+          "status": "passed"
+        },
+        {
+          "check": "full_parameter_ids_definitions_enums_has_value",
+          "status": "passed"
+        },
+        {
+          "check": "native_quantities_area_length_volume_units",
+          "status": "passed"
+        },
+        {
+          "check": "native_style_material_documentation_catalogs",
+          "status": "passed"
+        },
+        {
+          "check": "edit_parameters_string_property_full_door_window_level_zero_reopen",
+          "status": "passed"
+        },
+        {
+          "check": "hosted_fillings_native_host_and_xy_offset",
+          "status": "passed"
+        },
+        {
+          "check": "room_region_and_independent_native_mesh_areas",
+          "status": "passed"
+        },
+        {
+          "check": "undo_rollback_preserves_disk_file",
+          "status": "passed"
+        },
+        {
+          "check": "new_cannot_overwrite_existing_file",
+          "status": "passed"
+        },
+        {
+          "check": "write_root_escape_refused",
+          "status": "passed"
+        },
+        {
+          "check": "delete_native_object_reopen",
+          "status": "passed"
+        },
+        {
+          "check": "project_copy_reopen",
+          "status": "passed"
+        },
+        {
+          "check": "native_save_as_persistent_uuid_roundtrip",
+          "status": "passed"
+        },
+        {
+          "check": "proposed_changes_on_disposable_copy",
+          "status": "passed"
+        },
+        {
+          "check": "typed_placement_move_saved_readback",
+          "status": "passed"
+        },
+        {
+          "check": "nonzero_level_constructor_rejected",
+          "status": "passed"
+        },
+        {
+          "check": "project_info_four_fields_uuid_native_roundtrip",
+          "status": "passed"
+        },
+        {
+          "check": "two_native_drawings_linked_views_schedules_text_reopen",
+          "status": "passed"
+        },
+        {
+          "check": "native_two_page_pdf_a3_landscape",
+          "status": "passed"
+        },
+        {
+          "check": "native_ifc4_export",
+          "status": "passed"
+        },
+        {
+          "check": "native_view_render_without_computer_use",
+          "status": "passed"
+        }
+      ],
+      "limitations": []
+    },
+    {
+      "suite": "mcp",
+      "status": "passed",
+      "passed_scenario_checks": 21,
+      "run_timestamp_utc": "20261014T205832687446Z",
+      "checks": [
+        {
+          "check": "initialize_protocol",
+          "status": "passed"
+        },
+        {
+          "check": "discover_tools",
+          "status": "passed"
+        },
+        {
+          "check": "owned_renga_connection",
+          "status": "passed"
+        },
+        {
+          "check": "plan_and_structural_validation",
+          "status": "passed"
+        },
+        {
+          "check": "window_pier_calculation",
+          "status": "passed"
+        },
+        {
+          "check": "create_bim_save_close_reopen",
+          "status": "passed"
+        },
+        {
+          "check": "read_persisted_model",
+          "status": "passed"
+        },
+        {
+          "check": "native_project_metadata_roundtrip",
+          "status": "passed"
+        },
+        {
+          "check": "edit_wall_create_styled_fillings_saved_readback",
+          "status": "passed"
+        },
+        {
+          "check": "read_native_meshes",
+          "status": "passed"
+        },
+        {
+          "check": "area_target_and_native_mesh_check",
+          "status": "passed"
+        },
+        {
+          "check": "native_view_render_without_computer_use",
+          "status": "passed"
+        },
+        {
+          "check": "native_drawings_views_schedule_text_roundtrip",
+          "status": "passed"
+        },
+        {
+          "check": "read_saved_native_drawings",
+          "status": "passed"
+        },
+        {
+          "check": "native_pdf_two_pages_content",
+          "status": "passed"
+        },
+        {
+          "check": "native_ifc4_export",
+          "status": "passed"
+        },
+        {
+          "check": "preview_copy_preserves_source",
+          "status": "passed"
+        },
+        {
+          "check": "protected_copy",
+          "status": "passed"
+        },
+        {
+          "check": "native_save_as",
+          "status": "passed"
+        },
+        {
+          "check": "mcp_denies_outside_write_root",
+          "status": "passed"
+        },
+        {
+          "check": "declared_capabilities",
+          "status": "passed"
+        }
+      ],
+      "limitations": []
+    },
+    {
+      "suite": "elements",
+      "status": "passed",
+      "passed_scenario_checks": 7,
+      "run_timestamp_utc": "20261014T210120968290Z",
+      "checks": [
+        {
+          "check": "column_beam_stair_roof_opening_create_native_roundtrip",
+          "status": "passed"
+        },
+        {
+          "check": "opening_affects_native_slab_host",
+          "status": "passed"
+        },
+        {
+          "check": "slab_cut_area_independent_mesh_and_target",
+          "status": "passed"
+        },
+        {
+          "check": "actual_native_meshes_and_sloped_roof_geometry",
+          "status": "passed"
+        },
+        {
+          "check": "column_stair_beam3d_roof_edits_saved_readback",
+          "status": "passed"
+        },
+        {
+          "check": "native_element_selected_existing_style_and_mesh",
+          "status": "passed"
+        },
+        {
+          "check": "level_nested_placement_move_has_no_saved_effect",
+          "status": "passed"
+        }
+      ],
+      "limitations": [
+        {
+          "feature": "counter_directed_aperture_axis",
+          "status": "NOT_VERIFIED",
+          "reason_code": "native_frame_normalized_counter_axis_request_rejected_before_save"
+        },
+        {
+          "feature": "nonzero_level_elevation",
+          "status": "API_LIMITATION",
+          "reason_code": "readonly_level_and_detached_placement_move"
+        }
+      ]
+    },
+    {
+      "suite": "timeout",
+      "status": "passed",
+      "passed_scenario_checks": 3,
+      "run_timestamp_utc": "20261014T210335166549Z",
+      "checks": [
+        {
+          "check": "confirmed_owned_worker_and_renga_termination",
+          "status": "passed"
+        },
+        {
+          "check": "source_disk_unchanged_after_timeout",
+          "status": "passed"
+        },
+        {
+          "check": "native_reopen_after_forced_owned_session_failure",
+          "status": "passed"
+        }
+      ],
+      "limitations": []
+    }
+  ],
+  "portable_checks": {
+    "unit_passed": 305,
+    "unit_skipped": 1,
+    "integration_deselected": 1,
+    "pip_check": "passed",
+    "powershell_installer_ast": "passed"
+  },
+  "visual_checks": {
+    "status": "passed",
+    "native_pdf_pages_reviewed": 2,
+    "paper": "A3 landscape",
+    "native_png_dimensions": [
+      1024,
+      768
+    ],
+    "scope": "Synthetic sheets of the same base level; plan, title and native schedule clear. Native license watermark retained. Export page ordering is not asserted."
+  },
+  "codex_discovery": {
+    "status": "passed",
+    "scope": "fresh isolated real Codex protocol backend",
+    "server_name": "renga-codex-bridge",
+    "tool_count": 20,
+    "tool_names": [
+      "bridge_apply_plan",
+      "bridge_capabilities",
+      "bridge_catalogs",
+      "bridge_copy_project",
+      "bridge_create_drawings",
+      "bridge_export_ifc",
+      "bridge_export_pdf",
+      "bridge_facade_spacing",
+      "bridge_geometry",
+      "bridge_inspect",
+      "bridge_inspect_drawings",
+      "bridge_preview_on_copy",
+      "bridge_project_info",
+      "bridge_rectangle_plan",
+      "bridge_render_view",
+      "bridge_save_as",
+      "bridge_set_project_info",
+      "bridge_status",
+      "bridge_validate_plan",
+      "bridge_verify"
+    ],
+    "configuration_reload_acknowledged": true,
+    "new_threads_created": 0,
+    "model_turns_started": 0,
+    "existing_desktop_chat": "NOT_VERIFIED; backend control-socket proxy unavailable; reconnect Codex"
+  },
+  "coverage_boundaries": [
+    "Scenario checks are composite assertions, not individual COM calls or complete API coverage.",
+    "No other Renga editions or versions are verified.",
+    "Nonzero level elevation is read-only; nested placement movement did not persist.",
+    "New automatic rooms and associative dimension/tag creation are not verified or exposed as working constructors.",
+    "Style zero can create an aperture; complete door/window/Element assemblies use inspected existing styles.",
+    "Counter-directed window placement was normalized by Renga and the mismatched request was rejected before save.",
+    "New schedule/filter definitions, arbitrary rotation/mirroring, imports and exact solid clash detection are not released as verified.",
+    "IFC proof covers native IFC4 output and STEP envelope, not full schema or semantic validation.",
+    "Timeout cleanup requires proved owned identities; interrupted write outcome remains unknown until separately inspected.",
+    "Dependent creation uses multiple applied native batches before final save; full in-memory undo of arbitrary resources is not promised."
+  ],
+  "privacy": "Only synthetic, aggregate proof is public. Native projects, SDK files, raw logs, local paths and object/process identities remain local."
+}

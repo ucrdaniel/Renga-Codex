@@ -21,17 +21,19 @@ async def run():
         report['checks'].append({'check':name,'status':'passed',**details});print('PASS MCP',name,flush=True)
     try:
         async with stdio_client(parameters) as streams:
-            async with ClientSession(*streams,read_timeout_seconds=timedelta(seconds=360)) as client:
+            async with ClientSession(*streams,read_timeout_seconds=360) as client:
                 await client.initialize();passed('initialize_protocol')
                 tools=(await client.list_tools()).tools
                 assert len(tools)>=18;passed('discover_tools',count=len(tools),names=[tool.name for tool in tools])
                 async def call(name,**arguments):
                     result=await client.call_tool(name,arguments)
-                    if result.isError:raise RuntimeError(str(result.content))
-                    if result.structuredContent is not None:
-                        value=result.structuredContent
+                    if result.is_error:raise RuntimeError(str(result.content))
+                    if result.structured_content is not None:
+                        value=result.structured_content
                         if isinstance(value,dict) and set(value)=={'result'}:value=value['result']
-                    else:value=json.loads(''.join(block.text for block in result.content if hasattr(block,'text')))
+                    else:
+                        blocks=[json.loads(block.text) for block in result.content if hasattr(block,'text')]
+                        value=blocks[0] if len(blocks)==1 else blocks
                     (folder/('response-'+str(len(report['checks']))+'-'+name+'.json')).write_text(json.dumps(value,ensure_ascii=False,indent=2),encoding='utf8')
                     return value
                 doctor=await call('bridge_status');assert doctor['com'] and doctor['isolated'];report['renga_version']=doctor['version'];passed('owned_renga_connection')
@@ -56,11 +58,13 @@ async def run():
                      'parameters':{'DoorStyleId':catalog['DoorStyles']['entries'][0]['id'],'DoorWidth':1000,'DoorHeight':2200}}])
                 assert change['status']=='saved_reopened_verified';passed('edit_wall_create_styled_fillings_saved_readback')
                 meshes=await call('bridge_geometry',project=str(project));assert meshes['unit']=='mm' and len(meshes['objects'])>=6;passed('read_native_meshes')
-                verified=await call('bridge_verify',project=str(project),expected_areas={refs['floor']:40})
+                verified=await call('bridge_verify',project=str(project),expected_areas={refs['floor']:40,refs['room']:37.44})
                 assert verified['status']=='passed';passed('area_target_and_native_mesh_check',area_checks=len(verified['checks']))
                 level=next(row['id'] for row in change['objects'] if row['type']=='Level')
+                render=await call('bridge_render_view',project=str(project),output=str(folder/'mcp-render.png'),entity_id=level)
+                assert Path(render['output']).stat().st_size>1000;passed('native_view_render_without_computer_use',route=render['route'])
                 def choose(collection,needle):
-                    entries=catalog[collection]['entries'];return next(v['id'] for v in entries if needle in v['name'])
+                    entries=catalog[collection]['entries'];return next(v['id'] for v in entries if needle==v['name'])
                 drawings=[{'parameters':{'EntityName':f'MCP API plan {n}','PageFormatId':choose('PageFormatStyles','A3'),
                            'PageOrientation':2,'LayoutStyleId':catalog['LayoutStyles']['entries'][0]['id']},
                            'level_id':level,'scale_id':choose('Scales','1:100'),'title':f'MCP API plan {n}',
@@ -79,7 +83,7 @@ async def run():
                 copied=await call('bridge_copy_project',project=str(project),output=str(folder/'mcp-copy.rnp'));assert copied['source_unchanged'];passed('protected_copy')
                 saved=await call('bridge_save_as',project=str(project),output=str(folder/'mcp-save-as.rnp'));assert saved['source_unchanged'];passed('native_save_as')
                 denied=await client.call_tool('bridge_apply_plan',{'project':str(folder.parent.parent/'mcp-forbidden.rnp'),'operations':[],'new':True})
-                assert denied.isError;passed('mcp_denies_outside_write_root')
+                assert denied.is_error;passed('mcp_denies_outside_write_root')
                 capabilities=await call('bridge_capabilities');assert capabilities['api_first'];passed('declared_capabilities')
                 report['status']='passed'
     except Exception as exc:

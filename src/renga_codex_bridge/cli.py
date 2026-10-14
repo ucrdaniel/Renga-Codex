@@ -6,6 +6,8 @@ from pathlib import Path
 from .runner import run_worker
 
 def main():
+    for stream in (sys.stdout,sys.stderr):
+        if hasattr(stream,'reconfigure'):stream.reconfigure(encoding='utf8')
     parser=argparse.ArgumentParser(description='API-first local Renga MCP bridge, no GUI automation')
     parser.add_argument('command',choices=['doctor','inspect','apply','validate','geometry','verify','catalogs','documents','drawings','ifc','pdf','render','copy','preview_copy','save_as','project_info','set_project_info'])
     parser.add_argument('--project');parser.add_argument('--plan');parser.add_argument('--output');parser.add_argument('--collection')

@@ -18,6 +18,8 @@ def checked_path(path, *, write=False, new=False):
     if candidate.suffix.lower() not in {'.rnp','.json','.ifc','.pdf','.dxf','.dwg','.png'}:
         raise ValueError('Unsupported output/project extension')
     if new and candidate.exists():raise FileExistsError(candidate)
+    if write and candidate.is_file() and candidate.stat().st_nlink>1:
+        raise PermissionError('Existing writable targets must not have additional hard links')
     return candidate
 
 def backup(path):

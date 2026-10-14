@@ -3,6 +3,6 @@
   {"action":"create","ref":"wall_east","kind":"Wall","points":[[6000,0],[6000,4000]],"parameters":{"WallHeight":3000,"WallThickness":200}},
   {"action":"create","ref":"wall_north","kind":"Wall","points":[[6000,4000],[0,4000]],"parameters":{"WallHeight":3000,"WallThickness":200}},
   {"action":"create","ref":"wall_west","kind":"Wall","points":[[0,4000],[0,0]],"parameters":{"WallHeight":3000,"WallThickness":200}},
-  {"action":"create","ref":"room","kind":"Room","points":[[0,0],[6000,0],[6000,4000],[0,4000]],"closed":true,"parameters":{"RoomName":"Bridge test room","RoomNumber":"1","RoomHeight":2800}},
+  {"action":"create","ref":"room","kind":"Room","points":[[100,100],[5900,100],[5900,3900],[100,3900]],"closed":true,"parameters":{"RoomName":"Bridge test room","RoomNumber":"1","RoomHeight":2800}},
   {"action":"create","ref":"floor","kind":"Floor","points":[[0,0],[6000,0],[6000,4000],[0,4000]],"closed":true,"parameters":{"FloorThickness":200}}
 ]

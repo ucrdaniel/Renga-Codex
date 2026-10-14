@@ -36,13 +36,36 @@ integration evidence.
 
 ## Current product evidence
 
-At the research snapshot represented by this draft, the new adapter and tools
-are being implemented and fresh product acceptance results have not yet been
-recorded in this document. Therefore the current implementation rows below are
-`NOT_VERIFIED`, even where the historical adapter succeeded. After real tests,
-the release must update these rows from
-`tests/evidence/windows-renga-9.3.json`, retaining each scenario's actual limits.
-Raw models, owner logs and SDK files remain outside the public repository.
+Fresh local product runs passed on Windows x64 / Python 3.12.14 / Renga
+Professional 9.3.32980.0, using API 2.50. The frozen Python behavior source
+passed **53 native scenario assertions: 22 core, 21 MCP, 7 elements and 3
+owned-process failure checks**, with **0 Computer Use calls**. The operation
+statuses below cover only the operations and conditions actually exercised.
+Both pages of the fresh MCP PDF and its native PNG were also inspected
+visually. These synthetic fixtures do not establish a complete architectural
+drawing package, arbitrary multistorey design or full API coverage.
+
+| Evidence ID | Fresh scenario | Recorded outcome and boundary |
+|---|---|---|
+| R-CORE | [Native worker test](../scripts/run_live_tests.py) | Final frozen-source rerun: 22 checks passed, including owned STA, model/lifecycle/quantities, protected copies/SaveAs, metadata, selected drawing/PDF/IFC export and native 1024×768 PNG rendering |
+| R-MCP | [Real stdio MCP client](../scripts/run_mcp_tests.py) | Final frozen-source rerun: 21 checks passed, all 20 tools discovered, native model edits/export and 1024×768 PNG through MCP. Counts refer to scenario assertions, not one test for every API member |
+| R-ELEMENTS | [Native element test](../scripts/run_element_tests.py) | Final frozen-source rerun: 7 checks passed: columns, beam, stair, roof, slab opening, selected existing Element style, persisted edits, mesh presence and negative level-placement probe |
+| R-TIMEOUT | [Owned-process failure test](../scripts/run_timeout_test.py) | Final frozen-source rerun: 3 checks passed: forced owned-worker failure, positively identified Renga cleanup, unchanged source hash and successful native reopen. It does not certify every solver hang or unsaved-write failure |
+| R-CODEX | [Codex discovery test](../scripts/run_codex_discovery_test.py) | Isolated Codex app-server catalogue contains all 20 tools and acknowledges config reload; no model turn or native call was requested in that discovery probe |
+| R-VISUAL | [Sanitized visual-review record](../tests/evidence/windows-renga-9.3.json) | Both fresh MCP PDF pages and the native PNG were inspected; readable synthetic plan/title/schedule, retained license watermark. This review is separate from the 53 native scenario assertions |
+
+The sanitized aggregate is
+[tests/evidence/windows-renga-9.3.json](../tests/evidence/windows-renga-9.3.json).
+It identifies the tested Python source fingerprint and distinguishes the native
+suites, visual review and Codex catalogue probe. Raw models, logs, machine paths
+and native object UUIDs remain private. The statuses were read from the actual
+local reports, not inferred from a successful script launch or method discovery.
+Historical H-* evidence does not promote a current-product status.
+
+Codex discovery is scoped precisely: the isolated protocol backend was tested;
+the already-running Desktop backend/current chat remains `NOT_VERIFIED` because
+its control-socket proxy was unavailable. No fresh end-to-end natural-language
+model turn is claimed by a catalogue-only probe.
 
 The acceptance target for the advertised coverage is **0 Computer Use calls**.
 An official API call such as opening a view or rendering it through
@@ -59,21 +82,23 @@ Primary reference: [IApplication](https://help.rengabim.com/api/interface_i_appl
 
 | Operation | API route / bridge boundary | Current status | Evidence / remaining verification |
 |---|---|---|---|
-| Detect application, version and local COM/TLB | Registry/installation discovery; `ProductName`, `VersionS` | `NOT_VERIFIED` | H-ENV/H-MCP; new status tool needs fresh test |
-| Connect without using a user session | New COM instance, HWND → verified owned PID, STA and serialization | `NOT_VERIFIED` | H-COM ownership checks; test with an unrelated Renga process present |
-| Create project | `CreateProject` | `NOT_VERIFIED` | H-COM; new apply-plan fixture |
+| Detect application version and connect with the local COM/TLB | `ProductName`, `VersionS`, user-supplied local SDK | `IMPLEMENTED_AND_TESTED` | R-CORE owned_sta_connection; R-MCP owned_renga_connection |
+| Connect without attaching to an existing session | Fresh COM instance, HWND → verified owned PID, STA and serialization | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP owned activation; current process-identity gate exercised, not every possible external-launch race |
+| Create project | `CreateProject` | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP synthetic native fixtures |
 | Create from user-supplied template | `CreateProjectFromTemplate` | `SUPPORTED_NOT_IMPLEMENTED` | Template provenance, content and preserved identities require verification |
-| Open, save, SaveAs, close and reopen | `OpenProject`, `Save`, `SaveAs`, `CloseProject`, `Quit` only owned session | `NOT_VERIFIED` | H-COM/H-MCP; new lifecycle readback |
-| Copy native project safely | Validated destination, backup/hash where applicable, native open verification | `NOT_VERIFIED` | Byte copying alone does not prove reopenability |
-| Read/edit project metadata | `ProjectInfo` public fields/properties; building/site data separately | `NOT_VERIFIED` | Fresh persisted field checks required |
+| Open, save, SaveAs, close and reopen | `OpenProject`, `Save`, `SaveAs`, `CloseProject`, `Quit` only owned session | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP native roundtrip and UUID checks |
+| Copy native project safely | New protected destination, unchanged source hash, native reopen | `IMPLEMENTED_AND_TESTED` | R-CORE project_copy_reopen; R-MCP protected_copy |
+| Read/edit project metadata | ProjectInfo Code/Name/Stage/Description and persistent project UUID | `IMPLEMENTED_AND_TESTED` | R-CORE four-field native roundtrip; R-MCP metadata roundtrip; other metadata objects separate |
 | Read/edit building/site/postal information | `IBuildingInfo`, `ISiteInfo`, `IPostalAddress` | `SUPPORTED_NOT_IMPLEMENTED` | Public writable fields available; do not log confidential addresses automatically |
-| Model transaction, commit and rollback | `CreateOperationWithUndo`, `Start`, `Apply`, `Rollback` | `NOT_VERIFIED` | H-COM rejected setter/unchanged disk hash; fresh rollback test needed |
+| Model transaction, commit and rollback | `CreateOperationWithUndo`, `Start`, `Apply`, `Rollback`; some new entities require several initialization batches | `IMPLEMENTED_AND_TESTED` | R-CORE rejected read-only write and unchanged saved hash; not one atomic undo of every multi-batch/resource edit |
 | Undo/redo history | `GetUndoStack`, `HasUndo`, `Undo`, `HasRedo`, `Redo` | `SUPPORTED_NOT_IMPLEMENTED` | Model-specific history; not all project resources participate |
 | Undo arbitrary style/material resource edits | Model undo does not cover project-based resources | `API_LIMITATION` | Always back up; do not advertise one transaction as complete project rollback |
-| Structural plan validation | Bridge checks plan shape, finite coordinates, primitive types and units; path/native checks also run at execution | `NOT_VERIFIED` | No native model change; not a solver preview of joins, valid styles or regenerated geometry |
+| Structural plan validation | Bridge checks plan shape, finite coordinates, primitive types and units; path/native checks also run at execution | `IMPLEMENTED_AND_TESTED` | R-MCP plan_and_structural_validation; not a native solver preview |
+| Preview edits on a disposable native copy | Copy to a new protected file, apply/save/reopen proposed changes; original hash preserved | `IMPLEMENTED_AND_TESTED` | R-CORE proposed_changes_on_disposable_copy; R-MCP preview_copy_preserves_source |
 | Native transaction preview | Apply the complete requested native operation, inspect, then roll back without saving | `SUPPORTED_NOT_IMPLEMENTED` | Distinct from structural validation; requires rollback and unchanged-file proof |
-| Backup and authorized existing-file edits | Bridge file policy, hash-checked backup, no blanket MCP bypass | `NOT_VERIFIED` | Fresh overwrite/root escape/backup tests required |
-| Recover from COM hang or worker crash | Owned PID tracking, bounded worker/session lifetime | `NOT_VERIFIED` | Timeout tests must prove unrelated sessions remain alive |
+| Backup before approved-root edits and deny overwrites/root escape | Hash-checked backup, configured write root, no blanket MCP bypass | `IMPLEMENTED_AND_TESTED` | R-CORE rollback/new-overwrite/root-escape checks; R-MCP outside-root denial. Backup restoration after every failure mode is not claimed |
+| Clean up positively identified processes after forced worker failure | Owned worker/Renga identities and retained process handles; source hash/native reopen checks | `IMPLEMENTED_AND_TESTED` | R-TIMEOUT 3 checks; saved outcome still reported unknown during failure |
+| Recovery from arbitrary COM/solver hangs or interrupted writes | Time-bounded supervisor and backups; failure state must be inspected | `NOT_VERIFIED` | Forced-worker probe is narrower than every possible native crash or hang |
 | Large-model performance and long batch operations | Serialized worker, bounded protocol requests; underlying COM traversal/regeneration can still be expensive | `NOT_VERIFIED` | Small synthetic fixtures are not a throughput or memory benchmark |
 | Collaboration publish/synchronize | `Publish`, `Synchronize`, collaboration settings/events | `NOT_VERIFIED` | Requires separately authorized server context; outside local release coverage |
 
@@ -93,32 +118,37 @@ correct facing on every wall.
 
 | Operation | API route / exact limitation | Current status | Historical or next evidence |
 |---|---|---|---|
-| Enumerate/find objects by type, UUID, mark and parameters | `GetObjects`, native `UniqueIdS`, parameter/property/quantity containers | `NOT_VERIFIED` | H-COM/H-ARCH; objects with null parameters must retain UUIDs |
-| Create/delete generic supported model entities | `CreateObject`, `DeleteObjectByUniqueIdS`; category-specific validation | `NOT_VERIFIED` | H-COM/H-ARCH; only tested categories become release claims |
-| Create default-elevation level and rename it | Level factory + writable level-name parameter | `NOT_VERIFIED` | H-COM created level at 0 mm |
+| Enumerate objects and filter by type; target native UUID/current ID | GetObjects, direct UniqueIdS, actual parameter/quantity containers | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP persisted inventories and UUID checks; property/mark-query language is separate |
+| Native creation/deletion for tested categories | Factory with inspected hosts/styles; UUID-directed targets | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP/R-ELEMENTS categories listed below; deletion of hosted window on disposable copy verified |
+| Create default-elevation level and rename it | Level factory + writable level-name parameter | `IMPLEMENTED_AND_TESTED` | R-CORE/R-ELEMENTS saved 0 mm level/name; no nonzero level creation |
 | Set level elevation/origin directly | `ILevel.Elevation`/`Placement` and `IPlacement3D.Origin` are getters | `API_LIMITATION` | Old nonzero creation silently stayed zero; bridge rejects unsupported requests |
-| Change level through nested `Placement.Move` | A placement method exists, but whether it updates the owning level is unproved | `NOT_VERIFIED` | Disposable transaction/save/reopen/elevation probe required |
+| Change level through nested `Placement.Move` | The returned placement is detached in the tested version; movement did not persist | `API_LIMITATION` | R-ELEMENTS native save/reopen retained elevation/origin Z=0 after +3000 mm request |
 | Use existing nonzero levels from a template/project | Read `ILevel`; set inspected level as creation host | `NOT_VERIFIED` | H-ARCH used existing levels; does not prove API creation of those levels |
 | Create axes via public model factory | Axis is absent from `IModel.CreateObject`'s supported-type table | `API_LIMITATION` | Existing native axes remain inspectable; template/extension creation route is not verified |
 | Edit existing axes / use template axes | Actual supported interfaces/parameters, independently verified grid | `NOT_VERIFIED` | H-ARCH preserved native axes; fresh general edit/readback required |
-| Walls and partitions | Native Wall, `IBaseline2DObject`, writable height/thickness/offset/material parameters | `NOT_VERIFIED` | H-COM/H-ARCH; joins and dependent openings need separate checks |
-| Floors/slabs and terraces | Native Floor, closed baseline, thickness/offset and existing layered material | `NOT_VERIFIED` | H-COM 24 m²; contour with holes is a separate capability |
-| Floor openings | Native Opening with inspected host and contour/offset | `SUPPORTED_NOT_IMPLEMENTED` | H-ARCH; host cutting must be checked by actual mesh |
+| Walls/partitions with straight baselines and height/thickness parameters | Native Wall and IBaseline2DObject; actual parameter/contour readback | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP/R-ELEMENTS; arbitrary joins, curved walls and material-stack edits are separate |
+| Floors/slabs with explicit closed polygon and thickness | Native Floor, requested contour/parameters, quantities and mesh | `IMPLEMENTED_AND_TESTED` | R-CORE 24 m², R-MCP 40 m², R-ELEMENTS rectangular slab and cut area; layered material assignment not covered |
+| Slab openings | Native Opening with explicit Floor host, rectangular contour, depth/offset | `IMPLEMENTED_AND_TESTED` | R-ELEMENTS affected host and mesh/target net area 31.25 m² verified; Roof-host openings separate |
 | Isolated/wall foundations and specialized structural entities | SDK entity types and applicable factories/parameters | `NOT_VERIFIED` | Factory and valid parameter semantics need category-specific native tests |
-| Columns | Native Column, existing profile/style and writable parameters | `NOT_VERIFIED` | H-ARCH; fresh profile and solid-size verification required |
-| Beams | Native Beam, `IBaseline3DObject`, existing profile/style and offsets | `NOT_VERIFIED` | H-ARCH; global baseline differs from local baseline/joined mesh |
-| Doors | Native Door hosted in Wall; style before creation, size/offset/orientation readback | `NOT_VERIFIED` | H-ARCH; style-zero aperture is not a complete door assembly |
-| Window apertures | Native Window style-zero behavior depends on template | `NOT_VERIFIED` | H-COM aperture placement verified; fresh bridge test required |
-| Complete styled windows | Valid inspected WindowStyleId/creation StyleId; native host and mesh | `NOT_VERIFIED` | H-ARCH proves past styles; new product must test its selected style |
+| Columns using an existing native rectangular style | Native Column, selected existing style, height parameter and actual mesh | `IMPLEMENTED_AND_TESTED` | R-ELEMENTS creation/reopen/mesh and saved height edit; arbitrary profile creation/dimensions not covered |
+| Beams using an existing native rectangular style | Native Beam; straight global 3D baseline and supported offset/alignment parameters after initialization | `IMPLEMENTED_AND_TESTED` | R-ELEMENTS actual mesh and saved 3D endpoint edit; arbitrary curved/profile/join geometry not covered |
+| Styled doors in a horizontal wall with tested facing | Inspected nonzero DoorStyleId, width/height/offset, host and native mesh | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP; mesh includes frame envelope, not just aperture width/height; arbitrary facing unverified |
+| Default-style door/window apertures | Native hosted entities with StyleId=0, explicit location/offset | `IMPLEMENTED_AND_TESTED` | R-ELEMENTS saved aperture parameters/poses; distinct from complete assemblies |
+| Complete styled windows in the tested orientation | Inspected nonzero WindowStyleId, host/offset/size and actual mesh | `IMPLEMENTED_AND_TESTED` | R-MCP native mesh extent 1400×200×1500 mm; no claim for every style or host direction |
+| Counter-directed or arbitrary Door/Window facing | Axis request can normalize; actual side needs semantic parameters/mesh verification | `NOT_VERIFIED` | Counter-directed request was rejected before save rather than falsely accepted |
 | Move hosted Door/Window using generic level placement | Excluded by `ILevelObject.SetPlacement` | `API_LIMITATION` | Use tested category parameters or full native reconstruction, not this setter |
-| Stairs and ramps | Native entity factory with documented writable category parameters | `SUPPORTED_NOT_IMPLEMENTED` | H-ARCH native stair; clearances, treads and openings need dedicated geometry checks |
-| Roofs and canopies | Native Roof contour, height/offset, per-edge `IRoofSlopes` | `NOT_VERIFIED` | H-ARCH pitched roof; arbitrary contour/edge combinations remain unverified |
-| Manual rooms / functional zones | Native Room and closed explicit contour | `NOT_VERIFIED` | H-COM/H-ARCH; report `Automatic=False` truthfully |
-| Recalculate room region from a point | `IRoom.CalculateRegion`, outer and inner contours | `NOT_VERIFIED` | H-COM; old generic path rejected holes |
+| Native stair with tested polygon/baseline and parameters | Native Stair; initialize/apply before deferred parameters | `IMPLEMENTED_AND_TESTED` | R-ELEMENTS actual mesh, height/steps/shape/width readback and saved width edit; clearance/code review separate |
+| Ramps | Native factory and applicable parameters | `SUPPORTED_NOT_IMPLEMENTED` | Stair test does not establish ramp authoring |
+| Rectangular pitched roof with selected slope/gable edges | Native Roof contour/offset, IRoofSlopes edge shape/angle/overhang | `IMPLEMENTED_AND_TESTED` | R-ELEMENTS saved slope edits and actual mesh Z span >900 mm; arbitrary roofs/canopies not covered |
+| Manual rooms with explicit simple contour | Native Room with manual baseline and name/number parameters | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP; Automatic=False; no automatic-room creation claim |
+| Recalculate manual room region from a point, without holes | IRoom.CalculateRegion and saved outer contour | `IMPLEMENTED_AND_TESTED` | R-CORE post-wall-edit area/mesh; multi-contour regions explicitly rejected |
+| Room regions containing internal holes | API returns multiple contours; current baseline adapter does not preserve all of them | `SUPPORTED_NOT_IMPLEMENTED` | Must not silently discard inner contours |
 | New automatic room solely through API | No `Automatic` setter; creation semantics not established | `NOT_VERIFIED` | Historical automatic creation used GUI and is excluded from API-only claims |
-| Move control point of an existing automatic room | `IRoom.ControlPoint` is writable | `SUPPORTED_NOT_IMPLEMENTED` | Must inspect `Automatic=True`, test boundary regeneration and reopen |
-| Set room name/number/marker position | Writable parameters; `MarkerPosition` refers to model room marker | `NOT_VERIFIED` | Not equivalent to creating/binding a drawing room tag |
-| Furniture/equipment native elements using existing styles | Element/equipment entity, StyleId/CategoryId, supported placement | `SUPPORTED_NOT_IMPLEMENTED` | H-ARCH; style content must be user-supplied/licensed or independently created |
+| Move control point of an existing automatic room | `IRoom.ControlPoint` is writable; bridge has a conditional automatic-room branch | `NOT_VERIFIED` | Fresh fixtures use manual rooms; must inspect `Automatic=True`, test boundary regeneration and reopen |
+| Set room name/number | Writable RoomName/RoomNumber parameters | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP saved fixture parameters; not equivalent to native drawing tags |
+| Set model room-marker position | IRoom.MarkerPosition; drawing tags are separate | `SUPPORTED_NOT_IMPLEMENTED` | No fresh marker-placement test |
+| Generic native Element from an existing style | Selected ElementStyleId, origin and actual nonempty native mesh | `IMPLEMENTED_AND_TESTED` | R-ELEMENTS; does not create/import a new style or prove every furniture/equipment category |
+| Equipment and other category-based furniture/fixtures | Separate entity/style/category contracts | `SUPPORTED_NOT_IMPLEMENTED` | Generic Element mesh test is not all MEP/equipment creation |
 | Import model geometry into an element style | Factory FilePath for supported geometry formats | `VERSION_DEPENDENT` | Import/license/format dependent; imported mesh is not a parametric wall/stair |
 | Assemblies and instances | `IProject.Assemblies`, native collection/factories, additional `IModel` | `SUPPORTED_NOT_IMPLEMENTED` | Requires fixture and dependency/identity verification |
 | Reinforcement | Styles/usages/placements/geometry exposed through reinforcement interfaces | `SUPPORTED_NOT_IMPLEMENTED` | Read/export is documented; arbitrary reinforcement authoring is not yet proven |
@@ -136,22 +166,23 @@ Primary references: [IMath](https://help.rengabim.com/api/interface_i_math.html)
 
 | Operation | API route / constraints | Current status |
 |---|---|---|
-| Explicit coordinate creation | Typed `Placement2D`/`Placement3D` arguments and explicit host | `NOT_VERIFIED` |
-| Read/change straight/composite 2D baselines | `GetBaseline`, `SetBaseline`, explicit local/global coordinate system | `NOT_VERIFIED` |
-| Read/change straight/composite 3D baselines | `IBaseline3DObject`; global coordinates via `GetBaselineInCS` | `NOT_VERIFIED` |
+| Explicit coordinate creation for tested entities | Typed 2D/3D arguments, origin, inspected host and saved pose checks | `IMPLEMENTED_AND_TESTED` — R-CORE/R-MCP/R-ELEMENTS; arbitrary/counter-directed facing not covered |
+| Straight/polyline 2D baselines for tested walls/slabs/rooms/stair/roof | Requested points, GetBaseline/SetBaseline and saved contour comparison | `IMPLEMENTED_AND_TESTED` — R-CORE/R-MCP/R-ELEMENTS; curved or multi-contour regions separate |
+| Straight global 3D beam baseline | IBaseline3DObject, SetBaselineInCS/GetBaselineInCS in explicit identity CS | `IMPLEMENTED_AND_TESTED` — R-ELEMENTS saved endpoint edit; composite/curved 3D paths not covered |
 | Create arcs, circles and mixed curved baselines | `IMath` curve factories; `IArc2D/IArc3D`, `IPolyCurve2D/3D` | `SUPPORTED_NOT_IMPLEMENTED` |
 | Curve length, projections, trim, offset, transform | `ICurve2D/3D` documented math methods | `SUPPORTED_NOT_IMPLEMENTED` |
-| Translate supported level objects | Obtain placement copy, `Move`, then `SetPlacement`; restricted types excluded | `NOT_VERIFIED` |
+| Translate a tested native floor | Typed IPlacement3D and ILevelObject.SetPlacement, saved origin check | `IMPLEMENTED_AND_TESTED` — R-CORE floor +1000 mm X on disposable copy; other object types/dependents not blanket covered |
 | Rotate supported objects | Placement `Rotate/Rotate2` or explicit transforms, then supported placement setter | `SUPPORTED_NOT_IMPLEMENTED` |
 | Mirror/scale | Transform matrix members exist; accepted model semantics and handedness need tests | `NOT_VERIFIED` |
 | Copy arbitrary native objects losslessly | No examined generic clone method; reconstruction may lose bindings/resources | `NOT_VERIFIED` |
 | Reconstruct supported objects from inspected data | Native factory + complete supported styles/hosts/parameters, new UUID | `NOT_VERIFIED` |
-| Set dimensions/heights/offsets | Writable typed parameters; save/reopen readback | `NOT_VERIFIED` |
+| Set tested dimensions/heights/offsets | Writable typed parameters; saved value checks on tested native categories | `IMPLEMENTED_AND_TESTED` — R-CORE/R-MCP/R-ELEMENTS; only fixture parameters and writable-state contracts |
 | Read wall/floor/door/window contours and dependents | Category-specific parameter interfaces, `IWallContour`, `IHostObject` | `SUPPORTED_NOT_IMPLEMENTED` |
-| Read mesh/triangle/material geometry | `IDataExporter.GetObjects3D`, meshes, grids, indices and materials | `NOT_VERIFIED` |
+| Read native mesh vertices/triangles | IDataExporter.GetObjects3D, meshes/grids, indices, UUID association | `IMPLEMENTED_AND_TESTED` — R-CORE/R-MCP/R-ELEMENTS; mesh materials/normals/textures not covered |
 | Texture coordinates/normals/exported render materials | `IGrid`, `IGridMaterial`, `GetGrids` | `SUPPORTED_NOT_IMPLEMENTED` |
-| Read model/object bounds | Native model bound or independently calculated mesh AABB | `NOT_VERIFIED` |
-| Polygon area and room floor triangulation | Independent bridge calculation in explicit units | `NOT_VERIFIED` |
+| Read mesh-derived object bounds | Independently calculate AABB from actual exported vertices | `IMPLEMENTED_AND_TESTED` — R-CORE/R-MCP geometry verification; not an exact clash result |
+| Read native IModel.GetBoundingBox | Native model bound getter | `SUPPORTED_NOT_IMPLEMENTED` |
+| Polygon area and native room/slab bottom triangulation | Independent bridge calculation in explicit units | `IMPLEMENTED_AND_TESTED` — R-CORE/R-MCP/R-ELEMENTS simple polygons/slab cut; arbitrary nonplanar rooms not covered |
 | Broad-phase collision candidates | Bounding-box overlap is a candidate, not an exact clash | `NOT_VERIFIED` |
 | Exact general-purpose solid Boolean/clash engine | No public solid Boolean engine identified; triangle-level implementation needs validation | `NOT_VERIFIED` |
 | Host cutting/joins and face contact validation | Actual native meshes + category/contact rules, not nominal baselines alone | `SUPPORTED_NOT_IMPLEMENTED` |
@@ -180,17 +211,21 @@ Primary references: [IParameter](https://help.rengabim.com/api/interface_i_param
 
 | Operation | API route / constraints | Current status |
 |---|---|---|
-| Enumerate parameter definitions, types, references, enum text | `IParameterContainer`, `IGuidCollection`, `IParameterDefinition`; actual GetIds, not only known SDK constants | `NOT_VERIFIED` |
-| Read/write Bool/Int/Double/String parameters | Check `HasValue`, `ValueType`, `IsReadOnly` before typed setter | `NOT_VERIFIED` |
+| Enumerate actual parameter IDs/definitions/types/references/enum text | IParameterContainer.GetIds, IGuidCollection and IParameterDefinition; unset state preserved | `IMPLEMENTED_AND_TESTED` — R-CORE full_parameter_ids_definitions_enums_has_value; arbitrary STDL categories not a fixture claim |
+| Read typed native parameters and unset state | HasValue, ValueType, IsReadOnly and actual typed getter | `IMPLEMENTED_AND_TESTED` — R-CORE/R-MCP saved fixture inventory |
+| Write tested Int/Double/String parameters | Type/writability checks and saved readback | `IMPLEMENTED_AND_TESTED` — R-CORE/R-MCP/R-ELEMENTS requested fixture fields |
+| Write Bool parameters | Generic typed branch exists | `NOT_VERIFIED` — no fresh boolean-setter fixture assertion |
 | Write a parameter while native IsReadOnly is true | Setter prohibited; newly created entities may need Apply before rechecking writability | `API_LIMITATION` |
-| Read/write marks and applicable style/material IDs | Category parameters; validate referenced existing entity | `NOT_VERIFIED` |
-| String custom-property registration/assignment/value | `IPropertyManager` + `IPropertyContainer/IProperty` | `NOT_VERIFIED` |
+| Assign tested existing native style IDs | Creation StyleId / corresponding supported parameter, saved ID and mesh | `IMPLEMENTED_AND_TESTED` — R-CORE/R-MCP/R-ELEMENTS selected door/window/column/beam/Element styles only |
+| Write arbitrary marks/material IDs | Applicable category parameters with actual reference validation | `NOT_VERIFIED` — not promoted from style-ID tests |
+| String custom-property registration/assignment/value | IPropertyManager and actual property readback after reopen | `IMPLEMENTED_AND_TESTED` — R-CORE synthetic string property; other property types separate |
 | Other custom types and explicit quantity units | Boolean/logical/integer/double/enum/length/area/volume/mass/angle property methods | `SUPPORTED_NOT_IMPLEMENTED` |
 | Property enumeration definitions and expressions | Description manager methods, `SetExpressionS`, assignment and CSV flags | `SUPPORTED_NOT_IMPLEMENTED` |
 | Reset/unassign/unregister properties | Public manager/property methods remove values; requires deliberate destructive plan | `SUPPORTED_NOT_IMPLEMENTED` |
-| Read area/length/volume quantities and unset state | `IQuantityContainer`, `HasValue`, explicit typed conversion methods | `NOT_VERIFIED` |
+| Read area/length/volume quantities in explicit units | IQuantityContainer and typed conversions; actual fixture values | `IMPLEMENTED_AND_TESTED` — R-CORE/R-MCP/R-ELEMENTS area/length/volume inventory and area targets |
+| Expose distinction between unsupported and unset quantities | Current inventory omits quantities without values | `NOT_VERIFIED` — omission is not a complete native quantity-state report |
 | Read numeric mass/angle/count/signed-elevation quantities | Additional documented `IQuantity` typed methods | `SUPPORTED_NOT_IMPLEMENTED` |
-| List resource/style/material catalogs | Project entity collections and typed managers | `NOT_VERIFIED` |
+| List available native resource/style/material catalogs | Project entity collection names/IDs/UUIDs; unavailable collections explicit | `IMPLEMENTED_AND_TESTED` — R-CORE/R-MCP actual catalogs; does not author resources or read all layered/profile definitions |
 | Assign an existing material/layered material | Supported writable category parameter; read layers and thickness afterwards | `NOT_VERIFIED` |
 | Read material color/density and layer stacks | `IMaterial`, `ILayeredMaterial`, `IMaterialLayer`, manager/collections | `SUPPORTED_NOT_IMPLEMENTED` |
 | Edit material/layer stack via those typed interfaces | Color/density/layers/thickness are getter-only in the examined interfaces | `API_LIMITATION` |
@@ -220,12 +255,14 @@ Primary references: [IDrawing](https://help.rengabim.com/api/interface_i_drawing
 
 | Operation | API route / exact limitation | Current status | Required proof |
 |---|---|---|---|
-| List/open existing drawings and drawing model | `Drawings2`, additional `IDrawing/IModel`; legacy `Drawings` also exists | `NOT_VERIFIED` | New native drawing/UUID inspection |
-| Create native drawing sheet | Drawing entity factory, page/layout/scale references and writable parameters | `NOT_VERIFIED` | Saved/reopened sheet and actual page settings |
-| Embed native building/level view | EmbeddedModelView factory + source view/level parameters | `NOT_VERIFIED` | Saved referenced entity and visible building geometry |
-| Set embedded bounds/content placement | `IRectBoundedObject.BoundRect`, `GetContentPlacement`, `SetContentPlacement`, `FitBoundsToContent` | `NOT_VERIFIED` | Fit only after source/scale changes Apply; HasContent alone does not prove useful clipping |
-| Drawing text creation/edit | Native Text with `ITextObject.GetRichTextDocument`, tokens/paragraphs and bounds | `NOT_VERIFIED` | Text is native annotation; not a replacement for associative tags/dimensions |
-| Drawing metadata/topic/page format/layout assignment | Supported drawing parameters and resource references | `NOT_VERIFIED` | Read saved assignments, validate actual export size |
+| Inspect native drawings and their drawing models | Drawings2, additional IModel, parameters and native object UUIDs | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP saved drawing inventory; standalone drawing-view opening separate |
+| Create native drawing sheet | Drawing entity factory and inspected existing format/layout references | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP two new saved native sheets; retained template sheet is separate |
+| Embed a tested native level view | EmbeddedModelView, saved source level, exact 1:100 scale and section parameters | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP native references/content; both fixture sheets use a zero-elevation test level, not two storeys |
+| Read embedded bounds and fit native content | IRectBoundedObject.BoundRect getter and FitBoundsToContent after source/scale Apply | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP persisted bounds/content and PDF structure; R-VISUAL scoped two-page review |
+| Set arbitrary embedded bounds/content placement | BoundRect setter, GetContentPlacement/SetContentPlacement | `SUPPORTED_NOT_IMPLEMENTED` | Fitting is not a test of every placement/bounds member |
+| Create native drawing text/title with bounds | DrawingText, ITextObject rich-text document/tokens and explicit Rect fields | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP saved title text/PDF extraction; not a substitute for associative annotations |
+| General rich-text editing/formatting | Insert/remove/edit arbitrary paragraphs/tokens | `SUPPORTED_NOT_IMPLEMENTED` | Title creation does not cover every editor method |
+| Assign tested new-sheet parameters | EntityName, A3 format, landscape, layout and selected topic; saved readback | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP exact catalog lookup and actual A3 PDF dimensions; arbitrary existing-sheet editing separate |
 | Read title-block cells | `IDrawing.GetTitleBlockInstance`, `GetCellValue` | `SUPPORTED_NOT_IMPLEMENTED` | Literal and generated fields must be distinguished |
 | Set arbitrary title-block cell | No public `SetCellValue` in `ITitleBlockInstance` | `API_LIMITATION` | Use tested source-field binding or preconfigured user template |
 | Read existing computed model linear dimensions | Native LinearDimension parameters `DimensionValueType=1` and `DimensionValue` | `NOT_VERIFIED` | Display value can be rounded/localized; distinct from a geometric binding getter |
@@ -234,13 +271,14 @@ Primary references: [IDrawing](https://help.rengabim.com/api/interface_i_drawing
 | Create native room tags through public model factory | Tag absent from supported constructor table; no dedicated public `ITag` binding interface found | `API_LIMITATION` | Existing tags and template routes need separate semantic binding/readback proof; text imitation is not accepted |
 | Create/list schedule/table/filter entities | Project collections + generic factory | `NOT_VERIFIED` | Empty entity existence does not prove a functional schedule definition |
 | Configure native schedule/table rows, columns, formula/filter | No public `ISchedule/ITable` definition/data interface found; tested schedule did not expose invented FilterId | `API_LIMITATION` | Narrow API 2.50 interface limitation; template route still needs proof |
-| Embed configured existing schedule | EmbeddedSchedule; after creation Apply, assign ScheduleId in a new operation and fit content | `NOT_VERIFIED` | Fresh lifecycle discovery; saved reference/content/PDF QA still required; definition editing is separate |
+| Embed a configured existing schedule | EmbeddedSchedule; after creation Apply, assign ScheduleId and fit content | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP saved reference/identity/HasContent; native schedule row/filter semantics not inspected |
 | Embed configured existing table/legend | EmbeddedTable/Legend; rect/content placement interface | `SUPPORTED_NOT_IMPLEMENTED` | Must verify source ID/content; no promise of editing its definition |
 | Independent room/apartment report | Read native quantities and group by explicit property mapping | `NOT_VERIFIED` | A computed JSON/CSV report is not a native schedule |
-| Open native 3D/level/drawing view by entity | `IApplication.OpenViewByEntity` | `SUPPORTED_NOT_IMPLEMENTED` | Official API operation, no UI emulation needed |
+| Open a native level view for tested beam construction | IApplication.OpenViewByEntity on the owned session | `IMPLEMENTED_AND_TESTED` | R-ELEMENTS native level activation before Beam factory; no GUI input |
+| General native 3D/drawing view opening | IApplication.OpenViewByEntity for the corresponding entity | `NOT_VERIFIED` | Renderer probes/other view kinds are separate |
 | View visibility/visual style/active level | `IModelView` methods/properties | `SUPPORTED_NOT_IMPLEMENTED` | Distinguish building view, level view and drawing model |
 | Native camera position/projection | `IView3DParams.Camera`, `LookAt`, `Projection` | `SUPPORTED_NOT_IMPLEMENTED` | No dependence on mouse-based orbit |
-| Native view rendering to image | View additional `IScreenshotService` → `MakeScreenshot` → `IImage` | `SUPPORTED_NOT_IMPLEMENTED` | Real dimensions/file/content test; no invented Application.ScreenshotService |
+| Native level-view rendering to PNG | Official visible owned view; typed interface probe plus documented name-based dispatch fallback | `IMPLEMENTED_AND_TESTED` | Final R-CORE/R-MCP native PNG 1024×768; no mouse/keyboard/Computer Use; arbitrary view/render states not blanket covered |
 | Selection | `ISelection` for supported active view types | `SUPPORTED_NOT_IMPLEMENTED` | Selection is not a general built-in modelling-command executor |
 | Complete automated regulated drawing package | Requires tested native dimensions, bindings, schedule definitions and title-block fields | `NOT_VERIFIED` | No claim of fully autonomous architectural documentation |
 
@@ -253,19 +291,21 @@ LinearDimension or fabricate parameter values for completeness.
 
 | Operation | Public API route | Current status | Acceptance boundary |
 |---|---|---|---|
-| Whole-project IFC export | `CreateIfcExportSettings`, `ExportToIfc2` | `NOT_VERIFIED` | H-COM wrote IFC4; fresh semantic parser validation needed |
+| Whole-project IFC4 export | CreateIfcExportSettings/ExportToIfc2 to a new protected output | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP native output, nonempty file and STEP header; semantic IFC validation not covered |
 | Selected-object IFC export | `ExportObjectsToIFC` | `SUPPORTED_NOT_IMPLEMENTED` | Check selected set and IFC class/geometry contents |
 | IFC mappings/export settings | `IIfcExportSettings` type/parameter/layer files and flags | `SUPPORTED_NOT_IMPLEMENTED` | Mappings are user-supplied or separately licensed; test each flag |
 | IFC schema versions | Native `IfcVersion` enumeration | `VERSION_DEPENDENT` | Match actual supported schema/version, do not infer from newest IFC specification |
 | Import IFC as a new native project | `IApplication.ImportIfcProject` | `SUPPORTED_NOT_IMPLEMENTED` | Verify actual resulting native categories/editability |
 | Link/reference IFC in current project | Applicable factory FilePath and IFC-link collections | `VERSION_DEPENDENT` | Not equivalent to native IFC project import |
-| Single-sheet PDF | `IDrawing.ExportToPdf` | `NOT_VERIFIED` | Actual PDF page dimensions/content required |
-| Multi-sheet single PDF | `IProject.ExportDrawingsToPdfS` | `NOT_VERIFIED` | Select explicit intended drawing UUIDs; tested template contains an extra blank sheet; final PDF QA required |
+| Single-sheet IDrawing PDF exporter | IDrawing.ExportToPdf | `SUPPORTED_NOT_IMPLEMENTED` | Tested batch exporter is a different method |
+| Selected multi-sheet single PDF | IProject.ExportDrawingsToPdfS with explicit intended UUIDs | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP two selected A3 landscape pages; blank template sheet excluded. Sheet numbering/order matching the test titles was not asserted |
+| Tested PDF layout/presentation QA | Independent page rendering and visual inspection | `IMPLEMENTED_AND_TESTED` | R-VISUAL fresh MCP two-page review: readable titles, plans and schedule, no title/view/schedule overlap; native schedule 37.44 m²; native license watermark retained. General architectural presentation remains separate |
 | DWG/DXF drawing export | `IDrawing.ExportToDwg2/ExportToDxf2`, export settings | `SUPPORTED_NOT_IMPLEMENTED` | Format/version dependent; valid native drawing input |
 | OpenXPS export | Drawing/project methods | `SUPPORTED_NOT_IMPLEMENTED` | Actual page/content verification |
 | Project data CSV | `IProject.ExportToCsv` produces multiple files in an output folder | `SUPPORTED_NOT_IMPLEMENTED` | Not an accessor for schedule cell contents |
-| Image save/load and rendered images | `IImage.LoadFromFile/SaveToFile/SaveToData` | `SUPPORTED_NOT_IMPLEMENTED` | Resource/format and output-path checks |
-| Model geometry JSON | Bridge converts meshes/grids to explicit object geometry | `NOT_VERIFIED` | Index bounds, finite vertices, units and UUID association |
+| Save native rendered PNG to a file | `IImage.SaveToFile` after official screenshot-service rendering | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP actual PNG signature/dimensions, 1024×768; R-VISUAL inspection; other image formats separate |
+| Load images or save encoded image data | `IImage.LoadFromFile/SaveToData` | `SUPPORTED_NOT_IMPLEMENTED` | Native screenshot file saving does not cover loading or encoded-data methods |
+| Model geometry JSON | Bridge converts native meshes/grids to object-associated coordinates/triangles | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP/R-ELEMENTS native geometry and index/unit checks; large models and all material data separate |
 | Arbitrary format unsupported by public exporter | No universal export-any-format method | `API_LIMITATION` | A new converter must be explicit; do not disguise geometry conversion as native export |
 
 PDF export is an **implementation opportunity**, not a reason to automate a
@@ -277,19 +317,20 @@ print dialog. Official methods are described in
 
 | Operation | Method / honest boundary | Current status |
 |---|---|---|
-| Saved UUID/object-count preservation | Direct native UUIDs before/save/reopen, resolve numeric IDs again | `NOT_VERIFIED` |
-| Saved requested parameter/baseline preservation | Independent expected values + saved native readback | `NOT_VERIFIED` |
-| Room/floor area against independent target | Explicit source polygon/dimensions and native bottom triangles | `NOT_VERIFIED` |
+| Saved UUID/object-count preservation | Direct native UUIDs before/save/reopen and fresh numeric-ID resolution | `IMPLEMENTED_AND_TESTED` — R-CORE/R-MCP/R-ELEMENTS building/drawing inventories |
+| Saved requested parameter/baseline preservation | Requested fixture values versus saved native readback | `IMPLEMENTED_AND_TESTED` — R-CORE/R-MCP/R-ELEMENTS; specific parameter/curve families only |
+| Room/slab area against independent target | Explicit rectangle/cut dimensions and actual native bottom triangles | `IMPLEMENTED_AND_TESTED` — 24 and 40 m² slabs, 37.44 m² clear room, 31.25 m² cut slab |
 | Room height, support and roof clipping | Levels + support meshes + net/gross quantities/room mesh | `SUPPORTED_NOT_IMPLEMENTED` |
-| Exact locations / bounding boxes / permitted placement | Baseline/global mesh bounds and explicit region tests | `NOT_VERIFIED` |
+| Tested native origins/baselines and mesh bounds | Explicit requested pose/baseline and actual vertex bounds | `IMPLEMENTED_AND_TESTED` — R-CORE/R-MCP/R-ELEMENTS; counter-directed opening side remains unverified |
+| General room containment/permitted-placement analysis | Polygon/solid containment and category rules | `SUPPORTED_NOT_IMPLEMENTED` — saved pose checks alone do not prove containment |
 | Broad collision candidates | AABB overlap with stated limitations | `NOT_VERIFIED` |
 | Detailed clearance/contact/clash checks | Category-aware triangle/face analysis | `SUPPORTED_NOT_IMPLEMENTED` |
 | Stair clearances/treads and roof-wall contact | Specialized source/geometry validation | `SUPPORTED_NOT_IMPLEMENTED` |
 | Native schedule/tag semantic linkage | Exposed data insufficient for a general verifier | `NOT_VERIFIED` |
-| PDF page count/dimensions/text/content | Parse actual native export with independent PDF library; visual rendering when needed | `NOT_VERIFIED` |
+| PDF selected page count/dimensions/title text | Independent parser on native PDF export | `IMPLEMENTED_AND_TESTED` — R-CORE/R-MCP; R-VISUAL also has scoped clipping/overlap review |
 | IFC semantic validation | Parse actual export, validate objects/schema/placements/geometry | `NOT_VERIFIED` |
-| Rectangle/building plan generation | Deterministic geometry algorithm returns a reviewable operation plan | `NOT_VERIFIED` |
-| Facade window/pier spacing | Deterministic dimensions/host plan with feasibility checks | `NOT_VERIFIED` |
+| Rectangle plan generation | Deterministic generic operation plan, executed through real MCP | `IMPLEMENTED_AND_TESTED` — R-MCP 8000×5000 mm fixture; not an arbitrary building-design generator |
+| Facade window/pier spacing calculation | Deterministic dimensions/feasibility result in millimeters | `IMPLEMENTED_AND_TESTED` — R-MCP calculation; not automatic full facade modelling |
 | Floor/apartment grouping | Explicit custom-property/room UUID grouping, no inference from names alone | `SUPPORTED_NOT_IMPLEMENTED` |
 | Arbitrary code compliance/architectural design guarantee | No such general API guarantee or implemented rule engine | `NOT_VERIFIED` |
 
@@ -310,6 +351,8 @@ convenient. [Official general principles](https://help.rengabim.com/api/overview
 | Invoke arbitrary built-in commands via custom action | `NOT_VERIFIED` | `IAction.Trigger` triggers its associated extension action; not a general native-command dispatcher |
 | STDL parametric categories | `SUPPORTED_NOT_IMPLEMENTED` | Applicable category/style template workflow; not a replacement for absent annotation bindings |
 | Newer/older Renga, Standard edition, other API/runtime versions | `VERSION_DEPENDENT` | Must run discovery and disposable integration fixtures on each declared configuration |
+| Isolated Codex backend discovery/reload | `IMPLEMENTED_AND_TESTED` | R-CODEX isolated app-server lists all 20 tools and acknowledges reload; no native/model turn in this probe |
+| Existing Codex Desktop backend/current chat | `NOT_VERIFIED` | Control-socket proxy unavailable; registration/isolated discovery are narrower evidence |
 | Vendor SDK/component redistribution | `VERSION_DEPENDENT` | Requires vendor terms; this repository distributes no SDK TLB/DLL/installers |
 
 References: [API/SDK overview](https://help.rengabim.com/api/overview-api-sdk-plugin.html),

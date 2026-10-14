@@ -5,6 +5,23 @@ from .planning import polygon_area
 from .orientation import validate_creation_axes
 
 MODEL_ACTIONS={'create','set_parameter','baseline','baseline3d','property','delete','move','room_region','roof_slopes'}
+
+def execution_batches(operations):
+    """Apply newly created hosts before dependent creation; save only at the end.
+
+    Renga cannot create a dependent Door/Window/Opening on an uncommitted host.
+    Roof topology and calculated room regions also require committed geometry.
+    Earlier applied batches remain unsaved and are discarded if the plan fails.
+    """
+    batches=[];batch=[];pending=set()
+    for item in operations:
+        dependencies=[item.get(key) for key in ('host','level')] if item['action']=='create' else [item.get('id')] if item['action'] in {'roof_slopes','room_region','move','baseline3d'} else []
+        if batch and (item['action']=='create' and item.get('kind')=='Beam' or any(isinstance(value,str) and value in pending for value in dependencies)):
+            batches.append(batch);batch=[];pending=set()
+        batch.append(item)
+        if item['action']=='create' and item.get('ref'):pending.add(item['ref'])
+    if batch:batches.append(batch)
+    return batches
 def finite_vector(value,length):
     if not isinstance(value,(list,tuple)) or len(value)!=length or any(isinstance(v,bool) or not isinstance(v,(int,float)) or not math.isfinite(v) for v in value):
         raise ValueError(f'Expected {length} finite coordinates')

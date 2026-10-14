@@ -36,7 +36,7 @@ def run():
     def choose(collection,needle=None):
         entries=catalog[collection]['entries']
         if needle:
-            match=next((v for v in entries if needle.replace('А','A') in v['name'].replace('А','A')),None)
+            match=next((v for v in entries if needle.replace('А','A')==v['name'].replace('А','A')),None)
             if match:return match['id']
             raise RuntimeError('Required catalog name not found: '+collection+' / '+needle)
         if not entries:raise RuntimeError('Native catalog is empty: '+collection)

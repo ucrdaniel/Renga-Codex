@@ -19,7 +19,7 @@ uses the following components:
 |---|---|---|
 | [Python](https://www.python.org/) | Runtime, separately installed | PSF license |
 | [comtypes](https://github.com/enthought/comtypes) | Typed COM interop | MIT |
-| [pywin32](https://github.com/mhammond/pywin32) | Windows process/COM diagnostics | Python Software Foundation style license in upstream source |
+| [pywin32](https://github.com/mhammond/pywin32) | Windows process/COM diagnostics | Mixed component licenses; see the inventory below |
 | [MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk) | Local stdio MCP transport | MIT |
 | [pytest](https://github.com/pytest-dev/pytest) | Test-only dependency | MIT |
 | [pypdf](https://github.com/py-pdf/pypdf) | Test-only PDF verification | BSD-3-Clause |
@@ -31,6 +31,17 @@ Transitive dependency versions and licenses need review when dependency locks
 change. This table is an inventory of direct dependencies, not a sublicense of
 their code. Full upstream research and commit identifiers are recorded in
 `docs/REPOSITORY_RESEARCH.md`.
+
+The pinned pywin32 312 wheel labels its package metadata `PSF`, but includes
+separate component licenses. The [win32 core](https://github.com/mhammond/pywin32/blob/b312/win32/License.txt)
+and COM core carry BSD-style redistribution notices;
+[adodbapi](https://github.com/mhammond/pywin32/blob/b312/adodbapi/license.txt)
+includes GNU LGPL 2.1; [Scintilla](https://github.com/mhammond/pywin32/blob/b312/pythonwin/Scintilla/License.txt)
+has its own permissive license; MAPIStubLibrary includes an MIT notice, and the
+bundled IDLE files carry Python notices. Do not treat the package metadata as a
+single license for every component. This bridge's source wheel/sdist do not
+bundle pywin32 or these components; an environment redistributor must review and
+preserve their upstream notices and obligations separately.
 
 ## Renga and SDK
 

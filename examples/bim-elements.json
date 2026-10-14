@@ -28,6 +28,8 @@
     "kind": "Window",
     "host": "host_wall",
     "origin": [4500, 0, 900],
+    "x_axis": [1, 0, 0],
+    "z_axis": [0, 0, 1],
     "parameters": {"WindowStyleId": 0, "WindowWidth": 1400, "WindowHeight": 1500}
   },
   {

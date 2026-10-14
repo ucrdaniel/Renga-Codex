@@ -15,7 +15,7 @@ from renga_codex_bridge.audit import event,save_plan
 
 def run():
     folder=settings().write_root/('elements-'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ'));folder.mkdir(parents=True)
-    report={'schema_version':1,'checks':[],'limitations':[],'computer_use_calls':0}
+    report={'schema_version':1,'checks':[],'limitations':[{'feature':'counter_directed_aperture_axis','status':'NOT_VERIFIED','reason_code':'native_frame_normalized_counter_axis_request_rejected_before_save'}],'computer_use_calls':0}
     def passed(name,**details):
         report['checks'].append({'check':name,'status':'passed',**details});print('PASS ELEMENT',name,flush=True)
     def request(command,**arguments):
@@ -25,8 +25,20 @@ def run():
     try:
         project=folder/'elements.rnp'
         plan=json.loads((ROOT/'examples/bim-elements.json').read_text(encoding='utf8'))
-        result=request('apply',project=str(project),operations=plan,new=True)
-        assert result['status']=='saved_reopened_verified';refs=result['persistent_refs']
+        initial=request('apply',project=str(project),operations=[plan[0]],new=True)
+        new_level=initial['persistent_refs']['test_level']
+        styles=request('catalogs',project=str(project))
+        base_level=next(o['uuid'] for o in initial['objects'] if o['type']=='Level' and o['uuid']!=new_level)
+        for item in plan[1:]:
+            if item.get('level')=='test_level':item['level']=new_level
+            if item.get('kind')=='Beam':item['level']=base_level
+            if item.get('kind') in {'Beam','Column'}:
+                collection=styles[item['kind']+'Styles']['entries']
+                if not collection:raise RuntimeError('Required existing native structural style missing')
+                chosen=next(v for v in collection if v['name'].startswith('Прямоугольная'))
+                item.setdefault('parameters',{})[item['kind']+'StyleId']=chosen['id']
+        result=request('apply',project=str(project),operations=plan[1:])
+        assert result['status']=='saved_reopened_verified';refs={**initial['persistent_refs'],**result['persistent_refs']}
         passed('column_beam_stair_roof_opening_create_native_roundtrip',created=len(refs))
         with Session(project) as s:
             opening=object_by_id(s,refs['slab_opening']).QueryInterface(s.r.IOpeningParams)

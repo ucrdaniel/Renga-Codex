@@ -45,7 +45,7 @@ def create_plans(project,drawings):
             dm=drawing.QueryInterface(s.r.IModel)
             with s.operation(dm):
                 args=dm.CreateNewEntityArgs();args.TypeIdS=s.sdk.types['EmbeddedModelView']
-                origin=specification.get('origin_mm',[45,220])
+                origin=specification.get('origin_mm',[45,180])
                 args.Placement2D=s.r.Placement2D(s.r.Point2D(*origin),s.r.Vector2D(1,0))
                 view=dm.CreateObject(args)
             with s.operation(dm):
@@ -116,9 +116,17 @@ def export_ifc(s,output):
 def render(s,output,entity_id=None,width=1024,height=768):
     output=checked_path(output,write=True,new=True)
     if output.suffix.lower()!='.png' or not 64<=width<=4096 or not 64<=height<=4096:raise ValueError('PNG and64..4096 pixel dimensions required')
+    s.app.Visible=True
     view=s.app.OpenViewByEntity(entity_id) if entity_id is not None else s.app.ActiveView
-    service=view.QueryInterface(s.r.IScreenshotService);settings=service.CreateSettings();settings.Width=width;settings.Height=height
-    native=service.MakeScreenshot(settings);output.parent.mkdir(parents=True,exist_ok=True);native.SaveToFile(str(output),s.r.ImageFormat_Png)
+    try:
+        service=view.QueryInterface(s.r.IScreenshotService);route='typed'
+    except Exception as exc:
+        if getattr(exc,'hresult',None)!=-2147467262:raise
+        # Documented IDispatch route avoids missing custom-IID proxy registration.
+        from comtypes.client.dynamic import Dispatch
+        service=Dispatch(view.QueryInterface(s.r.IModelView).GetInterfaceByName('IScreenshotService'));route='named_dispatch'
+    settings=service.CreateSettings();settings.Width=width;settings.Height=height
+    native=service.MakeScreenshot(settings);output.parent.mkdir(parents=True,exist_ok=True);native.SaveToFile(str(output),s.r.ImageFormat_PNG)
     if not output.is_file() or not output.read_bytes().startswith(b'\x89PNG\r\n\x1a\n'):raise RuntimeError('Native renderer output invalid')
     event('native_view_render_verified',output=str(output),sha256=fingerprint(output),computer_use_calls=0)
-    return {'output':str(output),'width':width,'height':height,'computer_use_calls':0}
+    return {'output':str(output),'width':width,'height':height,'route':route,'computer_use_calls':0}

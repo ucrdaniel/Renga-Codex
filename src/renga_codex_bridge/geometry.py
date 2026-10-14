@@ -51,5 +51,5 @@ def verify(s,expected_areas=None,collision_types=None):
             aa,bb=bounds[a['uuid']],bounds[b['uuid']]
             overlap=[min(aa['max'][i],bb['max'][i])-max(aa['min'][i],bb['min'][i]) for i in range(3)]
             if all(v>0.01 for v in overlap):pairs.append({'a':a['uuid'],'b':b['uuid'],'overlap_mm':overlap,'status':'conservative_aabb_candidate'})
-    return {'status':'passed' if all(v['passed'] for v in checks) else 'failed','checks':checks,'bounds':bounds,
+    return {'status':('passed' if all(v['passed'] for v in checks) else 'failed') if checks else 'not_verified','checks':checks,'bounds':bounds,
             'collision_candidates':pairs,'collision_method':'conservative AABB, not exact clash or code-compliance check','computer_use_calls':0}

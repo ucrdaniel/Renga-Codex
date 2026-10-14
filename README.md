@@ -5,8 +5,11 @@ interprets the task; this package provides typed COM operations, geometry,
 native documentation and saved-result verification. No AI API key, second
 agent service or design chat application is required.
 
-**Development version0.1.0.** Current-product live evidence is being collected;
-method discovery and the historical homework are not release verification.
+**0.1.0 preview — verified subset for Renga Professional 9.3.32980.0.**
+Real local CLI and MCP scenarios create and edit native BIM objects, then save,
+close, reopen and check the requested values. See the scoped
+[native evidence](tests/evidence/windows-renga-9.3.json) and
+[testing instructions](docs/TESTING.md); hosted CI does not run Renga.
 Computer Use and mouse/keyboard emulation are prohibited for advertised API
 coverage. Renga and its SDK must be installed/licensed separately. No vendor
 binaries, SDK-generated wrappers, private models or credentials are shipped.
@@ -39,6 +42,12 @@ Core modules: session/safety/audit, SDK loading, BIM operations, geometry,
 catalogs, native drawings/exports, verification, deterministic plan helpers.
 API coordinates are millimeters; area m² and volume m³ are labelled explicitly.
 
+The 20 MCP tools cover status and capabilities; inspection and catalogs;
+validated plans and disposable-copy previews; geometry and area verification;
+project copy, SaveAs and metadata; native drawing content, PDF, IFC and view
+rendering; rectangle plans and facade spacing. The complete names and verified
+boundaries are in [CAPABILITIES.md](docs/CAPABILITIES.md).
+
 ```powershell
 .\.venv\Scripts\renga-bridge.exe doctor
 .\.venv\Scripts\renga-bridge.exe inspect --project 'C:\your\test-root\sample.rnp'
@@ -47,9 +56,20 @@ python -m pytest -m 'not integration' -q
 ```
 
 Autonomous writes are confined to `RENGA_BRIDGE_WRITE_ROOT`. Existing-file
-edits receive verified backups and native undo transactions. There is no MCP
+edits receive verified backups and native undo transactions. Dependent hosts
+and some calculated geometry need several applied batches before the final
+save; failed plans discard unsaved changes, rather than promising a single
+in-memory undo for every category. There is no MCP
 blanket authorization bypass. Copy saved user files into the dedicated working
 directory before editing; never run vendor sample scripts against user files.
+
+Codex translates a task into an explicit millimeter-based JSON plan, inspects
+existing IDs/styles, validates the plan, optionally previews it on a copy,
+applies it and reads the reopened result. See
+[operation plans](docs/OPERATION_PLANS.md). Reconnect the MCP server or start a
+new Codex session after installation: a fresh Codex protocol backend discovered
+all 20 tools, while discovery in the already-open Desktop chat is a separate
+unverified scope.
 
 ## Русский
 

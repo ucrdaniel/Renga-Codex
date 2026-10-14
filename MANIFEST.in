@@ -1,0 +1,13 @@
+include LICENSE NOTICE.md README.md AGENTS.md CONTRIBUTING.md SECURITY.md
+recursive-include docs *.md
+recursive-include examples *.json
+recursive-include requirements *.lock
+recursive-include scripts *.py *.ps1
+recursive-include tests *.py *.json
+include .github/workflows/ci.yml
+global-exclude *.pyc *.pyo *.tlb *.dll *.exe *.rnp *.ifc *.key *.lic
+prune runtime
+prune .venv
+prune artifacts
+prune vendor
+prune RengaSDK

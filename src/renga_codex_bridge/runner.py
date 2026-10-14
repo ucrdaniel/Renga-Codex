@@ -11,7 +11,7 @@ def run_worker(command,arguments,*,timeout=None):
     lease=create_ownership_lease()
     process=subprocess.Popen([sys.executable,'-m','renga_codex_bridge.worker'],
         stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,
-        text=True,encoding='utf8',env={**os.environ,**lease.environment()})
+        text=True,encoding='utf8',env={**os.environ,**lease.environment(),'PYTHONUTF8':'1','PYTHONIOENCODING':'utf-8'})
     try:identity=lease.observe_worker(process.pid)
     except BaseException:
         process.kill();process.wait(timeout=5);raise

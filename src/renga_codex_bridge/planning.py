@@ -21,6 +21,8 @@ def rectangle_plan(width=6000,depth=4000,height=3000,thickness=200):
     actions=[{'action':'create','ref':f'wall{i}','kind':'Wall','points':[a,b],
               'parameters':{'WallHeight':height,'WallThickness':thickness}}
              for i,(a,b) in enumerate(zip(corners,corners[1:]+corners[:1]))]
-    actions.extend([{'action':'create','ref':'room','kind':'Room','points':corners,'closed':True},
+    inner=[[thickness/2,thickness/2],[width-thickness/2,thickness/2],
+           [width-thickness/2,depth-thickness/2],[thickness/2,depth-thickness/2]]
+    actions.extend([{'action':'create','ref':'room','kind':'Room','points':inner,'closed':True,'parameters':{'RoomHeight':height}},
                     {'action':'create','ref':'floor','kind':'Floor','points':corners,'closed':True,'parameters':{'FloorThickness':200}}])
     return actions

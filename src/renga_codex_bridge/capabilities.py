@@ -10,4 +10,4 @@ def capabilities():
                 'move_door_window_room_level':'API_LIMITATION: general SetPlacement is not supported; use explicit recreation/baselines/offsets',
                 'new_schedule_definitions_and_filters':'API_LIMITATION for direct schedule/filter setters; NOT_VERIFIED template route. Existing schedule embedding is separate',
                 'exact_clashes_and_regulations':'NOT_VERIFIED: AABB candidates and area checks are not regulatory certification'},
-            'note':'Consult the capability matrix and actual evidence; discovery or old homework tests are not current-product verification.'}
+            'note':'Release 0.1 preview: coverage is limited to the fresh native scenarios in the evidence file. Refer to the capability matrix for per-operation scope; other versions and every possible style are not certified.'}

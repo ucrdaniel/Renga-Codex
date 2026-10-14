@@ -52,6 +52,24 @@ The existing `baseline3d` action already uses an explicit identity
 `Placement3D`, so its two points have a different declared coordinate space;
 they are global millimeter points, not the local `points` convention above.
 
+## Manual room contours and net floor area
+
+A manual Room contour should describe the intended clear space at the wall's
+inner faces. The current `rectangle_plan` helper therefore offsets its room
+polygon inward by half the wall thickness from the wall center lines. For
+center-line width `w`, depth `d` and uniform thickness `t`, its independent clear
+area target is `(w-t)*(d-t)/1_000_000` square meters. This rectangular calculation
+does not resolve arbitrary wall joins or irregular intersections.
+
+Read the native Room `NetFloorArea` quantity separately. Native tests observed
+that it excludes wall intersections even when a manually supplied contour runs
+through wall zones, while the raw manual Room mesh can still include those
+zones. Therefore agreement between a net quantity and a target does not prove
+that the stored manual contour or its raw mesh describes the intended clear
+space. Compare all three: the explicit contour, native quantity and independently
+checked geometry. A manually created Room remains `Automatic=False`; assigning
+a clear-space contour does not make it follow later wall edits automatically.
+
 Сокращённо: оси создания задаются явно, масштабированные векторы отвергаются.
 Сторона двери/окна зависит от направления реальной стены; направление открывания
 задаётся отдельно. Точки `SetBaseline` локальны для объекта. После сохранения

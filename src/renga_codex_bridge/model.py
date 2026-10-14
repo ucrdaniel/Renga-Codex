@@ -82,6 +82,8 @@ def create(s,kind,*,points=None,closed=False,origin=(0,0,0),host=None,level=None
         raise NotImplementedError('No verified public constructor/feature binding for '+kind+'; inspect capabilities')
     if kind=='Level' and any(origin):raise NotImplementedError('Nonzero Level origin is ignored by the verified API')
     values=dict(parameters or {})
+    if kind in {'Beam','Element'} and (isinstance(values.get(kind+'StyleId'),bool) or not isinstance(values.get(kind+'StyleId'),int) or values[kind+'StyleId']<=0):
+        raise ValueError(kind+' requires an inspected existing '+kind+'StyleId')
     axes=validate_creation_axes(x_axis,z_axis,kind=kind)
     args=s.model.CreateNewEntityArgs();args.TypeIdS=s.sdk.types[kind]
     args.Placement3D=s.r.Placement3D(s.r.Point3D(*origin),s.r.Vector3D(*axes['x_axis']),s.r.Vector3D(*axes['z_axis']))
@@ -98,7 +100,7 @@ def create(s,kind,*,points=None,closed=False,origin=(0,0,0),host=None,level=None
         a=curve.GetBeginPoint();b=curve.GetEndPoint()
         validate_wall_host_orientation(axes['x_axis'],axes['z_axis'],[b.X-a.X,b.Y-a.Y,0])
     obj=s.model.CreateObject(args)
-    if not obj:raise RuntimeError('Native CreateObject failed: '+kind)
+    if not obj:raise RuntimeError('Native CreateObject failed: '+kind+'; LastError='+str(s.app.LastError))
     if points is not None:baseline(s,obj,points,closed)
     if host is not None and kind in {'Door','Window','Opening'}:set_parameter(s,obj,'Offset',origin[2])
     for name,value in values.items():set_parameter(s,obj,name,value)

@@ -12,6 +12,15 @@ def test_rectangle_area_converts_square_millimeters_to_square_meters():
     assert polygon_area([[0, 0], [6000, 0], [6000, 4000], [0, 4000]]) == pytest.approx(24.0)
 
 
+def test_room_clear_area_excludes_the_half_wall_width_at_each_boundary():
+    plan=rectangle_plan(width=6000,depth=4000,height=2800,thickness=200)
+    room=next(item for item in plan if item.get('ref')=='room')
+    floor=next(item for item in plan if item.get('ref')=='floor')
+    assert polygon_area(room['points'])==pytest.approx(5.8*3.8)
+    assert polygon_area(floor['points'])==pytest.approx(6*4)
+    assert room['parameters']['RoomHeight']==2800
+
+
 def test_concave_area_and_orientation_are_handled():
     outline = [[0, 0], [4000, 0], [4000, 1000], [1000, 1000], [1000, 4000], [0, 4000]]
     # Two 4x1 rectangles, with their shared 1x1 corner counted once.

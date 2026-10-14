@@ -90,7 +90,7 @@ Current implementation/testing status is maintained in
 | Historical difficulty | Technical cause and evidence | Programmatic resolution or next test | Classification |
 |---|---|---|---|
 | Dynamic Python calls rejected typed records | Dynamic dispatch produced COM type/marshalling errors; typed `comtypes` records worked | Load the local TLB and construct the declared record/interface. C# interop is another supported route; a Python marshalling failure is not proof that an API method is absent | `SUPPORTED_NOT_IMPLEMENTED` for any unported typed operation |
-| Nonzero levels silently remained at zero | `ILevel.Elevation` and `Placement` are getters; `IPlacement3D.Origin` is also a getter. The old creation path did not persist the requested elevation | Reject the old unsupported path; use a user-provided template with known levels. A disposable test of `level.Placement.Move(...)`, transaction/save/reopen and direct elevation readback remains necessary before ruling out that nested-method route | `API_LIMITATION` for direct elevation/origin setters; nested move `NOT_VERIFIED` |
+| Nonzero levels silently remained at zero | `ILevel.Elevation` and `Placement` are getters; `IPlacement3D.Origin` is also a getter. The old creation path did not persist the requested elevation | Reject the unsupported path and use a user-provided template with known levels. The new R-ELEMENTS copied-model probe also applied `level.Placement.Move(...+3000 mm)`, saved/reopened and read elevation/origin Z=0 | `API_LIMITATION` for direct setters and the tested detached-placement route in 9.3; other versions require their own probe |
 | Door/window relocation did not persist after `SetPlacement` | `ILevelObject.SetPlacement` explicitly excludes Door, Window, Opening and Room, and objects with dependents. A call returning is insufficient | Use category-specific writable placement parameters where available; otherwise recreate the native hosted object with complete style, host, offset and properties, then verify dependent identities and geometry | `API_LIMITATION` for that generic placement path |
 | Empty window instead of a complete assembly | Style zero represented an aperture in the tested template | Inspect styles and choose a valid existing style; assign `INewEntityArgs.StyleId` before creation and verify the saved style and meshes | `SUPPORTED_NOT_IMPLEMENTED` for a new styled-opening adapter until its fresh test passes |
 | Imported element style can silently contain default geometry | The SDK documents a non-null ElementStyle factory result with default model when the supplied 3D file is unsupported or fails loading | Verify actual imported content/meshes against the intended file; never treat non-null style creation as successful import | `VERSION_DEPENDENT` for formats; content verification is an implementation requirement |
@@ -129,15 +129,25 @@ and [project](https://help.rengabim.com/api/interface_i_project.html).
 
 The following were discovered in the new bridge's disposable native tests on
 Renga Professional 9.3.32980.0. They are current implementation findings, not
-additional H-ARCH successes. At the time of this update the full documentation
-and PDF visual QA scenario is still in progress; these findings do **not** claim
-that the complete test suite or final PDF has passed.
+additional H-ARCH successes. The frozen-source native reruns passed **53
+scenario assertions: 22 core, 21 MCP, 7 elements and 3 owned-process failure
+checks**, including real native PNG rendering and saved-state verification.
+Both fresh MCP PDF pages and its native PNG were visually inspected. The two
+synthetic sheets use the same base level; their plan/title/schedule separation
+was verified, while sheet numbering/order matching the test titles was not
+asserted. The native license watermark remains present. These individual
+successes do **not** imply a complete autonomous architectural drawing package.
+Current counts and operation-level evidence are maintained in
+[CAPABILITIES.md](CAPABILITIES.md).
 
 | Native observation | Correct implementation sequence | Required saved-output check |
 |---|---|---|
 | A newly created EmbeddedSchedule exposes `ScheduleId` as read-only until its creation operation is applied | Create the native object, apply that operation, then start a separate operation to assign the actual existing schedule through `ScheduleId`. `RepresentedEntityId` is not its schedule-reference parameter | After save/reopen, read `ScheduleId`, persistent identity and native content; do not claim schedule definition/filter editing |
 | Fitting an embedded view before its source/scale changes are applied produced a tiny dot or cropped PDF content despite `HasContent=True` | Create/apply the view; assign `RepresentedEntityId`, `ScaleId` and section parameters; apply; only then call `FitBoundsToContent` in another operation and apply it | Read persisted source/scale/bounds, export the selected drawings and inspect actual page content. `HasContent` proves content exists, not that the clip rectangle displays it correctly |
 | The tested project template retained an existing blank native drawing when two new test sheets were added | Preserve unrelated template drawings. Export the explicit two newly created drawing UUIDs, rather than exporting every entry in `Drawings2` | Read saved drawing identities and selected export set, then independently check exact PDF page count, both A3 dimensions and content |
+| New Beam/Stair parameters were not all writable in their initial creation state | Select the existing style before creation, create/apply, then assign supported parameters in a separate operation. The beam fixture also activates its target native level view through the official API | R-ELEMENTS verifies saved parameter/3D-baseline edits and actual native meshes; this does not prove arbitrary profile/style creation or every stair clearance |
+| Typed screenshot-service QI returned E_NOINTERFACE, although the native service worked through documented name-based dispatch | Make the owned application visible through its official API and obtain IScreenshotService through GetInterfaceByName/IDispatch when the typed probe fails; use native MakeScreenshot/IImage saving | Final R-CORE saved a real 1024×768 PNG without Computer Use; other view kinds/visibility states remain separate tests |
+| Nested level-placement Move did not update the saved level | Inspect both ILevel.Elevation and Placement.Origin.Z after transaction, save, close and reopen on a disposable copy | R-ELEMENTS retained both at 0 after a +3000 mm request; do not advertise this detached math-object mutation as a level edit |
 
 These observations distinguish temporarily read-only creation state from a
 permanent API restriction. A supported parameter can become writable only after
@@ -151,6 +161,11 @@ for presentation verification. A nonempty native view and a successful PDF
 export return code can coexist with unusable clipped output. Conversely, an
 extra blank template sheet is a selection issue rather than evidence that the
 multi-sheet export API failed.
+
+The renderer finding is another interop-versus-platform distinction. A failed
+typed interface probe alone did not prove that screenshots were unavailable.
+The successful fallback still used the official Renga API; making an owned view
+visible is not keyboard/mouse emulation and does not establish headless rendering.
 
 ## API-first architecture implications
 

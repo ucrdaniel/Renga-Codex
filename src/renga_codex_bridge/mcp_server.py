@@ -19,7 +19,7 @@ async def run(command,**arguments):
         lease=create_ownership_lease()
         process=await asyncio.create_subprocess_exec(sys.executable,'-m','renga_codex_bridge.worker',
             stdin=asyncio.subprocess.PIPE,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.PIPE,
-            env={**os.environ,**lease.environment()})
+            env={**os.environ,**lease.environment(),'PYTHONUTF8':'1','PYTHONIOENCODING':'utf-8'})
         try:identity=lease.observe_worker(process.pid)
         except BaseException:
             process.kill();await asyncio.wait_for(process.wait(),timeout=5);raise
