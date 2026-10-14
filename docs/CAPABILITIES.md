@@ -51,21 +51,29 @@ drawing package, arbitrary multistorey design or full API coverage.
 | R-MCP | [Real stdio MCP client](../scripts/run_mcp_tests.py) | Final frozen-source rerun: 21 checks passed, all 20 tools discovered, native model edits/export and 1024×768 PNG through MCP. Counts refer to scenario assertions, not one test for every API member |
 | R-ELEMENTS | [Native element test](../scripts/run_element_tests.py) | Final frozen-source rerun: 7 checks passed: columns, beam, stair, roof, slab opening, selected existing Element style, persisted edits, mesh presence and negative level-placement probe |
 | R-TIMEOUT | [Owned-process failure test](../scripts/run_timeout_test.py) | Final frozen-source rerun: 3 checks passed: forced owned-worker failure, positively identified Renga cleanup, unchanged source hash and successful native reopen. It does not certify every solver hang or unsaved-write failure |
-| R-CODEX | [Codex discovery test](../scripts/run_codex_discovery_test.py) | Isolated Codex app-server catalogue contains all 20 tools and acknowledges config reload; no model turn or native call was requested in that discovery probe |
+| R-CODEX | [Codex discovery test](../scripts/run_codex_discovery_test.py) and [current-chat proof](../tests/evidence/windows-renga-9.3.json) | Isolated app-server catalogue: all 20 tools and reload acknowledgement, without a model turn. Current existing Codex chat: 20 available tool names and a real saved wall-edit roundtrip using 5 tool calls. This additional roundtrip is separate from the 53 suite assertions |
 | R-VISUAL | [Sanitized visual-review record](../tests/evidence/windows-renga-9.3.json) | Both fresh MCP PDF pages and the native PNG were inspected; readable synthetic plan/title/schedule, retained license watermark. This review is separate from the 53 native scenario assertions |
 
 The sanitized aggregate is
 [tests/evidence/windows-renga-9.3.json](../tests/evidence/windows-renga-9.3.json).
 It identifies the tested Python source fingerprint and distinguishes the native
-suites, visual review and Codex catalogue probe. Raw models, logs, machine paths
-and native object UUIDs remain private. The statuses were read from the actual
+suites, visual review, Codex catalogue probe and current-chat roundtrip. Raw
+models, logs, machine paths and native object UUIDs remain private. The statuses
+were read from the actual
 local reports, not inferred from a successful script launch or method discovery.
 Historical H-* evidence does not promote a current-product status.
 
-Codex discovery is scoped precisely: the isolated protocol backend was tested;
-the already-running Desktop backend/current chat remains `NOT_VERIFIED` because
-its control-socket proxy was unavailable. No fresh end-to-end natural-language
-model turn is claimed by a catalogue-only probe.
+Codex verification has two separate scopes. The isolated protocol backend
+proved catalogue discovery and configuration reload. After the bridge tools
+became available in the existing chat, Codex called `bridge_status`,
+`bridge_copy_project`, `bridge_inspect`, `bridge_apply_plan` and an independent
+`bridge_inspect`. The protected copy retained the original source; the requested
+`WallHeight` change from **3400 to 3600 mm** survived native save, close and reopen,
+and the final inspection confirmed both **3600 mm** and the same persistent wall
+identity. This is **one additional current-chat roundtrip, five tool calls and
+0 Computer Use calls**. It does not certify every available tool or arbitrary
+natural-language task. The separate Desktop control-socket diagnostic was
+unavailable; that diagnostic no longer determines the actual chat-tool result.
 
 The acceptance target for the advertised coverage is **0 Computer Use calls**.
 An official API call such as opening a view or rendering it through
@@ -352,7 +360,8 @@ convenient. [Official general principles](https://help.rengabim.com/api/overview
 | STDL parametric categories | `SUPPORTED_NOT_IMPLEMENTED` | Applicable category/style template workflow; not a replacement for absent annotation bindings |
 | Newer/older Renga, Standard edition, other API/runtime versions | `VERSION_DEPENDENT` | Must run discovery and disposable integration fixtures on each declared configuration |
 | Isolated Codex backend discovery/reload | `IMPLEMENTED_AND_TESTED` | R-CODEX isolated app-server lists all 20 tools and acknowledges reload; no native/model turn in this probe |
-| Existing Codex Desktop backend/current chat | `NOT_VERIFIED` | Control-socket proxy unavailable; registration/isolated discovery are narrower evidence |
+| Current existing Codex chat tool roundtrip | `IMPLEMENTED_AND_TESTED` | R-CODEX 20 available tool names; status → protected copy → inspection → saved WallHeight 3400→3600 edit → independent inspection, same native UUID; 5 calls, separate from 53 suite assertions |
+| Desktop control-socket diagnostic | `NOT_VERIFIED` | Proxy unavailable during its diagnostic probe; actual current-chat tool execution was independently verified |
 | Vendor SDK/component redistribution | `VERSION_DEPENDENT` | Requires vendor terms; this repository distributes no SDK TLB/DLL/installers |
 
 References: [API/SDK overview](https://help.rengabim.com/api/overview-api-sdk-plugin.html),

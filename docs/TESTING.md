@@ -65,10 +65,15 @@ The installed Renga license may add its own export watermark.
 This starts temporary **real Codex protocol instrumentation**, initializes it
 and reads the configured MCP catalogue. It creates no Codex task or model turn,
 and introduces no AI service or key. Discovery in this fresh backend and a
-configuration-reload acknowledgement are verified. The already-running Desktop
-backend is a distinct scope: its control socket was unavailable during the
-release test. Reconnect or restart Codex to refresh the current chat's tools;
-do not infer frontend discovery from an installer configuration write.
+configuration-reload acknowledgement are verified. Its control-socket diagnostic
+for the running Desktop backend was unavailable, which was recorded separately.
+After the new MCP catalogue appeared in the existing Codex chat, actual tools
+were also tested there: status, protected project copy, native wall inspection,
+an applied height change from 3400 to 3600 mm and a separate saved-result read.
+The persistent wall identity was preserved. This additional chat roundtrip is
+separate from the 53 scripted native scenario assertions. All 20 tools appeared
+in the current catalogue. Reconnect or restart Codex after a new installation
+if its tools have not refreshed; configuration writes alone do not prove it.
 
 ## Public proof and packages
 

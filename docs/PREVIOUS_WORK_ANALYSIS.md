@@ -140,6 +140,18 @@ successes do **not** imply a complete autonomous architectural drawing package.
 Current counts and operation-level evidence are maintained in
 [CAPABILITIES.md](CAPABILITIES.md).
 
+After those suites, the bridge's 20 tools became available in the existing
+Codex chat. One additional real roundtrip used five calls: status, protected
+project copy, inspection, a saved wall-height change from **3400 to 3600 mm**, and
+an independent inspection. Native save/close/reopen preserved the wall's
+persistent identity and the final readback was **3600 mm**; the original source
+was unchanged and Computer Use count was zero. This current-chat evidence is
+separate from the **53** suite assertions and from the isolated Codex
+catalogue/reload probe. The earlier unavailable Desktop control-socket
+diagnostic did not prevent the later actual tool execution and is not evidence
+against that verified roundtrip. Other chat tools/tasks remain limited to their
+individual tested scopes.
+
 | Native observation | Correct implementation sequence | Required saved-output check |
 |---|---|---|
 | A newly created EmbeddedSchedule exposes `ScheduleId` as read-only until its creation operation is applied | Create the native object, apply that operation, then start a separate operation to assign the actual existing schedule through `ScheduleId`. `RepresentedEntityId` is not its schedule-reference parameter | After save/reopen, read `ScheduleId`, persistent identity and native content; do not claim schedule definition/filter editing |

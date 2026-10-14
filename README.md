@@ -67,9 +67,10 @@ Codex translates a task into an explicit millimeter-based JSON plan, inspects
 existing IDs/styles, validates the plan, optionally previews it on a copy,
 applies it and reads the reopened result. See
 [operation plans](docs/OPERATION_PLANS.md). Reconnect the MCP server or start a
-new Codex session after installation: a fresh Codex protocol backend discovered
-all 20 tools, while discovery in the already-open Desktop chat is a separate
-unverified scope.
+new Codex session after installation. Both a fresh Codex protocol backend and
+the existing Codex chat discovered all 20 tools. The current chat also copied a
+test model, edited a wall from 3400 to 3600 mm and independently read the saved
+height and unchanged persistent identity through the actual MCP tools.
 
 ## Русский
 

@@ -418,7 +418,7 @@
     "configuration_reload_acknowledged": true,
     "new_threads_created": 0,
     "model_turns_started": 0,
-    "existing_desktop_chat": "NOT_VERIFIED; backend control-socket proxy unavailable; reconnect Codex"
+    "existing_desktop_chat": "IMPLEMENTED_AND_TESTED; actual current-chat MCP roundtrip after catalogue refresh"
   },
   "coverage_boundaries": [
     "Scenario checks are composite assertions, not individual COM calls or complete API coverage.",
@@ -432,5 +432,47 @@
     "Timeout cleanup requires proved owned identities; interrupted write outcome remains unknown until separately inspected.",
     "Dependent creation uses multiple applied native batches before final save; full in-memory undo of arbitrary resources is not promised."
   ],
-  "privacy": "Only synthetic, aggregate proof is public. Native projects, SDK files, raw logs, local paths and object/process identities remain local."
+  "privacy": "Only synthetic, aggregate proof is public. Native projects, SDK files, raw logs, local paths and object/process identities remain local.",
+  "current_codex_chat": {
+    "status": "passed",
+    "tool_count": 20,
+    "tool_names": [
+      "bridge_apply_plan",
+      "bridge_capabilities",
+      "bridge_catalogs",
+      "bridge_copy_project",
+      "bridge_create_drawings",
+      "bridge_export_ifc",
+      "bridge_export_pdf",
+      "bridge_facade_spacing",
+      "bridge_geometry",
+      "bridge_inspect",
+      "bridge_inspect_drawings",
+      "bridge_preview_on_copy",
+      "bridge_project_info",
+      "bridge_rectangle_plan",
+      "bridge_render_view",
+      "bridge_save_as",
+      "bridge_set_project_info",
+      "bridge_status",
+      "bridge_validate_plan",
+      "bridge_verify"
+    ],
+    "calls": [
+      "bridge_status",
+      "bridge_copy_project",
+      "bridge_inspect",
+      "bridge_apply_plan",
+      "bridge_inspect"
+    ],
+    "source_unchanged_on_copy": true,
+    "parameter": "WallHeight",
+    "before_mm": 3400,
+    "after_mm": 3600,
+    "save_close_reopen": true,
+    "persistent_identity_preserved": true,
+    "computer_use_calls": 0,
+    "scope": "One additional current-chat native roundtrip through five actual MCP calls, separate from the 53 scripted scenario assertions.",
+    "earlier_desktop_proxy_diagnostic": "Unavailable control socket; not the actual tool execution transport used for this passing probe."
+  }
 }

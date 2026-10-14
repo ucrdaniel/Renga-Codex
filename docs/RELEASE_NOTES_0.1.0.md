@@ -18,10 +18,13 @@ chat application or API key.
 - **0 Computer Use calls**; no mouse/keyboard or UI Automation emulation.
 - Normalized SHA-256 of the 22 tested bridge Python modules:
   `59913f84d7bfe059921716344578e2bb24637d2154015982a910436b0d340673`.
-- All **20 MCP tools** discovered by a fresh real Codex protocol backend;
-  configuration reload acknowledged. The already-open Desktop chat remains a
-  separate unverified scope because its backend proxy was unavailable.
-  Reconnect the MCP server or restart Codex to load the new tools there.
+- All **20 MCP tools** discovered by a fresh real Codex protocol backend and
+  by the existing Codex chat. Configuration reload was acknowledged. In an
+  additional current-chat test, five actual tool calls copied a test model,
+  changed wall height **3400 → 3600 mm**, saved/closed/reopened and independently
+  read the saved value with unchanged persistent identity. This extra roundtrip
+  is separate from the 53 scripted checks. The earlier Desktop proxy diagnostic
+  was unavailable; actual current-chat tool execution is now verified.
 
 The [sanitized proof](https://github.com/ucrdaniel/Renga-Codex/blob/v0.1.0/tests/evidence/windows-renga-9.3.json)
 contains actual final suite outcomes and per-module fingerprints.
