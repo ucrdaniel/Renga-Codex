@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools==84.0.0", "wheel==0.48.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "renga-codex-bridge"
+version = "0.1.0"
+description = "Independent local API-first MCP bridge for Renga BIM"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+dependencies = [
+  "comtypes==1.4.17; sys_platform == 'win32'",
+  "pywin32==312; sys_platform == 'win32'",
+  "mcp==2.3.0",
+]
+
+[project.optional-dependencies]
+test = ["pytest==9.1.1", "pypdf==6.20.1", "build==1.6.1"]
+
+[project.scripts]
+renga-bridge = "renga_codex_bridge.cli:main"
+renga-bridge-mcp = "renga_codex_bridge.mcp_server:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["integration: requires Windows, locally installed/licensed Renga and local SDK"]

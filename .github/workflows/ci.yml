@@ -1,0 +1,56 @@
+name: source-and-package
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit-and-build:
+    name: ${{ matrix.os }} / Python ${{ matrix.python }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.11', '3.12', '3.13']
+    runs-on: ${{ matrix.os }}
+    env:
+      PYTHONUTF8: '1'
+      RENGA_BRIDGE_RUN_INTEGRATION: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - name: Install bridge and unit-test dependencies
+        run: python -m pip install -e ".[test]"
+      - name: Check dependency consistency
+        run: python -m pip check
+      - name: Compile Python source
+        run: python -m compileall -q src tests
+      - name: Unit tests without Renga
+        run: python -m pytest -m "not integration" -q
+      - name: Build wheel with declared build backend
+        run: python -m pip wheel --no-deps --wheel-dir dist .
+      - name: Parse installer scripts
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $scripts = @('scripts/install.ps1', 'scripts/uninstall.ps1')
+          foreach ($script in $scripts) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Join-Path $PWD $script), [ref]$tokens, [ref]$errors) | Out-Null
+            if ($errors.Count) { throw ($errors | Out-String) }
+          }
+      - name: Explain real integration boundary
+        run: python -c "print('Real Renga COM tests are NOT run in hosted CI. Run the documented opt-in scenario locally on licensed Windows/Renga; mocks do not establish API support.')"

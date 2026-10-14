@@ -1,0 +1,53 @@
+# Local dependencies and build output
+.venv/
+.venv-*/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage*
+htmlcov/
+build/
+dist/
+
+# Private runtime: logs, plans, backups, generated COM wrappers, test projects
+runtime/
+artifacts/
+logs/
+/evidence/
+local/
+.env
+.env.*
+!.env.example
+*.local.json
+*.local.toml
+
+# Never publish proprietary SDK files, installation packages, or BIM projects
+RengaSDK/
+sdk/
+vendor/
+*.tlb
+*.dll
+*.exe
+*.msi
+*.rnp
+*.renga
+*.ifc
+*.dwg
+*.dxf
+*.bak
+*.lic
+*.key
+*.pfx
+*.pem
+
+# User documents and editor settings
+1-hw/
+source-analysis/
+.idea/
+.vscode/
+Thumbs.db
+Desktop.ini
+*.user
+*.suo

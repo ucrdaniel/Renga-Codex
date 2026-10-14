@@ -1,0 +1,115 @@
+[
+  {
+    "action": "create",
+    "ref": "test_level",
+    "kind": "Level",
+    "origin": [0, 0, 0],
+    "parameters": {"LevelName": "Synthetic API test level"}
+  },
+  {
+    "action": "create",
+    "ref": "host_wall",
+    "kind": "Wall",
+    "level": "test_level",
+    "points": [[0, 0], [7000, 0]],
+    "parameters": {"WallHeight": 3200, "WallThickness": 250}
+  },
+  {
+    "action": "create",
+    "ref": "door_aperture",
+    "kind": "Door",
+    "host": "host_wall",
+    "origin": [1500, 0, 0],
+    "parameters": {"DoorStyleId": 0, "DoorWidth": 900, "DoorHeight": 2100}
+  },
+  {
+    "action": "create",
+    "ref": "window_aperture",
+    "kind": "Window",
+    "host": "host_wall",
+    "origin": [4500, 0, 900],
+    "x_axis": [1, 0, 0],
+    "z_axis": [0, 0, 1],
+    "parameters": {"WindowStyleId": 0, "WindowWidth": 1400, "WindowHeight": 1500}
+  },
+  {
+    "action": "create",
+    "ref": "test_slab",
+    "kind": "Floor",
+    "level": "test_level",
+    "points": [[0, 6000], [7000, 6000], [7000, 11000], [0, 11000]],
+    "closed": true,
+    "parameters": {"FloorThickness": 250}
+  },
+  {
+    "action": "create",
+    "ref": "slab_opening",
+    "kind": "Opening",
+    "host": "test_slab",
+    "points": [[1000, 7000], [2500, 7000], [2500, 9500], [1000, 9500]],
+    "closed": true,
+    "parameters": {"OpeningDepth": 500, "Offset": 0}
+  },
+  {
+    "action": "create",
+    "ref": "column_a",
+    "kind": "Column",
+    "level": "test_level",
+    "origin": [9000, 7000, 0],
+    "parameters": {"ColumnHeight": 3000}
+  },
+  {
+    "action": "create",
+    "ref": "column_b",
+    "kind": "Column",
+    "level": "test_level",
+    "origin": [12000, 7000, 0],
+    "parameters": {"ColumnHeight": 3000}
+  },
+  {
+    "action": "create",
+    "ref": "test_beam",
+    "kind": "Beam",
+    "level": "test_level",
+    "parameters": {"BeamPositionRelativeToAxis": 7, "BeamVerticalOffset": 0}
+  },
+  {
+    "action": "baseline3d",
+    "id": "test_beam",
+    "points": [[9000, 7000, 3500], [12000, 7000, 3500]]
+  },
+  {
+    "action": "create",
+    "ref": "test_stair",
+    "kind": "Stair",
+    "level": "test_level",
+    "points": [[9000, 11000], [9000, 14000], [11000, 14000], [11000, 11000]],
+    "parameters": {
+      "StairHeight": 3000,
+      "StairWidth": 1000,
+      "StairThickness": 180,
+      "NumberOfSteps": 20,
+      "StairShape": 2,
+      "StairPositionRelativeToBaseline": 0
+    }
+  },
+  {
+    "action": "create",
+    "ref": "test_roof",
+    "kind": "Roof",
+    "level": "test_level",
+    "points": [[0, 13000], [7000, 13000], [7000, 17000], [0, 17000]],
+    "closed": true,
+    "parameters": {"RoofThickness": 200, "Offset": 3500}
+  },
+  {
+    "action": "roof_slopes",
+    "id": "test_roof",
+    "edges": [
+      {"index": 0, "shape": 0, "angle": 25, "overhang": 300},
+      {"index": 1, "shape": 1, "overhang": 300},
+      {"index": 2, "shape": 0, "angle": 25, "overhang": 300},
+      {"index": 3, "shape": 1, "overhang": 300}
+    ]
+  }
+]
