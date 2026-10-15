@@ -36,7 +36,7 @@ EXPECTED_TOOLS = {
     "bridge_create_drawings", "bridge_inspect_drawings", "bridge_export_pdf",
     "bridge_export_ifc", "bridge_render_view", "bridge_copy_project", "bridge_save_as",
     "bridge_project_info", "bridge_set_project_info", "bridge_rectangle_plan",
-    "bridge_facade_spacing", "bridge_capabilities",
+    "bridge_facade_spacing", "bridge_capabilities", "bridge_create_levels_project",
 }
 
 
@@ -241,7 +241,7 @@ def main():
     try:
         proxy = DesktopProxy(codex, sock=args.sock, timeout=rpc_timeout, isolated=args.isolated_app_server)
         initialized = proxy.request("initialize", {
-            "clientInfo": {"name": "renga_bridge_discovery", "title": "Renga Bridge discovery probe", "version": "0.1.0"},
+            "clientInfo": {"name": "renga_bridge_discovery", "title": "Renga Bridge discovery probe", "version": "0.2.0"},
             "capabilities": {"experimentalApi": True},
         })
         proxy.notify("initialized", {})

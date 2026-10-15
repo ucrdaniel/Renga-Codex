@@ -82,7 +82,7 @@ def run():
         else:
             assert abs(elevation)<0.001 and abs(origin)<0.001
             passed('level_nested_placement_move_has_no_saved_effect')
-            report['limitations'].append({'feature':'nonzero_level_elevation','status':'API_LIMITATION','reason_code':'readonly_level_and_detached_placement_move'})
+            report['limitations'].append({'feature':'direct_level_elevation_edit','status':'API_LIMITATION','reason_code':'readonly_level_and_detached_placement_move'})
         event('native_element_suite_complete',checks=len(report['checks']),computer_use_calls=0)
         report['status']='passed'
     except Exception as exc:

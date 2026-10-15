@@ -1,23 +1,20 @@
 {
   "schema_version": 1,
   "status": "passed",
-  "bridge_version": "0.1.0",
+  "bridge_version": "0.2.0",
   "renga_version": "9.3.32980.0",
   "sdk_api_reference": "2.50",
   "environment": {
-    "os": "Windows x64, build 22631",
+    "os": "Windows x64 build 22631",
     "python": "3.12.14",
-    "renga_edition": "Professional",
-    "comtypes": "1.4.17",
-    "pywin32": "312",
-    "mcp": "2.3.0"
+    "renga_edition": "Professional"
   },
   "computer_use_calls": 0,
   "source_fingerprint": {
     "algorithm": "sha256-python-sources-v1",
     "normalization": "utf-8-sig-to-utf-8;CRLF-and-CR-to-LF",
-    "sha256": "59913f84d7bfe059921716344578e2bb24637d2154015982a910436b0d340673",
-    "file_count": 22,
+    "sha256": "69658b5f9e8ee0dd20c8990fbf06f9ae1fac7d6bcaca8b27bdfc37833d00cf81",
+    "file_count": 27,
     "files": [
       {
         "path": "src/renga_codex_bridge/__init__.py",
@@ -29,7 +26,7 @@
       },
       {
         "path": "src/renga_codex_bridge/capabilities.py",
-        "sha256": "4ffdcffec64ff1b64c36fa0aeba8558e2d1b9b96a59094cb971aedf9f206b52f"
+        "sha256": "4ed9c474eb7096071f33c116164c1a6217eb6d5fa1cb62d10a4555617ad3ad01"
       },
       {
         "path": "src/renga_codex_bridge/catalogs.py",
@@ -37,7 +34,7 @@
       },
       {
         "path": "src/renga_codex_bridge/cli.py",
-        "sha256": "1f4604e3eb8f85dd847a3e883c7ecdd474bd3ffbffad13a5412081d27f24672e"
+        "sha256": "7de4abdc29135b4e28245b080cc7ed767d32ed2395b1e323458b6c7fdc7f245a"
       },
       {
         "path": "src/renga_codex_bridge/config.py",
@@ -56,16 +53,32 @@
         "sha256": "76685f7389106a109c677046631bfb4253646c5ca451001023ef82f73c4ba8fd"
       },
       {
+        "path": "src/renga_codex_bridge/grid_spec.py",
+        "sha256": "d075e029252453849c1f60edcbed893a12edb6a16959333e10daaa730fb21530"
+      },
+      {
+        "path": "src/renga_codex_bridge/ifc_grid_verify.py",
+        "sha256": "e3dee7f38a046f311931f009b16c70add41c5246d5da5d13579fb2db7d656f53"
+      },
+      {
+        "path": "src/renga_codex_bridge/level_projects.py",
+        "sha256": "d1ef9be8f386b24fe394763fb2bdf6f49a73a9ffc12d0795bc60509ec875f32c"
+      },
+      {
+        "path": "src/renga_codex_bridge/level_seed.py",
+        "sha256": "2676f5199b1532456726debcc8e18ced24d7124c1445f916aabe2c9904b1e936"
+      },
+      {
         "path": "src/renga_codex_bridge/mcp_server.py",
-        "sha256": "a83842ae668b1baa201bc32b199c183087f3bc18b4d15f2e8ab966203f7d315d"
+        "sha256": "609b453f6277ef49551c87d15ee6024fad1d1e844768bf1a765b75be3529b246"
       },
       {
         "path": "src/renga_codex_bridge/model.py",
-        "sha256": "0cd008903be7ac440cb08d218b57bfb7882aba9e79286799aa447ddf044a073e"
+        "sha256": "caf284ce9b527531cc43add65b6cfc18392acf2d2f07d2a734ec5d77c145ccef"
       },
       {
         "path": "src/renga_codex_bridge/operations.py",
-        "sha256": "252cb6f0921b11b563bb14106e954f7e7aae22e8697c207ca8e9c06bcec825c1"
+        "sha256": "3de3de670b31bdfb46ec0abbc1714511f1ece452f16a87312faccdc02bfeb4d2"
       },
       {
         "path": "src/renga_codex_bridge/orientation.py",
@@ -82,6 +95,10 @@
       {
         "path": "src/renga_codex_bridge/project_info.py",
         "sha256": "d8a778a7b2ff5cc63465e74461e95dd81c32191ab19eb7b1d9ba5ca4974b8022"
+      },
+      {
+        "path": "src/renga_codex_bridge/room_markers.py",
+        "sha256": "544fa8a70f072d5e5bc5c3d281dff4bf4f622e75f1d16f505489f2b277c42b89"
       },
       {
         "path": "src/renga_codex_bridge/runner.py",
@@ -101,21 +118,20 @@
       },
       {
         "path": "src/renga_codex_bridge/validation.py",
-        "sha256": "eb69a48aa09ab5492a2f22af0043c709badcd0c0f8d38fe07795a1d0b1eee066"
+        "sha256": "70b44ec4233f466eebea946993399856990def89edf22ad3862daa9e17141492"
       },
       {
         "path": "src/renga_codex_bridge/worker.py",
-        "sha256": "c1052e5fa063e0128e35b77231adb894f20818f10f68fefda1d382ab61b9c985"
+        "sha256": "f7ef04d5949c4fc37da06a100577a075ececc9d912407a8284006c2ca7fee116"
       }
     ]
   },
-  "native_scenario_checks_passed": 53,
+  "native_scenario_checks_passed": 66,
   "suites": [
     {
       "suite": "live",
       "status": "passed",
       "passed_scenario_checks": 22,
-      "run_timestamp_utc": "20261014T205409525294Z",
       "checks": [
         {
           "check": "owned_sta_connection",
@@ -211,8 +227,7 @@
     {
       "suite": "mcp",
       "status": "passed",
-      "passed_scenario_checks": 21,
-      "run_timestamp_utc": "20261014T205832687446Z",
+      "passed_scenario_checks": 23,
       "checks": [
         {
           "check": "initialize_protocol",
@@ -224,6 +239,10 @@
         },
         {
           "check": "owned_renga_connection",
+          "status": "passed"
+        },
+        {
+          "check": "new_native_nonzero_levels_and_axis_grid",
           "status": "passed"
         },
         {
@@ -240,6 +259,10 @@
         },
         {
           "check": "read_persisted_model",
+          "status": "passed"
+        },
+        {
+          "check": "intrinsic_room_marker_saved_xy",
           "status": "passed"
         },
         {
@@ -305,7 +328,6 @@
       "suite": "elements",
       "status": "passed",
       "passed_scenario_checks": 7,
-      "run_timestamp_utc": "20261014T210120968290Z",
       "checks": [
         {
           "check": "column_beam_stair_roof_opening_create_native_roundtrip",
@@ -343,7 +365,7 @@
           "reason_code": "native_frame_normalized_counter_axis_request_rejected_before_save"
         },
         {
-          "feature": "nonzero_level_elevation",
+          "feature": "direct_level_elevation_edit",
           "status": "API_LIMITATION",
           "reason_code": "readonly_level_and_detached_placement_move"
         }
@@ -353,7 +375,6 @@
       "suite": "timeout",
       "status": "passed",
       "passed_scenario_checks": 3,
-      "run_timestamp_utc": "20261014T210335166549Z",
       "checks": [
         {
           "check": "confirmed_owned_worker_and_renga_termination",
@@ -369,36 +390,120 @@
         }
       ],
       "limitations": []
+    },
+    {
+      "suite": "levels-annotations",
+      "status": "passed",
+      "passed_scenario_checks": 11,
+      "checks": [
+        {
+          "check": "native_nonzero_levels_and_axes_clean_saved_project",
+          "status": "passed"
+        },
+        {
+          "check": "saved_axis_coordinates_via_fresh_native_ifc_export",
+          "status": "passed"
+        },
+        {
+          "check": "bootstrap_refuses_existing_project_unchanged",
+          "status": "passed"
+        },
+        {
+          "check": "native_wall_hosted_on_imported_3000_level",
+          "status": "passed"
+        },
+        {
+          "check": "native_axis_name_edit_reflected_in_fresh_export",
+          "status": "passed"
+        },
+        {
+          "check": "direct_level_setter_refused_disk_unchanged",
+          "status": "passed"
+        },
+        {
+          "check": "negative_fractional_levels_unicode_and_apostrophe_names",
+          "status": "passed"
+        },
+        {
+          "check": "intrinsic_room_marker_global_xy_saved_readback",
+          "status": "passed"
+        },
+        {
+          "check": "independent_reopen_room_marker_readback",
+          "status": "passed"
+        },
+        {
+          "check": "non_room_marker_rejected_original_unchanged",
+          "status": "passed"
+        },
+        {
+          "check": "native_building_and_drawing_factories_reject_annotation_types",
+          "status": "passed"
+        }
+      ],
+      "limitations": [
+        {
+          "feature": "existing_project_level_and_grid_merge",
+          "status": "NOT_VERIFIED",
+          "reason_code": "new_project_import_only"
+        },
+        {
+          "feature": "new_associative_dimensions_and_tags",
+          "status": "API_LIMITATION",
+          "reason_code": "native_model_and_drawing_factories_reject_types"
+        }
+      ]
     }
   ],
   "portable_checks": {
-    "unit_passed": 305,
+    "unit_passed": 511,
     "unit_skipped": 1,
     "integration_deselected": 1,
     "pip_check": "passed",
     "powershell_installer_ast": "passed"
   },
-  "visual_checks": {
-    "status": "passed",
-    "native_pdf_pages_reviewed": 2,
-    "paper": "A3 landscape",
-    "native_png_dimensions": [
-      1024,
-      768
+  "new_native_results": {
+    "levels_mm": [
+      0,
+      3000,
+      6000
     ],
-    "scope": "Synthetic sheets of the same base level; plan, title and native schedule clear. Native license watermark retained. Export page ordering is not asserted."
+    "additional_levels_mm": [
+      -3000,
+      0,
+      4500.5
+    ],
+    "native_axes": 5,
+    "x_axis_steps_mm": [
+      3000,
+      6000
+    ],
+    "y_axis_step_mm": 6000,
+    "native_wall_bottom_top_mm": [
+      3000,
+      5800
+    ],
+    "intrinsic_room_marker_global_xy_mm": [
+      2345,
+      1678
+    ],
+    "native_annotation_factory_rejections": 10,
+    "contexts": [
+      "building_model",
+      "drawing_model"
+    ]
   },
   "codex_discovery": {
     "status": "passed",
     "scope": "fresh isolated real Codex protocol backend",
-    "server_name": "renga-codex-bridge",
-    "tool_count": 20,
+    "tool_count": 21,
     "tool_names": [
       "bridge_apply_plan",
       "bridge_capabilities",
       "bridge_catalogs",
       "bridge_copy_project",
       "bridge_create_drawings",
+      "bridge_create_levels_project",
       "bridge_export_ifc",
       "bridge_export_pdf",
       "bridge_facade_spacing",
@@ -415,64 +520,28 @@
       "bridge_validate_plan",
       "bridge_verify"
     ],
-    "configuration_reload_acknowledged": true,
     "new_threads_created": 0,
     "model_turns_started": 0,
-    "existing_desktop_chat": "IMPLEMENTED_AND_TESTED; actual current-chat MCP roundtrip after catalogue refresh"
+    "existing_chat_new_tool_catalogue": "requires_refresh_if_still_cached"
+  },
+  "visual_checks": {
+    "status": "passed",
+    "native_pdf_pages_reviewed": 2,
+    "scope": "Synthetic same-level sheets; plan/title/schedule clear, license watermark retained; no architectural-package claim."
   },
   "coverage_boundaries": [
+    "All five suites were rerun on the 0.2 behavior source; 0.1 evidence is historical and not counted.",
     "Scenario checks are composite assertions, not individual COM calls or complete API coverage.",
-    "No other Renga editions or versions are verified.",
-    "Nonzero level elevation is read-only; nested placement movement did not persist.",
-    "New automatic rooms and associative dimension/tag creation are not verified or exposed as working constructors.",
-    "Style zero can create an aperture; complete door/window/Element assemblies use inspected existing styles.",
-    "Counter-directed window placement was normalized by Renga and the mismatched request was rejected before save.",
-    "New schedule/filter definitions, arbitrary rotation/mirroring, imports and exact solid clash detection are not released as verified.",
-    "IFC proof covers native IFC4 output and STEP envelope, not full schema or semantic validation.",
-    "Timeout cleanup requires proved owned identities; interrupted write outcome remains unknown until separately inspected.",
-    "Dependent creation uses multiple applied native batches before final save; full in-memory undo of arbitrary resources is not promised."
+    "Bootstrap creates NEW projects only; it does not merge levels or grids into existing models.",
+    "Native Level and Axis type, names and persistent identities are verified after reopening; own import carriers are removed.",
+    "Axis geometry is verified through a fresh native IFC export, not a direct Axis COM baseline getter.",
+    "Room marker means intrinsic IRoom.MarkerPosition, not standalone Tag creation.",
+    "Direct LevelElevation setters remain read-only; direct annotation factories reject tested types.",
+    "Associative dimensions, standalone Tags, arbitrary existing-grid additions and level elevation edits are not released as verified.",
+    "New automatic rooms, schedule/filter definitions, arbitrary mirror/rotate and exact solid clashes remain unverified or unimplemented.",
+    "IFC grid parser verifies only the supported explicit orthogonal subset; it is not a general IFC schema validator.",
+    "Other Renga versions, editions, machines and large-model performance are not certified.",
+    "Timeout cleanup requires proved owned identities; an interrupted write remains unknown until separately inspected."
   ],
-  "privacy": "Only synthetic, aggregate proof is public. Native projects, SDK files, raw logs, local paths and object/process identities remain local.",
-  "current_codex_chat": {
-    "status": "passed",
-    "tool_count": 20,
-    "tool_names": [
-      "bridge_apply_plan",
-      "bridge_capabilities",
-      "bridge_catalogs",
-      "bridge_copy_project",
-      "bridge_create_drawings",
-      "bridge_export_ifc",
-      "bridge_export_pdf",
-      "bridge_facade_spacing",
-      "bridge_geometry",
-      "bridge_inspect",
-      "bridge_inspect_drawings",
-      "bridge_preview_on_copy",
-      "bridge_project_info",
-      "bridge_rectangle_plan",
-      "bridge_render_view",
-      "bridge_save_as",
-      "bridge_set_project_info",
-      "bridge_status",
-      "bridge_validate_plan",
-      "bridge_verify"
-    ],
-    "calls": [
-      "bridge_status",
-      "bridge_copy_project",
-      "bridge_inspect",
-      "bridge_apply_plan",
-      "bridge_inspect"
-    ],
-    "source_unchanged_on_copy": true,
-    "parameter": "WallHeight",
-    "before_mm": 3400,
-    "after_mm": 3600,
-    "save_close_reopen": true,
-    "persistent_identity_preserved": true,
-    "computer_use_calls": 0,
-    "scope": "One additional current-chat native roundtrip through five actual MCP calls, separate from the 53 scripted scenario assertions.",
-    "earlier_desktop_proxy_diagnostic": "Unavailable control socket; not the actual tool execution transport used for this passing probe."
-  }
+  "privacy": "Only synthetic aggregate proof is public; SDK, native models, raw logs, absolute local paths and object/process identities remain local."
 }

@@ -129,6 +129,11 @@ def inventory(s,*,details=True):
                 elif q.Type==s.r.QuantityType_Length:row['quantities'][key]={'value':q.AsLength(s.r.LengthUnit_Millimeters),'unit':'mm'}
                 elif q.Type==getattr(s.r,'QuantityType_Volume',None):row['quantities'][key]={'value':q.AsVolume(s.r.VolumeUnit_Meters3),'unit':'m3'}
                 else:row['quantities'][key]={'text':q.Text,'type':q.Type}
-            if row['type']=='Room':row['automatic']=obj.QueryInterface(s.r.IRoom).Automatic
+            if row['type']=='Room':
+                room=obj.QueryInterface(s.r.IRoom);row['automatic']=room.Automatic
+                marker=room.MarkerPosition;row['room_marker_mm']=[marker.X,marker.Y]
+            if row['type']=='Level':
+                level=obj.QueryInterface(s.r.ILevel)
+                row['level']={'name':level.LevelName,'elevation_mm':level.Elevation,'origin_z_mm':level.Placement.Origin.Z}
         rows.append(row)
     return rows

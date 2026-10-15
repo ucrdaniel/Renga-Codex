@@ -24,7 +24,7 @@ async def run():
             async with ClientSession(*streams,read_timeout_seconds=360) as client:
                 await client.initialize();passed('initialize_protocol')
                 tools=(await client.list_tools()).tools
-                assert len(tools)>=18;passed('discover_tools',count=len(tools),names=[tool.name for tool in tools])
+                assert len(tools)==21;passed('discover_tools',count=len(tools),names=[tool.name for tool in tools])
                 async def call(name,**arguments):
                     result=await client.call_tool(name,arguments)
                     if result.is_error:raise RuntimeError(str(result.content))
@@ -37,6 +37,9 @@ async def run():
                     (folder/('response-'+str(len(report['checks']))+'-'+name+'.json')).write_text(json.dumps(value,ensure_ascii=False,indent=2),encoding='utf8')
                     return value
                 doctor=await call('bridge_status');assert doctor['com'] and doctor['isolated'];report['renga_version']=doctor['version'];passed('owned_renga_connection')
+                bootstrap=await call('bridge_create_levels_project',project=str(folder/'mcp-levels.rnp'),levels=[{'name':'Ground','elevation_mm':0},{'name':'Upper','elevation_mm':3000}],grid={'x':[{'name':'1','position_mm':0},{'name':'2','position_mm':6000}],'y':[{'name':'A','position_mm':0},{'name':'B','position_mm':3000}],'bounds_mm':[-1000,-1000,7000,4000]})
+                assert bootstrap['status']=='saved_reopened_verified' and len(bootstrap['axes'])==4
+                passed('new_native_nonzero_levels_and_axis_grid')
                 plan=await call('bridge_rectangle_plan',width=8000,depth=5000,height=3000,thickness=200)
                 validated=await call('bridge_validate_plan',operations=plan);assert validated['valid'];passed('plan_and_structural_validation')
                 piers=await call('bridge_facade_spacing',length=8000,width=1200,count=3);assert len(piers['offsets_mm'])==3;passed('window_pier_calculation')
@@ -45,6 +48,8 @@ async def run():
                 assert result['status']=='saved_reopened_verified';refs=result['persistent_refs'];passed('create_bim_save_close_reopen')
                 inventory=await call('bridge_inspect',project=str(project),limit=1000)
                 assert len(inventory['objects'])>=7;passed('read_persisted_model')
+                markers=await call('bridge_apply_plan',project=str(project),operations=[{'action':'room_marker','id':refs['room'],'point':[3600,2400]}])
+                assert markers['room_marker_checks'][0]['point']==[3600,2400];passed('intrinsic_room_marker_saved_xy')
                 info=await call('bridge_set_project_info',project=str(project),values={'Code':'MCP-TEST','Name':'MCP acceptance','Stage':'TEST','Description':'Synthetic MCP model'})
                 assert info['status']=='saved_reopened_verified'
                 assert (await call('bridge_project_info',project=str(project)))['Code']=='MCP-TEST';passed('native_project_metadata_roundtrip')

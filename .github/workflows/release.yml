@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: preview-release-v0.1.0
+  group: preview-release
   cancel-in-progress: false
 
 jobs:
@@ -27,7 +27,6 @@ jobs:
     env:
       PYTHONUTF8: '1'
       RENGA_BRIDGE_RUN_INTEGRATION: '0'
-      RELEASE_TAG: v0.1.0
     steps:
       - name: Check out precisely the successful main CI commit
         uses: actions/checkout@v4
@@ -38,17 +37,24 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Resolve versioned names from the exact checked-out project
+        run: |
+          python scripts/verify_release_inputs.py --release-metadata > release-metadata.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          metadata = json.loads(Path('release-metadata.json').read_text(encoding='utf8'))
+          with open(os.environ['GITHUB_ENV'], 'a', encoding='utf8') as stream:
+              stream.write('RELEASE_TAG=' + metadata['release_tag'] + '\n')
+              stream.write('RELEASE_NOTES=' + metadata['release_notes'] + '\n')
+          PY
       - name: Confirm commit and sanitized native evidence
         env:
           VERIFIED_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           test "$(git rev-parse HEAD)" = "$VERIFIED_SHA"
           python scripts/verify_release_inputs.py
-          test -s docs/RELEASE_NOTES_0.1.0.md
-          if grep -Eq 'ROOT_FILL|TODO_RELEASE_PROOF|NOT_READY_FOR_PUBLICATION' docs/RELEASE_NOTES_0.1.0.md; then
-            echo 'Release notes still contain unfilled native proof placeholders.' >&2
-            exit 1
-          fi
+          test -s "$RELEASE_NOTES"
       - name: Build wheel and sdist using pinned package build requirements
         run: |
           python -m pip install 'build==1.6.1'
@@ -64,7 +70,7 @@ jobs:
           # Never replace a published version or upload over its existing assets.
           if gh release view "$RELEASE_TAG" --json tagName,isPrerelease,isDraft --jq '"\(.isPrerelease) \(.isDraft)"' > existing-release.txt 2>/dev/null; then
             if test "$(cat existing-release.txt)" != 'true false'; then
-              echo 'Existing v0.1.0 is not a published prerelease; review it manually.' >&2
+              echo "Existing $RELEASE_TAG is not a published prerelease; review it manually." >&2
               exit 1
             fi
             echo 'Existing preview release detected; no release/tag/assets were changed.'
@@ -83,5 +89,5 @@ jobs:
           fi
           gh release create "$RELEASE_TAG" dist/*.whl dist/*.tar.gz \
             --target "$VERIFIED_SHA" --prerelease \
-            --title 'v0.1.0 preview' \
-            --notes-file docs/RELEASE_NOTES_0.1.0.md
+            --title "$RELEASE_TAG preview" \
+            --notes-file "$RELEASE_NOTES"

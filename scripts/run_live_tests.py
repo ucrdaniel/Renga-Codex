@@ -25,7 +25,7 @@ from renga_codex_bridge.runner import run_worker
 def run():
     if sys.platform!='win32':raise RuntimeError('Actual Renga integration requires Windows')
     folder=settings().write_root/('run-'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ'));folder.mkdir(parents=True)
-    report={'schema_version':1,'bridge_version':'0.1.0','python':sys.version.split()[0],
+    report={'schema_version':1,'bridge_version':'0.2.0','python':sys.version.split()[0],
             'platform':'Windows x64','computer_use_calls':0,'checks':[],'limitations':[]}
     def passed(name,**values):
         report['checks'].append({'check':name,'status':'passed',**values});print('PASS',name,flush=True)

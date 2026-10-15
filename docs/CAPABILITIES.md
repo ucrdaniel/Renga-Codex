@@ -1,6 +1,6 @@
 # Capabilities and verified boundaries
 
-API research date: **2026-10-14**. Reference examined: **Renga API 2.50**,
+API research updated: **2026-10-15**. Reference examined: **Renga API 2.50**,
 including all 146 COM interface reference pages, the SDK constants, and the
 plugin documentation. Historical machine: Windows x64, Renga Professional
 **9.3.32980.0**. Current bridge architecture: Python, typed COM via `comtypes`,
@@ -34,46 +34,83 @@ Historical identifiers H-COM, H-MCP and H-ARCH below are defined in
 evidence only. Portable unit tests and mocked COM do not qualify as native
 integration evidence.
 
-## Current product evidence
+## Current 0.2 evidence and release boundary
 
-Fresh local product runs passed on Windows x64 / Python 3.12.14 / Renga
-Professional 9.3.32980.0, using API 2.50. The frozen Python behavior source
-passed **53 native scenario assertions: 22 core, 21 MCP, 7 elements and 3
-owned-process failure checks**, with **0 Computer Use calls**. The operation
-statuses below cover only the operations and conditions actually exercised.
-Both pages of the fresh MCP PDF and its native PNG were also inspected
-visually. These synthetic fixtures do not establish a complete architectural
-drawing package, arbitrary multistorey design or full API coverage.
+The new implementation provides `bridge_create_levels_project`: a **new
+project only** route through the official `IApplication.ImportIfcProject`,
+using an independently generated IFC seed. It supports explicit level names
+and elevations in mm and an optional orthogonal grid. Temporary own import
+carriers are removed before saving. The result must contain only genuine native
+Level/Axis objects, with requested values and name-to-UUID identities retained
+after native save, close and reopen. It refuses an existing destination.
+
+Fresh 0.2 tests on Renga 9.3.32980.0 have confirmed three native levels
+at **0/3000/6000 mm**, five native axes in a clean project, and a new native wall
+hosted on the 3000 mm level with actual mesh Z bounds **3000..5800 mm**. The
+intrinsic Room marker also retained **[2345, 1678] mm** after reopening. These
+results do not change the direct level-setter or associative annotation-factory
+limitations.
+
+All five suites were rerun on the frozen **0.2.0** Python behavior source:
+**66 native scenario assertions passed: 22 core, 23 MCP, 7 elements, 3
+owned-process failure checks and 11 levels/annotations checks**. The latter
+include negative/fractional elevations **-3000/0/4500.5 mm**, an axis rename,
+ten rejected annotation factories, and refusal of a direct LevelElevation edit
+without changing the saved file. These are composite scenario assertions, not
+66 individual COM calls or complete API coverage. **Computer Use calls: 0.**
+
+The [sanitized evidence](../tests/evidence/windows-renga-9.3.json) identifies
+**27 tested Python modules**, normalized source SHA-256
+`69658b5f9e8ee0dd20c8990fbf06f9ae1fac7d6bcaca8b27bdfc37833d00cf81`,
+the actual native outcomes and **511 portable tests passed, 1 skipped and 1
+opt-in integration test deselected**. Portable tests do not run Renga. Native
+models, SDK components, absolute local paths and raw logs remain private.
+
+The current source exposes **21 MCP tools**, including the new bootstrap.
+The real stdio MCP suite discovered them and executed the new native bootstrap
+and intrinsic Room-marker operation. A fresh real Codex protocol backend also
+discovered all 21 tools, without creating a thread or model turn. The existing
+chat's cached catalogue still had 20 tools during its separate diagnostic;
+this release record does not claim execution of the new tool from that cached
+chat. Reconnect/refresh when its catalogue is stale.
+
+Axis-coordinate verification uses a **fresh IFC export from the reopened native
+project**, checked against the independent requested grid specification. It
+does not claim a direct native Axis baseline getter or complete IFC validation.
+The intrinsic Room marker uses `IRoom.MarkerPosition`; it is not a drawing Tag.
+See [extension route research](EXTENSION_API_RESEARCH.md) and
+[annotation research](DIMENSION_API_RESEARCH.md).
+
+## Current native evidence identifiers
+
+Environment: Windows x64 build 22631, Python 3.12.14, Renga Professional
+9.3.32980.0 and API 2.50. Both pages of the fresh 0.2 MCP PDF were visually
+inspected; plan/title/schedule remained clear and the license watermark was
+retained. These synthetic same-level sheets do not establish a complete
+architectural drawing package or arbitrary multistorey documentation.
 
 | Evidence ID | Fresh scenario | Recorded outcome and boundary |
 |---|---|---|
 | R-CORE | [Native worker test](../scripts/run_live_tests.py) | Final frozen-source rerun: 22 checks passed, including owned STA, model/lifecycle/quantities, protected copies/SaveAs, metadata, selected drawing/PDF/IFC export and native 1024×768 PNG rendering |
-| R-MCP | [Real stdio MCP client](../scripts/run_mcp_tests.py) | Final frozen-source rerun: 21 checks passed, all 20 tools discovered, native model edits/export and 1024×768 PNG through MCP. Counts refer to scenario assertions, not one test for every API member |
+| R-MCP | [Real stdio MCP client](../scripts/run_mcp_tests.py) | Final 0.2 frozen-source rerun: 23 checks passed, all 21 tools discovered, native nonzero-level/grid bootstrap, Room marker, model edits/export and 1024×768 PNG through MCP |
 | R-ELEMENTS | [Native element test](../scripts/run_element_tests.py) | Final frozen-source rerun: 7 checks passed: columns, beam, stair, roof, slab opening, selected existing Element style, persisted edits, mesh presence and negative level-placement probe |
 | R-TIMEOUT | [Owned-process failure test](../scripts/run_timeout_test.py) | Final frozen-source rerun: 3 checks passed: forced owned-worker failure, positively identified Renga cleanup, unchanged source hash and successful native reopen. It does not certify every solver hang or unsaved-write failure |
-| R-CODEX | [Codex discovery test](../scripts/run_codex_discovery_test.py) and [current-chat proof](../tests/evidence/windows-renga-9.3.json) | Isolated app-server catalogue: all 20 tools and reload acknowledgement, without a model turn. Current existing Codex chat: 20 available tool names and a real saved wall-edit roundtrip using 5 tool calls. This additional roundtrip is separate from the 53 suite assertions |
-| R-VISUAL | [Sanitized visual-review record](../tests/evidence/windows-renga-9.3.json) | Both fresh MCP PDF pages and the native PNG were inspected; readable synthetic plan/title/schedule, retained license watermark. This review is separate from the 53 native scenario assertions |
+| R-LEVELS | [New levels/annotations suite](../scripts/run_level_annotation_tests.py) | Final 0.2 frozen-source run: 11 checks passed; clean native levels/axes, fresh-export grid geometry, upper-level wall mesh, axis rename, direct-setter refusal, negative/fractional levels, Room-marker saved/independent readback and non-Room rejection, ten negative annotation factories |
+| R-CODEX | [Codex discovery test](../scripts/run_codex_discovery_test.py) and [public proof](../tests/evidence/windows-renga-9.3.json) | Fresh isolated real Codex backend: all 21 tools discovered, no new threads/model turns. Existing cached-chat new-tool execution is not claimed |
+| R-VISUAL | [Sanitized visual-review record](../tests/evidence/windows-renga-9.3.json) | Both fresh 0.2 MCP PDF pages inspected; readable synthetic plan/title/schedule, retained license watermark. This review is separate from the 66 native scenario assertions |
 
-The sanitized aggregate is
-[tests/evidence/windows-renga-9.3.json](../tests/evidence/windows-renga-9.3.json).
-It identifies the tested Python source fingerprint and distinguishes the native
-suites, visual review, Codex catalogue probe and current-chat roundtrip. Raw
-models, logs, machine paths and native object UUIDs remain private. The statuses
-were read from the actual
-local reports, not inferred from a successful script launch or method discovery.
-Historical H-* evidence does not promote a current-product status.
+The separate immutable historical aggregate is
+[v0.1.0 evidence](https://github.com/ucrdaniel/Renga-Codex/blob/v0.1.0/tests/evidence/windows-renga-9.3.json).
+That 0.1 record contains 53 native checks, its own source fingerprint and a
+20-tool catalogue. It is not counted toward the fresh 66-check 0.2 result.
+Current statuses use the five rerun suites above; historical H-* evidence
+does not promote a current-product status.
 
-Codex verification has two separate scopes. The isolated protocol backend
-proved catalogue discovery and configuration reload. After the bridge tools
-became available in the existing chat, Codex called `bridge_status`,
-`bridge_copy_project`, `bridge_inspect`, `bridge_apply_plan` and an independent
-`bridge_inspect`. The protected copy retained the original source; the requested
-`WallHeight` change from **3400 to 3600 mm** survived native save, close and reopen,
-and the final inspection confirmed both **3600 mm** and the same persistent wall
-identity. This is **one additional current-chat roundtrip, five tool calls and
-0 Computer Use calls**. It does not certify every available tool or arbitrary
-natural-language task. The separate Desktop control-socket diagnostic was
-unavailable; that diagnostic no longer determines the actual chat-tool result.
+Historical 0.1 current-chat execution used five calls for a protected model copy
+and a saved WallHeight **3400→3600 mm** edit with independent readback and stable
+UUID. This remains a scoped historical success, not proof that the new 0.2 tool
+was available in that chat. Protocol discovery, real stdio tool execution and
+current-chat execution are distinct evidence scopes.
 
 The acceptance target for the advertised coverage is **0 Computer Use calls**.
 An official API call such as opening a view or rendering it through
@@ -93,6 +130,7 @@ Primary reference: [IApplication](https://help.rengabim.com/api/interface_i_appl
 | Detect application version and connect with the local COM/TLB | `ProductName`, `VersionS`, user-supplied local SDK | `IMPLEMENTED_AND_TESTED` | R-CORE owned_sta_connection; R-MCP owned_renga_connection |
 | Connect without attaching to an existing session | Fresh COM instance, HWND → verified owned PID, STA and serialization | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP owned activation; current process-identity gate exercised, not every possible external-launch race |
 | Create project | `CreateProject` | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP synthetic native fixtures |
+| Bootstrap a new project with explicit levels and optional orthogonal axes | `ImportIfcProject` on own generated seed, remove temporary carriers, native readback and fresh export verification | `IMPLEMENTED_AND_TESTED` | R-LEVELS/R-MCP: three levels 0/3000/6000 mm and five native axes; no existing-project merge/replacement |
 | Create from user-supplied template | `CreateProjectFromTemplate` | `SUPPORTED_NOT_IMPLEMENTED` | Template provenance, content and preserved identities require verification |
 | Open, save, SaveAs, close and reopen | `OpenProject`, `Save`, `SaveAs`, `CloseProject`, `Quit` only owned session | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP native roundtrip and UUID checks |
 | Copy native project safely | New protected destination, unchanged source hash, native reopen | `IMPLEMENTED_AND_TESTED` | R-CORE project_copy_reopen; R-MCP protected_copy |
@@ -128,12 +166,15 @@ correct facing on every wall.
 |---|---|---|---|
 | Enumerate objects and filter by type; target native UUID/current ID | GetObjects, direct UniqueIdS, actual parameter/quantity containers | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP persisted inventories and UUID checks; property/mark-query language is separate |
 | Native creation/deletion for tested categories | Factory with inspected hosts/styles; UUID-directed targets | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP/R-ELEMENTS categories listed below; deletion of hosted window on disposable copy verified |
-| Create default-elevation level and rename it | Level factory + writable level-name parameter | `IMPLEMENTED_AND_TESTED` | R-CORE/R-ELEMENTS saved 0 mm level/name; no nonzero level creation |
+| Create default-elevation level and rename it | Level factory + writable level-name parameter | `IMPLEMENTED_AND_TESTED` | R-CORE/R-ELEMENTS saved 0 mm level/name; direct constructor path remains distinct from nonzero IFC bootstrap |
+| Create new-project nonzero native levels | Own IFC spatial seed → official importer → carrier deletion → native save/reopen | `IMPLEMENTED_AND_TESTED` | R-LEVELS/R-MCP native Level/ILevel, elevation/origin and name-to-UUID checks; 0/3000/6000 and -3000/0/4500.5 mm |
 | Set level elevation/origin directly | `ILevel.Elevation`/`Placement` and `IPlacement3D.Origin` are getters | `API_LIMITATION` | Old nonzero creation silently stayed zero; bridge rejects unsupported requests |
 | Change level through nested `Placement.Move` | The returned placement is detached in the tested version; movement did not persist | `API_LIMITATION` | R-ELEMENTS native save/reopen retained elevation/origin Z=0 after +3000 mm request |
-| Use existing nonzero levels from a template/project | Read `ILevel`; set inspected level as creation host | `NOT_VERIFIED` | H-ARCH used existing levels; does not prove API creation of those levels |
-| Create axes via public model factory | Axis is absent from `IModel.CreateObject`'s supported-type table | `API_LIMITATION` | Existing native axes remain inspectable; template/extension creation route is not verified |
-| Edit existing axes / use template axes | Actual supported interfaces/parameters, independently verified grid | `NOT_VERIFIED` | H-ARCH preserved native axes; fresh general edit/readback required |
+| Host a native wall on a reopened nonzero level | Inspected native level UUID as creation host | `IMPLEMENTED_AND_TESTED` | R-LEVELS: level 3000 mm, wall height 2800 mm, actual mesh Z=3000..5800 mm; arbitrary categories/templates separate |
+| Create axes via public model factory | Axis is absent from `IModel.CreateObject`'s supported-type table | `API_LIMITATION` | Alternative new-project IFC bootstrap is separately verified; it does not add a factory or existing-project merge |
+| Create orthogonal axes in a new seed project | Own IfcGrid → native Axis objects → reopened native IFC export | `IMPLEMENTED_AND_TESTED` | R-LEVELS/R-MCP: five axes with names/counts/UUID and fresh-export coordinates; tested X steps 3000/6000 mm and Y step 6000 mm; direct baseline getter unavailable |
+| Rename existing native axes | Writable GridLineName parameter and fresh reopened IFC export | `IMPLEMENTED_AND_TESTED` | R-LEVELS: axis 2→2b persisted and fresh exported name/coordinates matched; arbitrary movement/deletion associations remain separate |
+| Move/rotate native axes or merge an imported grid into an existing project | No verified direct baseline setter/transfer contract | `NOT_VERIFIED` | New-project bootstrap does not imply existing-model grid editing |
 | Walls/partitions with straight baselines and height/thickness parameters | Native Wall and IBaseline2DObject; actual parameter/contour readback | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP/R-ELEMENTS; arbitrary joins, curved walls and material-stack edits are separate |
 | Floors/slabs with explicit closed polygon and thickness | Native Floor, requested contour/parameters, quantities and mesh | `IMPLEMENTED_AND_TESTED` | R-CORE 24 m², R-MCP 40 m², R-ELEMENTS rectangular slab and cut area; layered material assignment not covered |
 | Slab openings | Native Opening with explicit Floor host, rectangular contour, depth/offset | `IMPLEMENTED_AND_TESTED` | R-ELEMENTS affected host and mesh/target net area 31.25 m² verified; Roof-host openings separate |
@@ -154,7 +195,7 @@ correct facing on every wall.
 | New automatic room solely through API | No `Automatic` setter; creation semantics not established | `NOT_VERIFIED` | Historical automatic creation used GUI and is excluded from API-only claims |
 | Move control point of an existing automatic room | `IRoom.ControlPoint` is writable; bridge has a conditional automatic-room branch | `NOT_VERIFIED` | Fresh fixtures use manual rooms; must inspect `Automatic=True`, test boundary regeneration and reopen |
 | Set room name/number | Writable RoomName/RoomNumber parameters | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP saved fixture parameters; not equivalent to native drawing tags |
-| Set model room-marker position | IRoom.MarkerPosition; drawing tags are separate | `SUPPORTED_NOT_IMPLEMENTED` | No fresh marker-placement test |
+| Set model room-marker position | `room_marker` action → IRoom.MarkerPosition in global XY mm; saved and independent reopened readback | `IMPLEMENTED_AND_TESTED` | R-LEVELS/R-MCP: [2345,1678] mm retained, non-Room rejected unchanged; drawing Tags, room boundary and automatic-room ControlPoint are separate |
 | Generic native Element from an existing style | Selected ElementStyleId, origin and actual nonempty native mesh | `IMPLEMENTED_AND_TESTED` | R-ELEMENTS; does not create/import a new style or prove every furniture/equipment category |
 | Equipment and other category-based furniture/fixtures | Separate entity/style/category contracts | `SUPPORTED_NOT_IMPLEMENTED` | Generic Element mesh test is not all MEP/equipment creation |
 | Import model geometry into an element style | Factory FilePath for supported geometry formats | `VERSION_DEPENDENT` | Import/license/format dependent; imported mesh is not a parametric wall/stair |
@@ -274,9 +315,9 @@ Primary references: [IDrawing](https://help.rengabim.com/api/interface_i_drawing
 | Read title-block cells | `IDrawing.GetTitleBlockInstance`, `GetCellValue` | `SUPPORTED_NOT_IMPLEMENTED` | Literal and generated fields must be distinguished |
 | Set arbitrary title-block cell | No public `SetCellValue` in `ITitleBlockInstance` | `API_LIMITATION` | Use tested source-field binding or preconfigured user template |
 | Read existing computed model linear dimensions | Native LinearDimension parameters `DimensionValueType=1` and `DimensionValue` | `NOT_VERIFIED` | Display value can be rounded/localized; distinct from a geometric binding getter |
-| Create native model linear dimension through public factory | LinearDimension absent from supported `IModel.CreateObject` table; no public feature-binding constructor | `API_LIMITATION` | Bridge rejects creation before mutation; no line/text substitute; alternative routes unverified |
+| Create native model linear dimension through public factory | LinearDimension absent from supported `IModel.CreateObject` table; no public feature-binding constructor | `API_LIMITATION` | Bridge rejects creation before mutation; new suite records negative building/drawing factory probes; no line/text substitute |
 | Native drawing dimensions, axes/markers and associations | Some real native annotations inspect as UndefinedObject without parameters | `NOT_VERIFIED` | Preserve native type/UUID; no proven creation/binding/value route |
-| Create native room tags through public model factory | Tag absent from supported constructor table; no dedicated public `ITag` binding interface found | `API_LIMITATION` | Existing tags and template routes need separate semantic binding/readback proof; text imitation is not accepted |
+| Create native room tags through public model factory | Tag absent from supported constructor table; no dedicated public `ITag` binding interface found | `API_LIMITATION` | New suite records negative building/drawing factory probes; IRoom.MarkerPosition is a different intrinsic marker; template Tag bindings remain unverified |
 | Create/list schedule/table/filter entities | Project collections + generic factory | `NOT_VERIFIED` | Empty entity existence does not prove a functional schedule definition |
 | Configure native schedule/table rows, columns, formula/filter | No public `ISchedule/ITable` definition/data interface found; tested schedule did not expose invented FilterId | `API_LIMITATION` | Narrow API 2.50 interface limitation; template route still needs proof |
 | Embed a configured existing schedule | EmbeddedSchedule; after creation Apply, assign ScheduleId and fit content | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP saved reference/identity/HasContent; native schedule row/filter semantics not inspected |
@@ -303,7 +344,8 @@ LinearDimension or fabricate parameter values for completeness.
 | Selected-object IFC export | `ExportObjectsToIFC` | `SUPPORTED_NOT_IMPLEMENTED` | Check selected set and IFC class/geometry contents |
 | IFC mappings/export settings | `IIfcExportSettings` type/parameter/layer files and flags | `SUPPORTED_NOT_IMPLEMENTED` | Mappings are user-supplied or separately licensed; test each flag |
 | IFC schema versions | Native `IfcVersion` enumeration | `VERSION_DEPENDENT` | Match actual supported schema/version, do not infer from newest IFC specification |
-| Import IFC as a new native project | `IApplication.ImportIfcProject` | `SUPPORTED_NOT_IMPLEMENTED` | Verify actual resulting native categories/editability |
+| Import own constrained IFC spatial/grid seed as a new native project | `IApplication.ImportIfcProject`, strict Level/Axis readback and own-carrier cleanup | `IMPLEMENTED_AND_TESTED` | R-LEVELS/R-MCP new-project bootstrap; no generic import endpoint for arbitrary files or lossless model conversion claim |
+| Import arbitrary third-party IFC as native editable BIM | Official importer can leave nonconvertible objects as IFC objects | `NOT_VERIFIED` | Bootstrap proof does not establish full IFC schema/semantic conversion or arbitrary category editability |
 | Link/reference IFC in current project | Applicable factory FilePath and IFC-link collections | `VERSION_DEPENDENT` | Not equivalent to native IFC project import |
 | Single-sheet IDrawing PDF exporter | IDrawing.ExportToPdf | `SUPPORTED_NOT_IMPLEMENTED` | Tested batch exporter is a different method |
 | Selected multi-sheet single PDF | IProject.ExportDrawingsToPdfS with explicit intended UUIDs | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP two selected A3 landscape pages; blank template sheet excluded. Sheet numbering/order matching the test titles was not asserted |
@@ -359,8 +401,8 @@ convenient. [Official general principles](https://help.rengabim.com/api/overview
 | Invoke arbitrary built-in commands via custom action | `NOT_VERIFIED` | `IAction.Trigger` triggers its associated extension action; not a general native-command dispatcher |
 | STDL parametric categories | `SUPPORTED_NOT_IMPLEMENTED` | Applicable category/style template workflow; not a replacement for absent annotation bindings |
 | Newer/older Renga, Standard edition, other API/runtime versions | `VERSION_DEPENDENT` | Must run discovery and disposable integration fixtures on each declared configuration |
-| Isolated Codex backend discovery/reload | `IMPLEMENTED_AND_TESTED` | R-CODEX isolated app-server lists all 20 tools and acknowledges reload; no native/model turn in this probe |
-| Current existing Codex chat tool roundtrip | `IMPLEMENTED_AND_TESTED` | R-CODEX 20 available tool names; status → protected copy → inspection → saved WallHeight 3400→3600 edit → independent inspection, same native UUID; 5 calls, separate from 53 suite assertions |
+| Isolated Codex backend catalogue discovery | `IMPLEMENTED_AND_TESTED` | R-CODEX 0.2 fresh real backend lists all 21 tools; no new threads/model turns or direct native call in this catalogue probe |
+| Existing Codex chat execution of new 0.2 bootstrap tool | `NOT_VERIFIED` in the cached-chat diagnostic | Its catalogue still had 20 tools; refresh/reconnect required if stale. Real stdio MCP executed the new tool successfully in R-MCP; this is a separate scope |
 | Desktop control-socket diagnostic | `NOT_VERIFIED` | Proxy unavailable during its diagnostic probe; actual current-chat tool execution was independently verified |
 | Vendor SDK/component redistribution | `VERSION_DEPENDENT` | Requires vendor terms; this repository distributes no SDK TLB/DLL/installers |
 

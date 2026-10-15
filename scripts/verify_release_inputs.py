@@ -26,6 +26,32 @@ def normalized_source(data: bytes) -> bytes:
     return data.decode("utf-8-sig").replace("\r\n", "\n").replace("\r", "\n").encode("utf8")
 
 
+def release_metadata(repository: Path) -> dict:
+    """Read safe, stable release names from this exact checkout's metadata."""
+    project = tomllib.loads((Path(repository) / "pyproject.toml").read_text(encoding="utf8"))["project"]
+    version = project.get("version")
+    if project.get("name") != "renga-codex-bridge" or not isinstance(version, str) or not re.fullmatch(
+            r"(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)", version):
+        raise ValueError("Release requires renga-codex-bridge and an explicit major.minor.patch version")
+    return {"bridge_version": version, "release_tag": "v" + version,
+            "release_notes": "docs/RELEASE_NOTES_" + version + ".md",
+            "wheel": "renga_codex_bridge-" + version + "-py3-none-any.whl",
+            "sdist": "renga_codex_bridge-" + version + ".tar.gz"}
+
+
+def verify_release_notes(repository: Path) -> dict:
+    metadata = release_metadata(repository)
+    path = Path(repository) / metadata["release_notes"]
+    if not path.is_file() or path.is_symlink():
+        raise ValueError("Current version's release notes must be a regular file")
+    text = path.read_text(encoding="utf-8-sig")
+    if not text.strip() or re.search(r"ROOT_FILL|TODO_RELEASE_PROOF|NOT_READY_FOR_PUBLICATION", text):
+        raise ValueError("Release notes still contain unfilled native proof placeholders or are empty")
+    if not text.splitlines() or metadata["bridge_version"] not in text.splitlines()[0]:
+        raise ValueError("Release notes title must identify the current package version")
+    return metadata
+
+
 def source_fingerprint(repository: Path) -> dict:
     """Fingerprint sorted flat package sources, independent of OS line endings.
 
@@ -72,13 +98,11 @@ def _check_sanitized_evidence(value):
 
 def verify_evidence(repository: Path, evidence: Path) -> dict:
     repository = Path(repository).resolve()
-    project = tomllib.loads((repository / "pyproject.toml").read_text(encoding="utf8"))["project"]
-    if project["name"] != "renga-codex-bridge" or project["version"] != "0.1.0":
-        raise ValueError("This preview release gate supports only bridge version 0.1.0")
+    metadata = release_metadata(repository)
     value = json.loads(Path(evidence).read_text(encoding="utf-8-sig"))
     if not isinstance(value, dict) or type(value.get("schema_version")) is not int or value["schema_version"] != 1 or value.get("status") != "passed":
         raise ValueError("Fresh sanitized native evidence must have schema_version=1 and status=passed")
-    if value.get("bridge_version") != project["version"]:
+    if value.get("bridge_version") != metadata["bridge_version"]:
         raise ValueError("Native evidence version does not match the package")
     if type(value.get("computer_use_calls")) is not int or value["computer_use_calls"] != 0:
         raise ValueError("Preview API coverage requires exactly zero Computer Use calls")
@@ -130,6 +154,7 @@ def _archive_files(path: Path):
 
 
 def verify_archives(repository: Path, directory: Path) -> list[dict]:
+    metadata = release_metadata(repository)
     fingerprint = source_fingerprint(repository)
     expected = {row["path"]: row["sha256"] for row in fingerprint["files"]}
     artifacts = sorted(Path(directory).iterdir())
@@ -137,7 +162,7 @@ def verify_archives(repository: Path, directory: Path) -> list[dict]:
         raise ValueError("Release dist must contain exactly one wheel and one sdist")
     results = []
     for artifact in artifacts:
-        if not artifact.is_file() or artifact.is_symlink() or not re.match(r"^renga[_-]codex[_-]bridge-0\.1\.0(?:-|\.)", artifact.name):
+        if not artifact.is_file() or artifact.is_symlink() or artifact.name not in {metadata["wheel"], metadata["sdist"]}:
             raise ValueError("Unexpected artifact name or linked file: " + artifact.name)
         actual_sources = {}
         entries = 0
@@ -171,12 +196,19 @@ def main():
                         help="Defaults to tests/evidence/windows-renga-9.3.json under --repository")
     parser.add_argument("--archives", type=Path)
     parser.add_argument("--fingerprint-only", action="store_true")
+    parser.add_argument("--release-metadata", action="store_true",
+                        help="Print validated current-version tag, release-notes and artifact names")
     args = parser.parse_args()
-    if args.fingerprint_only:
+    if args.fingerprint_only and args.release_metadata:
+        parser.error("Choose only one metadata-only output mode")
+    if args.release_metadata:
+        result = release_metadata(args.repository)
+    elif args.fingerprint_only:
         result = source_fingerprint(args.repository)
     else:
         evidence = verify_evidence(args.repository, args.evidence or
                                    args.repository / "tests/evidence/windows-renga-9.3.json")
+        verify_release_notes(args.repository)
         result = {"status": "verified", "bridge_version": evidence["bridge_version"],
                   "source_sha256": evidence["source_fingerprint"]["sha256"]}
         if args.archives:

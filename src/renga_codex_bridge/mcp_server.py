@@ -52,6 +52,11 @@ async def bridge_apply_plan(project:str,operations:list[dict],new:bool=False)->d
     return await run('apply',project=project,operations=operations,new=new)
 
 @server.tool()
+async def bridge_create_levels_project(project:str,levels:list[dict],grid:dict|None=None)->dict:
+    """Create a NEW native .rnp with levels at explicit elevation_mm and optional orthogonal Axis grid via official IFC import. Verify saved native identities/heights and fresh exported grid coordinates; remove own carriers. Does not modify existing level elevations."""
+    return await run('create_levels',project=project,levels=levels,grid=grid)
+
+@server.tool()
 def bridge_validate_plan(operations:list[dict])->dict:
     """Validate plan structure without native mutation. This is NOT a native solver preview."""
     return validate_plan(operations)
