@@ -5,6 +5,7 @@ from .model import object_by_id,create,set_parameter,inventory,baseline,paramete
 from .validation import validate_plan,execution_batches
 from .audit import event,save_plan
 from .orientation import validate_creation_axes,assert_pose_matches
+from .room_markers import set_room_marker,assert_room_marker_matches
 
 def matches(actual,expected):
     if isinstance(expected,(int,float)) and not isinstance(expected,bool):
@@ -14,7 +15,7 @@ def matches(actual,expected):
 def apply_plan(path,operations,*,new=False):
     validate_plan(operations)
     plan_path=save_plan({'project':str(path),'new':new,'units':'mm','operations':operations})
-    refs={};requests={};property_checks={};pose_checks={};curves={};curves3d={};roof_checks={}
+    refs={};requests={};property_checks={};pose_checks={};curves={};curves3d={};roof_checks={};marker_checks={}
     with Session(path,create=new,write=True) as s:
         def resolve(value):return refs[value] if isinstance(value,str) and value in refs else object_by_id(s,value).Id
         for batch in execution_batches(operations):
@@ -70,6 +71,10 @@ def apply_plan(path,operations,*,new=False):
                             for key in list(table):
                                 if key[0]==uid:del table[key]
                         curves.pop(uid,None);curves3d.pop(uid,None);pose_checks.pop(uid,None);roof_checks.pop(uid,None)
+                        marker_checks.pop(uid,None)
+                    elif action=='room_marker':
+                        set_room_marker(s,obj,item['point']);marker_checks[uid]=item['point']
+                        event('room_marker_requested',uuid=uid,point=item['point'],status='provisional')
                     elif action=='room_region':
                         room=obj.QueryInterface(s.r.IRoom);point=s.r.Point2D(*item['point'])
                         if room.Automatic:room.ControlPoint=point
@@ -111,6 +116,7 @@ def apply_plan(path,operations,*,new=False):
                     raise RuntimeError('Requested contour differs from native committed contour; native joining may alter endpoints, inspect before retrying')
             curves[uid]=actual
         for uid,expected_pose in pose_checks.items():assert_pose_matches(expected_pose,placement(s,object_by_id(s,uid)))
+        for uid,point in marker_checks.items():assert_room_marker_matches(s,object_by_id(s,uid),point)
         s.save()
     with Session(path) as reopened:
         after=inventory(reopened);by_uid={row['uuid']:row for row in after}
@@ -138,7 +144,9 @@ def apply_plan(path,operations,*,new=False):
             curve=object_by_id(reopened,uid).QueryInterface(reopened.r.IBaseline3DObject).GetBaselineInCS(cs)
             actual=[[getattr(curve.GetPointOn(t),k) for k in ('X','Y','Z')] for t in (curve.MinParameter,curve.MaxParameter)]
             if not all(matches(a,b) for pa,pb in zip(actual,points) for a,b in zip(pa,pb)):raise RuntimeError('Saved3D baseline differs from requested points')
-        result={'status':'saved_reopened_verified','plan':plan_path,'refs':{k:by_uid[v.strip('{}').lower()]['id'] for k,v in ref_uids.items()},
+        markers=[assert_room_marker_matches(reopened,object_by_id(reopened,uid),point) for uid,point in marker_checks.items()]
+        for marker in markers:marker['persistence_verified_by_this_reader']=True
+        result={'status':'saved_reopened_verified','room_marker_checks':markers,'plan':plan_path,'refs':{k:by_uid[v.strip('{}').lower()]['id'] for k,v in ref_uids.items()},
                 'persistent_refs':{k:v.strip('{}').lower() for k,v in ref_uids.items()},'objects':after,'computer_use_calls':0}
         event('reopen_verified',path=str(reopened.path),sha256=reopened.initial_sha,objects=len(after),plan=plan_path,computer_use_calls=0)
         return result

@@ -4,7 +4,7 @@ import uuid
 from .planning import polygon_area
 from .orientation import validate_creation_axes
 
-MODEL_ACTIONS={'create','set_parameter','baseline','baseline3d','property','delete','move','room_region','roof_slopes'}
+MODEL_ACTIONS={'create','set_parameter','baseline','baseline3d','property','delete','move','room_region','room_marker','roof_slopes'}
 
 def execution_batches(operations):
     """Apply newly created hosts before dependent creation; save only at the end.
@@ -15,7 +15,7 @@ def execution_batches(operations):
     """
     batches=[];batch=[];pending=set()
     for item in operations:
-        dependencies=[item.get(key) for key in ('host','level')] if item['action']=='create' else [item.get('id')] if item['action'] in {'roof_slopes','room_region','move','baseline3d'} else []
+        dependencies=[item.get(key) for key in ('host','level')] if item['action']=='create' else [item.get('id')] if item['action'] in {'roof_slopes','room_region','room_marker','move','baseline3d'} else []
         if batch and (item['action']=='create' and item.get('kind')=='Beam' or any(isinstance(value,str) and value in pending for value in dependencies)):
             batches.append(batch);batch=[];pending=set()
         batch.append(item)
@@ -71,7 +71,7 @@ def validate_plan(operations):
             value=item['value']
             if not isinstance(value,(str,int,float,bool)) or isinstance(value,float) and not math.isfinite(value):raise ValueError('Invalid parameter value')
         if action=='property':uuid.UUID(item['guid'].strip('{}'))
-        if action=='room_region' and 'point' not in item:raise ValueError('room_region requires a control point')
+        if action in {'room_region','room_marker'} and 'point' not in item:raise ValueError(action+' requires an explicit global XY point')
         if action=='roof_slopes':
             if not isinstance(item.get('edges'),list) or not item['edges']:raise ValueError('Explicit roof edges required')
             seen=set()

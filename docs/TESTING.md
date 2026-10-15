@@ -27,6 +27,7 @@ write root must be a dedicated disposable directory. Run these sequentially:
 
 ```powershell
 .\.venv\Scripts\python.exe scripts\run_live_tests.py
+.\.venv\Scripts\python.exe scripts\run_level_annotation_tests.py
 .\.venv\Scripts\python.exe scripts\run_mcp_tests.py
 .\.venv\Scripts\python.exe scripts\run_element_tests.py
 .\.venv\Scripts\python.exe scripts\run_timeout_test.py
@@ -45,6 +46,15 @@ triangulated areas with separately computed targets, including a slab opening.
 The element suite covers columns, a beam with a 3D baseline, stairs, a pitched
 roof and a genuine existing-style Element. It explicitly records failed or
 ineffective nonzero-level and counter-directed window probes as limitations.
+The newer level/annotation suite separately proves the official IFC bootstrap
+for a NEW native model: 0/3000/6000 mm levels, orthogonal native Axis objects,
+clean carrier removal and a native wall with mesh Z=3000..5800 mm. Negative and
+fractional levels and Unicode/apostrophe names are tested as additional cases.
+Axis coordinates and renamed labels are checked using fresh native IFC export;
+the Axis COM baseline interfaces remain unavailable. Intrinsic Room marker XY
+is checked after saving and by a separate reopened inspection. Ten explicit
+factory probes cover five annotation types in building and drawing contexts;
+their expected rejection is not creation support.
 The MCP suite uses the real stdio client and server, not mocked tool calls.
 
 Documentation tests create two native A3 landscape sheets, linked level views,
@@ -64,16 +74,14 @@ The installed Renga license may add its own export watermark.
 
 This starts temporary **real Codex protocol instrumentation**, initializes it
 and reads the configured MCP catalogue. It creates no Codex task or model turn,
-and introduces no AI service or key. Discovery in this fresh backend and a
-configuration-reload acknowledgement are verified. Its control-socket diagnostic
-for the running Desktop backend was unavailable, which was recorded separately.
-After the new MCP catalogue appeared in the existing Codex chat, actual tools
-were also tested there: status, protected project copy, native wall inspection,
-an applied height change from 3400 to 3600 mm and a separate saved-result read.
-The persistent wall identity was preserved. This additional chat roundtrip is
-separate from the 53 scripted native scenario assertions. All 20 tools appeared
-in the current catalogue. Reconnect or restart Codex after a new installation
-if its tools have not refreshed; configuration writes alone do not prove it.
+and introduces no AI service or key. The expected 0.2 catalogue contains 21
+tools, including `bridge_create_levels_project`. See the current public report
+for its actual discovery result. The original 0.1 release separately verified
+a five-call existing-chat wall-edit roundtrip and its then-current 20 tools;
+that historical result is not a fresh 0.2 test. Reconnect or restart Codex after
+an upgrade if tools have not refreshed; configuration writes alone do not prove
+current-chat discovery. A control-socket diagnostic is also distinct from
+actual MCP tool invocation.
 
 ## Public proof and packages
 

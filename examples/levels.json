@@ -1,0 +1,5 @@
+[
+  {"name":"Ground floor","elevation_mm":0},
+  {"name":"First floor","elevation_mm":3000},
+  {"name":"Roof level","elevation_mm":6000}
+]

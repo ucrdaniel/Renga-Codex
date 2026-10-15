@@ -1,6 +1,6 @@
 # Previous integration: technical findings
 
-Reviewed on 2026-10-14. This document records evidence from the owner's earlier,
+Historical review: 2026-10-14; extension findings updated 2026-10-15. This document records evidence from the owner's earlier,
 private Windows integration and a separate architectural modelling exercise.
 It is research input for Renga–Codex Bridge, **not a test report for this public
 product**. Private BIM files, raw user logs, personal information and SDK
@@ -90,7 +90,7 @@ Current implementation/testing status is maintained in
 | Historical difficulty | Technical cause and evidence | Programmatic resolution or next test | Classification |
 |---|---|---|---|
 | Dynamic Python calls rejected typed records | Dynamic dispatch produced COM type/marshalling errors; typed `comtypes` records worked | Load the local TLB and construct the declared record/interface. C# interop is another supported route; a Python marshalling failure is not proof that an API method is absent | `SUPPORTED_NOT_IMPLEMENTED` for any unported typed operation |
-| Nonzero levels silently remained at zero | `ILevel.Elevation` and `Placement` are getters; `IPlacement3D.Origin` is also a getter. The old creation path did not persist the requested elevation | Reject the unsupported path and use a user-provided template with known levels. The new R-ELEMENTS copied-model probe also applied `level.Placement.Move(...+3000 mm)`, saved/reopened and read elevation/origin Z=0 | `API_LIMITATION` for direct setters and the tested detached-placement route in 9.3; other versions require their own probe |
+| Nonzero levels silently remained at zero | `ILevel.Elevation` and `Placement` are getters; `IPlacement3D.Origin` is also a getter. The old creation path did not persist the requested elevation | Reject the unsupported direct path. The 0.1 R-ELEMENTS probe also applied `level.Placement.Move(...+3000 mm)`, saved/reopened and read elevation/origin Z=0. The distinct 0.2 new-project IFC bootstrap below creates genuine native nonzero levels | `API_LIMITATION` for direct setters and detached-placement mutation; not a blanket prohibition on new-project import |
 | Door/window relocation did not persist after `SetPlacement` | `ILevelObject.SetPlacement` explicitly excludes Door, Window, Opening and Room, and objects with dependents. A call returning is insufficient | Use category-specific writable placement parameters where available; otherwise recreate the native hosted object with complete style, host, offset and properties, then verify dependent identities and geometry | `API_LIMITATION` for that generic placement path |
 | Empty window instead of a complete assembly | Style zero represented an aperture in the tested template | Inspect styles and choose a valid existing style; assign `INewEntityArgs.StyleId` before creation and verify the saved style and meshes | `SUPPORTED_NOT_IMPLEMENTED` for a new styled-opening adapter until its fresh test passes |
 | Imported element style can silently contain default geometry | The SDK documents a non-null ElementStyle factory result with default model when the supplied 3D file is unsupported or fails loading | Verify actual imported content/meshes against the intended file; never treat non-null style creation as successful import | `VERSION_DEPENDENT` for formats; content verification is an implementation requirement |
@@ -108,7 +108,7 @@ Current implementation/testing status is maintained in
 | Schedule filter check falsely failed | The inspector expected a `FilterId` that native schedules did not expose. Public schedule parameters were limited, and there was no `ISchedule.GetDefinition/GetData` | Enumerate actual parameters rather than inventing members. Independent room-group calculations are useful but are not verification of native schedule rows or filters. Existing configured templates may be usable, still require a real test | `API_LIMITATION` for the assumed filter/data interfaces; template route `NOT_VERIFIED` |
 | Arbitrary stamp cell writing unavailable | `ITitleBlockInstance.GetCellValue` is read-only; there is no corresponding public cell setter | Read cells; update supported source fields such as project name/code/stage and drawing parameters. Use a properly licensed, preconfigured template for literal author/organization cells. Test source binding before promising automatic filling | Direct cell edit `API_LIMITATION`; source-field route `SUPPORTED_NOT_IMPLEMENTED` |
 | PDF export missing from the generic adapter | Export tooling was absent, although `IDrawing.ExportToPdf` and `IProject.ExportDrawingsToPdfS` are public methods | Implement direct native single/multiple-sheet export; independently open the PDF and check page count/size/content. No printing dialog or PDF merger is required for the documented multi-sheet API | `SUPPORTED_NOT_IMPLEMENTED`, **not** a platform limitation |
-| DWG/DXF/CSV, IFC import not implemented | The old adapter concentrated on IFC export | Public drawing exporters, project CSV export and application IFC import provide documented routes. Test the native result; project CSV is not a getter for native schedule cell values | `SUPPORTED_NOT_IMPLEMENTED` / version-sensitive formats |
+| DWG/DXF/CSV, arbitrary IFC import not implemented | The old adapter concentrated on IFC export | Public drawing exporters, project CSV export and application IFC import provide documented routes. The 0.2 own-seed import is a separately bounded implementation, not generic third-party conversion. Project CSV is not a getter for native schedule cell values | General formats `SUPPORTED_NOT_IMPLEMENTED` / version-sensitive; own-seed route separately tested |
 | Some objects disappeared from UUID audit | The old generic inventory relied on an optional `UniqueId` parameter, absent on some drawing/undefined objects | Always read `IModelObject.UniqueIdS` or `IEntity.UniqueIdS` directly, then resolve new numeric IDs after reopen. Compare complete UUID sets, including drawings and helper objects | Implementation defect; new bridge must test the correction |
 | Parameters/quantities unavailable on some native objects | `GetParameters()` can return null and quantities can be unset | Preserve object identity and interface information; distinguish null/unset/unsupported from numeric zero. Iterate `IGuidCollection.Count/GetS` rather than assuming a Python sequence | Implementation gap |
 | An old error string misreported a successful operation | `LastError` can outlive the current call | Clear or timestamp diagnostics, record native return codes, and let saved-state postconditions determine success. Do not suppress genuine failures | Implementation gap |
@@ -127,9 +127,9 @@ and [project](https://help.rengabim.com/api/interface_i_project.html).
 
 ## Lifecycle findings during the 0.1 reimplementation
 
-The following were discovered in the new bridge's disposable native tests on
-Renga Professional 9.3.32980.0. They are current implementation findings, not
-additional H-ARCH successes. The frozen-source native reruns passed **53
+The following were discovered in the **released 0.1.0** bridge's disposable native tests on
+Renga Professional 9.3.32980.0. They are historical product findings, not
+additional H-ARCH successes or a fresh 0.2 regression record. The 0.1 frozen-source native reruns passed **53
 scenario assertions: 22 core, 21 MCP, 7 elements and 3 owned-process failure
 checks**, including real native PNG rendering and saved-state verification.
 Both fresh MCP PDF pages and its native PNG were visually inspected. The two
@@ -178,6 +178,79 @@ The renderer finding is another interop-versus-platform distinction. A failed
 typed interface probe alone did not prove that screenshots were unavailable.
 The successful fallback still used the official Renga API; making an owned view
 visible is not keyboard/mouse emulation and does not establish headless rendering.
+
+## 0.2 extension findings: supported import is different from a missing setter
+
+The 0.2 work investigated official C++/.NET plugin, COM constructor, STDL,
+template and IFC routes without Computer Use. The key new route is
+`IApplication.ImportIfcProject` applied to an independently generated,
+constrained IFC4 seed. Its explicit storey placements produce **genuine native
+Level objects**, rather than changing a read-only Level property. Optional
+orthogonal `IfcGrid` content can become **genuine native Axis objects**. The
+bootstrap removes its own temporary slab carriers before saving a clean native
+project and verifies levels/axes and their name-to-UUID identities after
+reopening. It refuses existing target files and stays within the configured
+test write root.
+
+The final frozen-source 0.2 suite created native levels **0/3000/6000 mm** and five
+native axes. A subsequent native wall on the reopened 3000 mm level had actual
+mesh bounds **Z=3000..5800 mm**. A separate intrinsic Room marker retained
+**[2345,1678] mm** through save/reopen. All **11 checks** in the new
+[suite](../scripts/run_level_annotation_tests.py) passed. All five suites were
+rerun on the same 0.2 behavior source: **66 native checks passed**, comprising
+22 core, 23 real stdio MCP, 7 structural elements, 3 owned-process failures and
+11 new levels/annotations checks. The previous 0.1 results are historical and
+are not included in that count. There were **0 Computer Use calls**.
+
+The [public evidence](../tests/evidence/windows-renga-9.3.json) records those
+actual outcomes and the **27-module** normalized source SHA-256
+`69658b5f9e8ee0dd20c8990fbf06f9ae1fac7d6bcaca8b27bdfc37833d00cf81`.
+The final portable run passed 511 tests, with one skipped and one opt-in native
+integration test deselected. Portable tests and hosted CI do not run Renga.
+The fresh native two-page MCP PDF was visually inspected separately from the
+66 native assertions; its synthetic sheets represent the same test level and
+do not certify a complete architectural package.
+
+Important distinctions for future work:
+
+- The bootstrap creates a **new project**. It does not add/move levels or merge
+  grids into an existing architectural project. A reconstruction must never
+  silently replace the original file to imitate an existing-project edit.
+- Native Axis type/name/UUID is read directly. Requested grid coordinates are
+  checked through a **fresh IFC export from the reopened native project**;
+  the direct Axis baseline getter remains unavailable. Original seed contents
+  alone would not verify saved native geometry.
+- Writable `GridLineName` renamed axis **2→2b** in the completed new suite;
+  fresh native IFC export confirmed the saved name and requested coordinates.
+  Arbitrary axis translation, rotations and dependent associations remain
+  unverified.
+- `IRoom.MarkerPosition` moves a Room's intrinsic model marker in global XY mm.
+  It does not create or bind a drawing Tag, change a room boundary, or set an
+  automatic room's ControlPoint.
+- Direct level elevation remains read-only. The new suite records rejection
+  without changing the saved project hash. New-project import does not justify
+  enabling the rejected direct setter.
+- The completed new suite records ten negative factory probes: Axis, DrawingAxis,
+  LinearDimension, Tag and DrawingElevationMark in building and drawing model
+  contexts. These are ten actual factory rejections, not ten newly successful
+  annotation creations. A rejected factory must not be replaced by line/text
+  imitations in advertised API coverage.
+
+The 0.2 source exposes **21 MCP tools**. A fresh real Codex protocol backend
+discovered all 21 without creating threads or model turns, and the real stdio
+MCP suite executed the new bootstrap and intrinsic Room-marker operation.
+The existing chat's separate cached-catalogue diagnostic still showed 20 tools;
+execution of the new bootstrap through that cached chat is not claimed. These
+three scopes—catalogue discovery, actual stdio execution and current-chat
+execution—must remain distinct.
+
+The supported extension research is documented in
+[EXTENSION_API_RESEARCH.md](EXTENSION_API_RESEARCH.md). C++/.NET uses the same
+public COM contract; STDL covers style/category/reinforcement authoring. Neither
+supplies a documented missing annotation-binding constructor. Templates can
+preserve pre-authored objects, but do not establish arbitrary runtime creation.
+These routes must be judged by their actual native output, not the choice of
+programming language.
 
 ## API-first architecture implications
 
@@ -259,7 +332,7 @@ without Computer Use, once a fresh test proves the implementation.
 This analysis supports a universal, testable integration rather than reusing a
 homework model as a fixture. A first release may expose a verified subset and
 report other operations as unsupported/unverified. It must not claim complete
-autonomous documentation, arbitrary nonzero-level creation, lossless copying
+autonomous documentation, arbitrary existing-project nonzero-level editing, lossless copying
 of every element type, arbitrary native schedule editing or a GUI-free replay
 of the historical architectural exercise without new evidence.
 

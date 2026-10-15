@@ -1,5 +1,15 @@
 # Windows installation
 
+Version 0.2 adds `bridge_create_levels_project`: create a NEW native model with
+explicit level elevations and an optional orthogonal native Axis grid through
+official IFC import/export. Refresh the MCP catalogue after upgrading (21 tools).
+Import and export must be available in the installed Renga edition/license.
+The operation refuses existing targets and does not merge into an existing
+model. Intermediate own IFC files remain in the dedicated write root. See
+[operation plans](OPERATION_PLANS.md) for the exact JSON contract. `room_marker`
+moves the Room's intrinsic marker in global XY millimeters; it is separate from
+creating a standalone Tag or associative dimension.
+
 Renga–Codex Bridge is an independent local MCP server. Codex interprets a task
 and calls tools; the bridge performs its advertised operations through the
 official Renga COM API. It does not require a separate AI service or an extra

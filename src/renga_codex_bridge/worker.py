@@ -18,6 +18,9 @@ from .ownership import register_worker_identity
 from .project_info import read_project_info,edit_project_info
 
 def execute(command,arguments):
+    if command=='create_levels':
+        from .level_projects import create_levels_project
+        return create_levels_project(arguments['project'],arguments['levels'],arguments.get('grid'))
     if command=='validate':return validate_plan(arguments['operations'])
     if command=='apply':return apply_plan(arguments['project'],arguments['operations'],new=arguments.get('new',False))
     if command=='documents':return create_plans(arguments['project'],arguments['drawings'])

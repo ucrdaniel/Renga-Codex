@@ -29,8 +29,20 @@ student information, activation keys, vendor SDK binaries or user logs into Git.
   setter call alone is not a successful model change.
 - Never claim tested support from method discovery, mock tests or old homework
   evidence. Record actual version, test scenario, saved values and failures.
-- Nonzero Level origin/elevation is not writable in the verified Renga 9.3 API.
-  Use existing levels; report the limitation instead of silently ignoring it.
+- Direct nonzero Level origin/elevation setters remain unavailable in verified
+  Renga 9.3. For a new project, `bridge_create_levels_project` uses the official
+  IFC importer with explicit level names/elevations and an optional orthogonal
+  grid. This is a new-project bootstrap, not a setter, merge or existing-project
+  replacement. Use a new `.rnp` under the configured write root; preserve the
+  generated own IFC, remove its temporary carriers, and verify genuine native
+  types, level elevation/origin, name-to-UUID identities and save/reopen.
+- Bootstrap axes are genuine native Axis objects. Verify names/counts and their
+  requested coordinates through a fresh native IFC export after reopening;
+  no direct Axis baseline getter is established. An imported visual grid is
+  insufficient evidence. Direct Axis/Dimension/Tag factories remain restricted.
+- `room_marker` changes the intrinsic `IRoom.MarkerPosition` in global XY mm
+  and requires saved-result readback. It does not create an associative drawing
+  Tag or move a room boundary/control point. Do not claim those capabilities.
 - Window XY origin controls placement; Z is applied through `Offset`. A default
   window style can represent an aperture. Inspect and select an existing style
   before claiming a complete window assembly.

@@ -107,7 +107,9 @@ if (-not $PythonExe) {
 }
 if (-not $PythonExe) { throw 'Install Python 3.11+ x64 separately, then pass -PythonExe with its absolute path.' }
 $PythonExe = (Resolve-Path -LiteralPath $PythonExe).Path
-Invoke-Checked $PythonExe @('-c', 'import sys, struct; assert sys.version_info >= (3, 11), "Python 3.11+ required"; assert struct.calcsize("P") == 8, "Python x64 required"; print(sys.version); print(sys.executable)') 'Python version or architecture check failed.'
+# Windows PowerShell 5.1 strips embedded native-argument quotes. Keep Python
+# probes quote-free so a valid x64 environment is not archived as invalid.
+Invoke-Checked $PythonExe @('-c', 'import sys; assert sys.version_info >= (3, 11); assert sys.maxsize > 2**32; print(sys.version); print(sys.executable)') 'Python version or architecture check failed.'
 
 Assert-PrivateRuntimePath $taskRuntime
 New-Item -ItemType Directory -Path $taskRuntime -Force | Out-Null
@@ -118,7 +120,7 @@ if (Test-Path -LiteralPath $taskVenv) {
     }
     $taskVenvValid = $false
     if (Test-Path -LiteralPath $taskVenvPython) {
-        $taskVenvProbe = Invoke-Probe $taskVenvPython @('-c', 'import sys, struct; assert sys.version_info >= (3, 11) and struct.calcsize("P") == 8')
+        $taskVenvProbe = Invoke-Probe $taskVenvPython @('-c', 'import sys; assert sys.version_info >= (3, 11) and sys.maxsize > 2**32')
         $taskVenvValid = ($taskVenvProbe.ExitCode -eq 0)
     }
     if (-not $taskVenvValid) {
