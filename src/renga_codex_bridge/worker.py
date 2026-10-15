@@ -18,6 +18,12 @@ from .ownership import register_worker_identity
 from .project_info import read_project_info,edit_project_info
 
 def execute(command,arguments):
+    if command=='author_resources':
+        from .resources import author_resources
+        return author_resources(arguments['project'],arguments['resources'])
+    if command=='presentations':
+        from .presentation import create_presentations
+        return create_presentations(arguments['project'],arguments['drawings'])
     if command=='create_levels':
         from .level_projects import create_levels_project
         return create_levels_project(arguments['project'],arguments['levels'],arguments.get('grid'))
@@ -46,12 +52,15 @@ def execute(command,arguments):
             if offset<0 or not 1<=limit<=2000:raise ValueError('Invalid pagination')
             return {'objects':rows[offset:offset+limit],'total':len(rows),'offset':offset,'limit':limit}
         if command=='geometry':return extract(s)
-        if command=='verify':return verify(s,arguments.get('expected_areas'),arguments.get('collision_types'))
+        if command=='verify':return verify(s,arguments.get('expected_areas'),arguments.get('collision_types'),arguments.get('expected_filling_hosts'))
         if command=='catalogs':return catalogs(s,arguments.get('collection'))
+        if command=='resources':
+            from .resources import inspect_resources
+            return inspect_resources(s,arguments.get('collections'))
         if command=='drawings':return snapshot(s)
         if command=='ifc':return export_ifc(s,arguments['output'])
         if command=='pdf':return export_pdf(s,arguments['output'],arguments.get('drawing_uuids'))
-        if command=='render':return render(s,arguments['output'],arguments.get('entity_id'),arguments.get('width',1024),arguments.get('height',768))
+        if command=='render':return render(s,arguments['output'],arguments.get('entity_id'),arguments.get('width',1024),arguments.get('height',768),camera_orientation=arguments.get('camera_orientation'))
         if command=='save_as':
             target=checked_path(arguments['output'],write=True,new=True);before=fingerprint(s.path);old={v['uuid'] for v in inventory(s)}
             target.parent.mkdir(parents=True,exist_ok=True);s.check(s.project.SaveAs(str(target),0,False),'SaveAs')

@@ -34,7 +34,33 @@ Historical identifiers H-COM, H-MCP and H-ARCH below are defined in
 evidence only. Portable unit tests and mocked COM do not qualify as native
 integration evidence.
 
-## Current 0.2 evidence and release boundary
+## Development additions after the frozen 0.2 preview
+
+The current source declares **24 MCP tools**, adding resource inspection,
+resource authoring and native presentations. The existing chat's catalogue may
+still contain 20 cached tools; restart/reconnect MCP and refresh the session.
+Fresh real stdio initialize/tools-list returned all 24 tools and valid schemas;
+portable `bridge_validate_plan` succeeded, with no native tool call. That
+standalone protocol proof does not update the existing cached chat catalogue.
+The [development update](API-HW2-EXTENSIONS.md) records precise request contracts
+and the scoped native outcomes; these additions have not been promoted to a
+new release or folded into the immutable 0.2 source fingerprint below.
+
+| Addition | Current development status | Actual scope / remaining checks |
+|---|---|---|
+| Create ordinary materials and rectangular beam styles | `IMPLEMENTED_AND_TESTED` within the scoped native development probe | 9 ordinary materials and 4 rectangular BeamStyles retained after save/reopen; not layered stacks/custom profiles |
+| Create basic native DoorStyle/WindowStyle | `IMPLEMENTED_AND_TESTED` within the scoped native development probe | 2 door styles and 1 window style retained with exposed parameters; door frames/thresholds were created, but DoorPanel is absent; custom panel layout remains unverified |
+| Create rectangular ColumnStyle | `NOT_VERIFIED` | Implemented resource path; no separate native ColumnStyle fixture in this update |
+| Blank Drawing, DrawingText, named Topic and positioned native Level view | `IMPLEMENTED_AND_TESTED` within the scoped native development probes | Initial Drawing/text/AR Topic/Level probe; later 7 saved Drawings and 9 views (3 Level, 6 entity) with text/font/reference/center/bounds readback; 7-page native PDF structure checked, not a general visual-layout guarantee |
+| Embed existing entity-by-mark through the new helper | `IMPLEMENTED_AND_TESTED` within the scoped native development run | 6 embedded entity views persisted; final binding is by mark, and arbitrary shared-mark semantics are not uniquely certified |
+| Embed existing Section/Elevation or configured Table through the new helper | `NOT_VERIFIED` | Implemented, preflighted native references; not Section/Elevation or table-definition creation |
+| Door/Window `native_default_facing` | `IMPLEMENTED_AND_TESTED` within the scoped development scenario | 91 saved fillings passed host/origin/Offset/style-reference checks. Actual native axes are reported; requested opening direction, custom panel divisions and full panel meshes are separate |
+| Mesh part/type labels and Session plain-data caches | Scoped native classification plus portable cache contracts | 53 Windows have native panel geometry; 38 Doors gained frames/thresholds but no DoorPanel. UUID→ID hits revalidate native identity; definition caches never substitute parameter values/state |
+| Import a STEP/STP file as a new native ElementStyle | `IMPLEMENTED_AND_TESTED` within the scoped development fixtures | 4 original local STEP fixtures saved/reopened, source SHA256 and independent native mesh dimensions/volume/surface/minimum-triangle checks passed before save and after reopen; not all STEP files or full BRep equivalence |
+| Staged native Ramp construction | `IMPLEMENTED_AND_TESTED` within the scoped development probe | Create/Apply first, then dependent parameters/Apply; requested size/baseline, Offset and shape retained after reopen, without relaxing read-only checks |
+| Read-only expected host map and scoped gross/net mesh checks | `IMPLEMENTED_AND_TESTED` within the final scoped development readback | 91 fresh filling hosts and 86 area comparisons passed (23 Room GrossFloorArea from all horizontal downward faces; 63 Floor NetArea). Room NetFloorArea still requires an explicit independent target; original failed semantic probes remain in private logs |
+
+## Frozen 0.2 evidence and release boundary
 
 The new implementation provides `bridge_create_levels_project`: a **new
 project only** route through the official `IApplication.ImportIfcProject`,
@@ -66,7 +92,7 @@ the actual native outcomes and **511 portable tests passed, 1 skipped and 1
 opt-in integration test deselected**. Portable tests do not run Renga. Native
 models, SDK components, absolute local paths and raw logs remain private.
 
-The current source exposes **21 MCP tools**, including the new bootstrap.
+The frozen 0.2.0 source exposed **21 MCP tools**, including its new bootstrap.
 The real stdio MCP suite discovered them and executed the new native bootstrap
 and intrinsic Room-marker operation. A fresh real Codex protocol backend also
 discovered all 21 tools, without creating a thread or model turn. The existing
@@ -81,7 +107,7 @@ The intrinsic Room marker uses `IRoom.MarkerPosition`; it is not a drawing Tag.
 See [extension route research](EXTENSION_API_RESEARCH.md) and
 [annotation research](DIMENSION_API_RESEARCH.md).
 
-## Current native evidence identifiers
+## Frozen 0.2 native evidence identifiers
 
 Environment: Windows x64 build 22631, Python 3.12.14, Renga Professional
 9.3.32980.0 and API 2.50. Both pages of the fresh 0.2 MCP PDF were visually
@@ -276,10 +302,11 @@ Primary references: [IParameter](https://help.rengabim.com/api/interface_i_param
 | Read numeric mass/angle/count/signed-elevation quantities | Additional documented `IQuantity` typed methods | `SUPPORTED_NOT_IMPLEMENTED` |
 | List available native resource/style/material catalogs | Project entity collection names/IDs/UUIDs; unavailable collections explicit | `IMPLEMENTED_AND_TESTED` — R-CORE/R-MCP actual catalogs; does not author resources or read all layered/profile definitions |
 | Assign an existing material/layered material | Supported writable category parameter; read layers and thickness afterwards | `NOT_VERIFIED` |
-| Read material color/density and layer stacks | `IMaterial`, `ILayeredMaterial`, `IMaterialLayer`, manager/collections | `SUPPORTED_NOT_IMPLEMENTED` |
+| Read ordinary material color/density and rectangular beam-style profile values | Resource inspection, actual parameter/contour readback | `IMPLEMENTED_AND_TESTED` within the scoped [development probe](API-HW2-EXTENSIONS.md); populated arbitrary layer stacks and all style categories separate |
+| Read existing material layer stacks | `ILayeredMaterial`, `IMaterialLayer`, manager/collections | `NOT_VERIFIED` — reader implemented; populated multi-layer fixture not established by ordinary-material creation |
 | Edit material/layer stack via those typed interfaces | Color/density/layers/thickness are getter-only in the examined interfaces | `API_LIMITATION` |
-| Create/edit resource through generic collection + supported parameters | `IEntityCollection.Create`; applicable entity interfaces/parameters | `NOT_VERIFIED` |
-| Read/edit supported profile parameter values | `IProfile.Parameters`, style resource as model object where supported | `SUPPORTED_NOT_IMPLEMENTED` |
+| Create supported new resources through generic collection + parameters | `IEntityCollection.Create`; supported typed parameter fields and save/reopen checks | Scoped [development probe](API-HW2-EXTENSIONS.md): ordinary materials, rectangular BeamStyles and basic filling styles verified; ColumnStyles separately unverified; existing-resource edits not exposed |
+| Read/write supported rectangular profile parameter values | `IProfile.Parameters`, installed native Rectangle profile selected for a new style | `IMPLEMENTED_AND_TESTED` for the 4 new rectangular BeamStyles in the [development probe](API-HW2-EXTENSIONS.md); arbitrary profile shapes/constraints remain separate |
 | Create arbitrary constrained profile description | No demonstrated public authoring of its geometry/constraints | `NOT_VERIFIED` |
 | Import/update STDL category | `ImportCategoryS`, `UpdateCategory` | `SUPPORTED_NOT_IMPLEMENTED` |
 | Clear/delete all arbitrary resources safely | Collection removal may invalidate dependent objects or terminate application | `NOT_VERIFIED` |
@@ -308,7 +335,7 @@ Primary references: [IDrawing](https://help.rengabim.com/api/interface_i_drawing
 | Create native drawing sheet | Drawing entity factory and inspected existing format/layout references | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP two new saved native sheets; retained template sheet is separate |
 | Embed a tested native level view | EmbeddedModelView, saved source level, exact 1:100 scale and section parameters | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP native references/content; both fixture sheets use a zero-elevation test level, not two storeys |
 | Read embedded bounds and fit native content | IRectBoundedObject.BoundRect getter and FitBoundsToContent after source/scale Apply | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP persisted bounds/content and PDF structure; R-VISUAL scoped two-page review |
-| Set arbitrary embedded bounds/content placement | BoundRect setter, GetContentPlacement/SetContentPlacement | `SUPPORTED_NOT_IMPLEMENTED` | Fitting is not a test of every placement/bounds member |
+| Set explicit embedded bounds/content placement | BoundRect setter, GetContentPlacement/SetContentPlacement | `IMPLEMENTED_AND_TESTED` within the scoped development probe | One positioned Level view saved/reopened with center and bounds checks; not every view kind or visual layout |
 | Create native drawing text/title with bounds | DrawingText, ITextObject rich-text document/tokens and explicit Rect fields | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP saved title text/PDF extraction; not a substitute for associative annotations |
 | General rich-text editing/formatting | Insert/remove/edit arbitrary paragraphs/tokens | `SUPPORTED_NOT_IMPLEMENTED` | Title creation does not cover every editor method |
 | Assign tested new-sheet parameters | EntityName, A3 format, landscape, layout and selected topic; saved readback | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP exact catalog lookup and actual A3 PDF dimensions; arbitrary existing-sheet editing separate |
@@ -321,7 +348,8 @@ Primary references: [IDrawing](https://help.rengabim.com/api/interface_i_drawing
 | Create/list schedule/table/filter entities | Project collections + generic factory | `NOT_VERIFIED` | Empty entity existence does not prove a functional schedule definition |
 | Configure native schedule/table rows, columns, formula/filter | No public `ISchedule/ITable` definition/data interface found; tested schedule did not expose invented FilterId | `API_LIMITATION` | Narrow API 2.50 interface limitation; template route still needs proof |
 | Embed a configured existing schedule | EmbeddedSchedule; after creation Apply, assign ScheduleId and fit content | `IMPLEMENTED_AND_TESTED` | R-CORE/R-MCP saved reference/identity/HasContent; native schedule row/filter semantics not inspected |
-| Embed configured existing table/legend | EmbeddedTable/Legend; rect/content placement interface | `SUPPORTED_NOT_IMPLEMENTED` | Must verify source ID/content; no promise of editing its definition |
+| Embed a configured existing table | EmbeddedTable, TableId and rect/content placement interface | `NOT_VERIFIED` | New helper implemented with source/content checks; native fixture pending; no definition/cell authoring |
+| Embed a configured existing legend | Legend factory and rect/content placement interface | `SUPPORTED_NOT_IMPLEMENTED` | Must verify source ID/content; no promise of editing its definition |
 | Independent room/apartment report | Read native quantities and group by explicit property mapping | `NOT_VERIFIED` | A computed JSON/CSV report is not a native schedule |
 | Open a native level view for tested beam construction | IApplication.OpenViewByEntity on the owned session | `IMPLEMENTED_AND_TESTED` | R-ELEMENTS native level activation before Beam factory; no GUI input |
 | General native 3D/drawing view opening | IApplication.OpenViewByEntity for the corresponding entity | `NOT_VERIFIED` | Renderer probes/other view kinds are separate |
