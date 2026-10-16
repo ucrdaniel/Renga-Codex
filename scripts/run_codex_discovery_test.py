@@ -38,6 +38,8 @@ EXPECTED_TOOLS = {
     "bridge_project_info", "bridge_set_project_info", "bridge_rectangle_plan",
     "bridge_facade_spacing", "bridge_capabilities", "bridge_create_levels_project",
     "bridge_inspect_resources", "bridge_author_resources", "bridge_create_presentations",
+    "bridge_inspect_filling_panels", "bridge_inspect_sheet_metadata", "bridge_update_sheet_metadata",
+    "bridge_update_sheet_contents",
 }
 
 

@@ -20,6 +20,8 @@ EXPECTED_TOOLS=frozenset({
     'bridge_export_pdf','bridge_export_ifc','bridge_render_view','bridge_copy_project',
     'bridge_save_as','bridge_project_info','bridge_set_project_info','bridge_rectangle_plan',
     'bridge_facade_spacing','bridge_capabilities',
+    'bridge_inspect_filling_panels','bridge_inspect_sheet_metadata','bridge_update_sheet_metadata',
+    'bridge_update_sheet_contents',
 })
 
 def assert_tool_catalogue(tools):

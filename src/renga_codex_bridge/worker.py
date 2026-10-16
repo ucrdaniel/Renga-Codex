@@ -31,6 +31,12 @@ def execute(command,arguments):
     if command=='apply':return apply_plan(arguments['project'],arguments['operations'],new=arguments.get('new',False))
     if command=='documents':return create_plans(arguments['project'],arguments['drawings'])
     if command=='set_project_info':return edit_project_info(arguments['project'],arguments['values'])
+    if command=='update_sheets':
+        from .sheet_metadata import update_sheet_metadata
+        return update_sheet_metadata(arguments['project'],arguments['changes'])
+    if command=='update_sheet_contents':
+        from .presentation_edits import update_sheet_contents
+        return update_sheet_contents(arguments['project'],arguments['changes'])
     if command in {'copy','preview_copy'}:
         source=checked_path(arguments['project']);target=checked_path(arguments['output'],write=True,new=True)
         if source.suffix.lower()!='.rnp' or target.suffix.lower()!='.rnp':raise ValueError('Native project extension .rnp required')
@@ -57,6 +63,16 @@ def execute(command,arguments):
         if command=='resources':
             from .resources import inspect_resources
             return inspect_resources(s,arguments.get('collections'))
+        if command=='filling_panels':
+            from .filling_panels import inspect_filling_panels
+            return inspect_filling_panels(s,arguments.get('identifiers'))
+        if command=='sheet_metadata':
+            from .sheet_metadata import snapshot_sheet_metadata
+            drawings=snapshot_sheet_metadata(s)
+            return {'drawings':drawings,'computer_use_calls':0,
+                    'scope':'native_sheet_metadata_and_title_block_getters',
+                    'title_block_readback_complete':all(d['title_block_readback']['status']=='read' for d in drawings),
+                    'title_block_cell_authoring':False,'visual_layout_verified':False}
         if command=='drawings':return snapshot(s)
         if command=='ifc':return export_ifc(s,arguments['output'])
         if command=='pdf':return export_pdf(s,arguments['output'],arguments.get('drawing_uuids'))

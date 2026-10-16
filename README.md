@@ -48,20 +48,33 @@ project copy, SaveAs and metadata; native drawing content, PDF, IFC and view
 rendering; rectangle plans and facade spacing. The complete names and verified
 boundaries are in [CAPABILITIES.md](docs/CAPABILITIES.md).
 
-Development source now declares **24 tools**, adding resource inspection,
-resource authoring and native presentations. Native development probes have
+Development source now declares **28 tools**, adding resource inspection,
+resource authoring, native presentations, filling-panel inspection and editing
+of existing sheet metadata and supported sheet contents. Native development probes have
 saved/reopened 9 ordinary materials, 4 rectangular beam styles, 2 door styles,
 1 window style, and 7 Drawings with text, an AR Topic and 9 embedded views.
 Four original STEP fixtures also passed saved ElementStyle geometry checks;
 91 native fillings passed saved host/origin/Offset/style-reference checks.
 Door/window `native_default_facing`, native mesh-part labels and safe Session
 identity/definition caches are additional implemented contracts with explicit
-verification limits. See [development additions](docs/API-HW2-EXTENSIONS.md).
+verification limits. Fresh API and real stdio MCP checks also read native panel
+meshes and title-block cells, and saved/reopened five existing-sheet metadata
+fields with preserved identities and resource UUIDs. The panel reader correctly
+reported 38 doors without panels and 53 windows with panels in that scenario;
+it does not create door leaves. See [panel verification](docs/DOOR-PANELS.md),
+[sheet metadata](docs/SHEET_METADATA_API.md),
+[existing sheet contents](docs/PRESENTATION-EDITS.md) and
+[development additions](docs/API-HW2-EXTENSIONS.md).
 These additions do not change the frozen 0.2.0 release evidence. A current chat
 with a cached 20-tool catalogue needs an MCP restart/reconnect and catalogue
 refresh before it can expose the new tools. A fresh standalone stdio server
-returned all 24 tools, validated its schemas and ran portable plan validation
-without native Renga calls; current-chat execution of all 24 remains separate.
+returned 27 tools, validated their schemas and executed the three new panel and
+sheet-metadata tools through native workers. The subsequent 28th tool,
+`bridge_update_sheet_contents`, passed a separate 12-check native worker fixture
+for an existing model view and DrawingText edits. A later discovery-only stdio
+run returned all 28 tools with valid schemas and no native tool calls.
+Current-chat discovery,
+standalone protocol checks and native execution remain separate evidence.
 
 New in 0.2: `bridge_create_levels_project` creates a **new** native project with
 explicit nonzero levels and an optional orthogonal native Axis grid through

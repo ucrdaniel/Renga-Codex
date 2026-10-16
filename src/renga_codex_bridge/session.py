@@ -88,11 +88,20 @@ class Session:
         import pythoncom
         try:
             if self.app:
+                quit_returned=False
                 try:
-                    if self.app.HasProject():self.check(self.app.CloseProject(True),'CloseProject')
+                    try:
+                        if self.app.HasProject():self.check(self.app.CloseProject(True),'CloseProject')
+                    finally:
+                        self.app.Quit()
+                        quit_returned=True
                 finally:
-                    self.app.Quit();self.app=None
-                    release_owned_renga(self.ownership);self.ownership=None
+                    # An exited/disconnected COM server can fail Quit. Release
+                    # our local ownership registration even then, without hiding the
+                    # native failure or touching any unowned process.
+                    self.app=None
+                    try:release_owned_renga(self.ownership,quit_returned=quit_returned)
+                    finally:self.ownership=None
         finally:
             if self.lock:
                 self.lock.seek(0);msvcrt.locking(self.lock.fileno(),msvcrt.LK_UNLCK,1)

@@ -87,6 +87,26 @@ async def bridge_inspect_resources(project:str,collections:list[str]|None=None)-
     return await run('resources',project=project,collections=collections)
 
 @server.tool()
+async def bridge_inspect_filling_panels(project:str,identifiers:list[str]|None=None)->dict:
+    """Read actual DoorPanel/WindowPanel meshes for persistent filling UUIDs (all doors/windows if omitted). Reports absence separately from unknown; does not certify leaf count or swing."""
+    return await run('filling_panels',project=project,identifiers=identifiers)
+
+@server.tool()
+async def bridge_inspect_sheet_metadata(project:str)->dict:
+    """Read existing native sheet metadata, drawing/resource UUIDs and title-block cells. Does not inspect model/content geometry or export PDF."""
+    return await run('sheet_metadata',project=project)
+
+@server.tool()
+async def bridge_update_sheet_metadata(project:str,changes:list[dict])->dict:
+    """Back up and update existing sheets by persistent UUID: name, page format/orientation, existing layout/topic. Save/reopen and verify identities, references and requested metadata. Does not author title-block cells or schedule definitions."""
+    return await run('update_sheets',project=project,changes=changes)
+
+@server.tool()
+async def bridge_update_sheet_contents(project:str,changes:list[dict])->dict:
+    """Reposition existing embedded views/tables and DrawingText by inspected drawing/object UUIDs. Optional existing native scale and explicit plain text/font replacement; backup/save/reopen/identity and saved-content checks. No new objects, dimensions, tags or table definitions; no PDF export."""
+    return await run('update_sheet_contents',project=project,changes=changes)
+
+@server.tool()
 async def bridge_author_resources(project:str,resources:list[dict])->dict:
     """Create new ordinary Materials, rectangular BeamStyle/ColumnStyle, basic DoorStyle/WindowStyle, or STEP/STP ElementStyle with source SHA256 and independent mesh expectations. Back up, save/reopen and verify actual resources; custom layer/profile/panel-tree authoring is refused."""
     return await run('author_resources',project=project,resources=resources)

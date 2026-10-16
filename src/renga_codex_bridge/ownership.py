@@ -353,14 +353,21 @@ def register_owned_renga(pid: int, *, preexisting_pids: set[int], backend=None) 
     return RengaRegistration(lease, renga)
 
 
-def release_owned_renga(registration: RengaRegistration | None):
-    """Call only after owned app.Quit returned; keep historical evidence on disk."""
+def release_owned_renga(registration: RengaRegistration | None, *, quit_returned: bool = True):
+    """Record owned Quit outcome without claiming a failed call returned.
+
+    A failed Quit leaves process liveness unknown. Its historical registration
+    remains eligible for the same strictly identified timeout cleanup; this
+    recorder itself never terminates any process.
+    """
+    if type(quit_returned) is not bool:
+        raise ValueError("quit_returned must be a strict boolean")
     if registration is None:
         return
     value = registration.lease.read()
     for entry in value["renga"]:
         if entry.get("identity") == asdict(registration.identity) and entry.get("state") == "active":
-            entry.update(state="quit_returned", released_utc=_utc())
+            entry.update(state="quit_returned" if quit_returned else "quit_failed", released_utc=_utc())
             break
     _atomic_json(registration.lease.path, value)
 
@@ -398,7 +405,7 @@ def cleanup_after_timeout(lease: OwnershipLease, launch_identity: ProcessIdentit
         for entry in value["renga"]:
             # Check the entire manifest before touching *any* process.
             if not isinstance(entry, dict) or entry.get("state") not in {
-                "active", "quit_returned", "terminated_after_timeout", "already_exited_after_timeout"
+                "active", "quit_returned", "quit_failed", "terminated_after_timeout", "already_exited_after_timeout"
             }:
                 raise ValueError("Malformed Renga ownership entry/state")
             identity = _identity(entry.get("identity"))
@@ -432,7 +439,7 @@ def cleanup_after_timeout(lease: OwnershipLease, launch_identity: ProcessIdentit
         if worker_handle is not None:
             worker_handle.close()
     for entry in value["renga"]:
-        if entry.get("state") != "active":
+        if entry.get("state") not in {"active", "quit_failed"}:
             continue
         expected = _identity(entry["identity"])
         handle = None

@@ -1,6 +1,6 @@
 # Additional resource and presentation operations
 
-Development update, 2026-10-15, API 2.50 / Renga Professional 9.3.32980.0.
+Development update, 2026-10-15–16, API 2.50 / Renga Professional 9.3.32980.0.
 These additions follow the frozen 0.2.0 preview. They are not a new release or
 a replacement for its source fingerprint and native-test evidence. Private
 models, drawings, task inputs, local paths and raw logs are not redistributed.
@@ -18,6 +18,9 @@ models, drawings, task inputs, local paths and raw logs are not redistributed.
 | STEP/STP `ElementStyle` authoring | Explicit local source file/hash plus independent mesh expectations; native collection factory and temporary Element probes before save and after reopen | **4 original, locally generated STEP fixtures** passed native save/reopen and independent bounds/volume/surface/minimum-triangle checks. This establishes these fixtures, not every STEP model or a manufacturer library |
 | Staged native Ramp creation | Apply the newly created baseline object before setting its dependent parameters | An owned native Ramp probe retained requested height/width/baseline, Offset and native shape after save/reopen. This is separate from accessibility or full contact/collision validation |
 | Fresh read-only geometry/host validation | Explicit area quantity semantics and UUID-based native host checks | Final scoped native readback passed **86 area comparisons (23 Room gross, 63 Floor net) and 91 filling host checks**. These 177 checks do not verify room net area against the gross mesh |
+| `bridge_inspect_filling_panels` | Read actual classified DoorPanel/WindowPanel meshes, nondegenerate triangles, surface area and bounds for inspected filling UUIDs or all native doors/windows | Fresh direct API and real stdio MCP reads inspected **38 Doors and 53 Windows**. All 38 doors correctly failed the panel-presence requirement; all 53 windows had panel geometry. The reader does not author panels or certify physical leaf count/opening direction; see [panel verification](DOOR-PANELS.md) |
+| `bridge_inspect_sheet_metadata` / `bridge_update_sheet_metadata` | Read saved sheet metadata, resource identities and native stamp cells; update existing sheet name, format, orientation, layout and topic after preflight, backup and save/reopen | Direct API and real stdio MCP fixture verified **five fields**, preserved all building/drawing/content UUID/types and read **three native title blocks per fixture sheet**. Native getter failures without assigned layouts are returned explicitly. No arbitrary stamp-cell setter is claimed; see [sheet metadata](SHEET_METADATA_API.md) |
+| `bridge_update_sheet_contents` | Update supported existing embedded-view center/crop/fit/scale and DrawingText bounds/content/font, retaining object identities and source bindings | **12 native worker checks passed** across two save/reopen updates of an EmbeddedModelView and DrawingText: center [140,100] mm, scale 1:50 by UUID, 2 mm fit inset followed by explicit [75,205,90,110] mm crop, two-paragraph text/font replacement, clearing text and bounds-only token preservation. Other embedded kinds and visual composition remain separate; see [presentation edits](PRESENTATION-EDITS.md) |
 
 The native counts above are scoped development observations. No complete
 architectural package or new release aggregate is claimed. The fresh standalone
@@ -136,9 +139,16 @@ appropriate pre-edit backup manually when needed, then re-inspect before retry.
 - New Section/Elevation creation and associative dimensions/Tags remain
   restricted. Existing source views can be embedded; screenshots, lines and
   free text are not substitutes for those native objects.
+- Disposable explicit-placement Section/Elevation `CreateObject` probes both
+  returned null with the native unsupported-type error. Alternative supported
+  template/import routes remain separate from that failed direct constructor.
 - A blank native sheet does not manufacture a regulated frame/title block.
   An existing layout resource may be selected; arbitrary title-block cell
   writing and layout-definition authoring are not implemented.
+- Blank Schedule/Table/LayoutStyle factories were verified on a disposable
+  project, including saved UUID/type retention. They do not provide schedule
+  rows or a regulated stamp. The installed template had configured resources;
+  no API merge of those resources into an existing project was established.
 - Existing schedule/table resources may be embedded, but no public native
   row/column/cell/formula/filter-definition authoring contract was found.
   Creating an empty entity would not satisfy a working schedule.
@@ -154,10 +164,14 @@ See [presentation API research](PRESENTATION_API_RESEARCH.md),
 
 ## MCP catalogue refresh
 
-The development source declares **24 tools**: the frozen 0.2.0 set of 21 plus
-`bridge_inspect_resources`, `bridge_author_resources` and
-`bridge_create_presentations`. A **fresh real stdio server** was initialized
-from the current source on 2026-10-15 and returned all 24 unique tool names.
+The development source declares **28 tools**: the frozen 0.2.0 set of 21 plus
+`bridge_inspect_resources`, `bridge_author_resources`,
+`bridge_create_presentations`, `bridge_inspect_filling_panels`,
+`bridge_inspect_sheet_metadata`, `bridge_update_sheet_metadata` and
+`bridge_update_sheet_contents`.
+
+A **fresh real stdio server** was initialized from the then-current source on
+2026-10-15 and returned all 24 unique tool names.
 All advertised JSON input/output schemas passed validation; the received
 resource schema accepted the four STEP specifications. Only
 `bridge_validate_plan` was called, returned `native_execution_performed: false`,
@@ -165,7 +179,25 @@ and the server exited with code 0. No native Renga/status tool was called.
 This proves the current standalone protocol/catalogue path and portable plan
 validation, not native execution through each of the 24 tools.
 
-The active chat still exposes a cached **20-tool** catalogue. Restart/reconnect
+On 2026-10-16, another fresh stdio client initialized protocol 2025-11-25,
+discovered the exact **27-tool** development catalogue then present and
+validated all advertised input/output schemas. It executed the new panel
+reader, metadata reader and five-field metadata update through native workers.
+The existing architectural work file's SHA256 was unchanged by the reads;
+the disposable metadata fixture saved/reopened with preserved identities,
+requested fields/references and three native title blocks. Six scoped protocol
+and execution checks passed. The panel reader's own result remained failed for
+absent door panels; that absence is not promoted into a modelling success.
+The subsequent 28th content-editing tool passed a separate 12-check native
+worker fixture covering model-view and text edits across two save/reopen
+cycles. This is native adapter/worker evidence, not execution of that tool
+through the 27-tool stdio server. A later fresh discovery-only stdio server
+returned exactly **28 unique tools**, validated every advertised input/output
+schema and exited with no tool calls, COM calls or PDF exports. Its three
+protocol/catalogue/schema checks passed. No new PDF was exported in either
+narrow extension test.
+
+An existing chat can retain an older cached catalogue. Restart/reconnect
 the configured MCP server and refresh the Codex session before expecting the
 new names. The fresh standalone result does not refresh that existing chat or
 establish execution from it.

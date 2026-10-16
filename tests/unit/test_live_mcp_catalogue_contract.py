@@ -20,8 +20,10 @@ def test_native_runner_checks_every_current_registered_tool_without_running_nati
     module=runner()
     tools=asyncio.run(server.list_tools())
     names=module.assert_tool_catalogue(tools)
-    assert len(names)==24
+    assert len(names)==28
     assert {'bridge_inspect_resources','bridge_author_resources','bridge_create_presentations'}<=set(names)
+    assert {'bridge_inspect_filling_panels','bridge_inspect_sheet_metadata','bridge_update_sheet_metadata'}<=set(names)
+    assert 'bridge_update_sheet_contents' in names
 
 
 @pytest.mark.parametrize('change',['missing','extra','duplicate'])
