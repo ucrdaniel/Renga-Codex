@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "evidence_id": "DEV-PRESENTATION-EDITS-20261016",
+  "status": "scoped_native_saved_results_verified",
+  "tested_at_utc": "2026-10-16T18:21:41.124582Z",
+  "renga_version": "9.3.32980.0",
+  "sdk_api_reference": "2.50",
+  "execution": "public worker command update_sheet_contents, fresh owned COM STA sessions",
+  "module_sha256": {
+    "src/renga_codex_bridge/presentation_edits.py": "58d0f02ddd1751998d84670e0887d34d8df8dc9a42a37aaf0d237a840468e3b2"
+  },
+  "post_probe_source_change": {
+    "current_module_sha256": "87676306691f3c3f58ad35dee7e6521989202636b132630c74eae134f47f119d",
+    "change": "Reject degenerate native bounds during preflight before setters or save",
+    "verification_at_this_evidence_boundary": "Two additional portable negative tests; this source revision is not the exact module fingerprint of the synthetic native run above"
+  },
+  "fixture": {
+    "type": "original disposable synthetic project, no user architecture or private homework content",
+    "building_objects": {"Level": 2, "Wall": 1},
+    "drawings": 1,
+    "initial_page": "A4 landscape",
+    "contents": {"EmbeddedModelView": 1, "DrawingText": 3}
+  },
+  "successful_saved_edit_runs": 2,
+  "scenario_assertions": {"passed": 12, "failed": 0},
+  "observations": [
+    "Selected existing view moved to sheet content center [140,100] mm while preserving its native content X axis",
+    "Existing view changed from inspected scale 1:100 to inspected scale 1:50 and saved scale resource UUID checked",
+    "FitBoundsToContent inset 2 mm applied, committed bounds compared after reopening",
+    "A later explicit view crop [75,205,90,110] mm persisted after a separate save/close/reopen",
+    "Existing text replaced with two paragraphs, explicit Arial cap size 2.5 mm, native black regular token readback",
+    "Existing text cleared to empty through reverse RemoveParagraph without deleting its DrawingText identity",
+    "Third text moved by bounds only, with original text and all exposed rich-token fields retained",
+    "All building, drawing and drawing-content UUID/type identities retained after both edit runs"
+  ],
+  "retained_provisional_failures": [
+    "An initial private probe used an incorrect worker command name; no edit was applied",
+    "A pre-save native readback exposed c_char FontStyle flags: Python bool(b'\\x00') is true; explicit native byte decoding corrected the reader and the unsaved attempt was discarded"
+  ],
+  "computer_use_calls": 0,
+  "pdf_exports": 0,
+  "native_visual_layout_verified": false,
+  "not_verified": [
+    "EmbeddedEntityView, EmbeddedSchedule and EmbeddedTable edit scenarios were not part of this synthetic native fixture",
+    "Content rotation changes, new objects, source binding changes, section/elevation definitions and table cells are outside the edit contract",
+    "Visual layout, annotations, ГОСТ conformity and source-object uniqueness require separate checks",
+    "This development evidence does not replace or extend the immutable frozen release test results"
+  ]
+}

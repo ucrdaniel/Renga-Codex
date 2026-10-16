@@ -1,3 +1,4 @@
+import math
 from .session import Session
 from .model import parameters,set_parameter
 from .safety import checked_path,fingerprint
@@ -113,20 +114,77 @@ def export_ifc(s,output):
     result={'output':str(output),'sha256':fingerprint(output),'bytes':output.stat().st_size,'computer_use_calls':0}
     event('ifc_export_verified',**result);return result
 
-def render(s,output,entity_id=None,width=1024,height=768):
+CAMERA_ORIENTATIONS = {'front': 'Front', 'back': 'Back', 'left': 'Left', 'right': 'Right'}
+CAMERA_POSITION_AXES = {'front':(0,-1,0),'back':(0,1,0),'left':(-1,0,0),'right':(1,0,0)}
+
+def validate_camera_orientation(camera_orientation,entity_id=None):
+    if camera_orientation is None:return
+    if not isinstance(camera_orientation,str) or camera_orientation not in CAMERA_ORIENTATIONS:
+        raise ValueError('camera_orientation must be front, back, left or right')
+    if entity_id is not None:
+        raise ValueError('camera_orientation requires the whole building; entity_id must be omitted')
+
+def _view_interface(s,view,name):
+    """Documented typed interface with named IDispatch alternative on E_NOINTERFACE."""
+    try:return view.QueryInterface(getattr(s.r,name)),'typed'
+    except Exception as exc:
+        if getattr(exc,'hresult',None)!=-2147467262:raise
+        from comtypes.client.dynamic import Dispatch
+        return Dispatch(view.QueryInterface(s.r.IModelView).GetInterfaceByName(name)),'named_dispatch'
+
+def orient_parallel_camera(s,view,camera_orientation):
+    """Main-view camera only; a native PNG does not create an elevation on a sheet."""
+    validate_camera_orientation(camera_orientation)
+    params,route=_view_interface(s,view,'IView3DParams')
+    camera=params.Camera
+    # The SDK explicitly documents empty selection -> whole-scene fallback.
+    # This is only the owned process's selection, and nothing is saved here.
+    selection=s.app.Selection
+    selection.SetSelectedObjects([])
+    if tuple(selection.GetSelectedObjects() or ()):
+        raise RuntimeError('Owned main-view selection was not cleared for whole-building camera')
+    camera.Projection=s.r.CameraProjection_Parallel
+    camera.LookAtSelectedObjects(getattr(s.r,'CameraOrientation_'+CAMERA_ORIENTATIONS[camera_orientation]))
+    if camera.Projection!=s.r.CameraProjection_Parallel:
+        raise RuntimeError('Native camera parallel projection readback mismatch')
+    def point(value):
+        values=[float(value.X),float(value.Y),float(value.Z)]
+        if not all(math.isfinite(v) for v in values):raise RuntimeError('Nonfinite native camera readback')
+        return values
+    position=point(camera.Position);focus=point(camera.FocusPoint)
+    direction=[position[i]-focus[i] for i in range(3)]
+    tolerance=max(abs(v) for v in direction)*1e-6+1e-5
+    if max(abs(v) for v in direction)<=1e-5 or abs(direction[2])>tolerance or min(abs(direction[0]),abs(direction[1]))>tolerance:
+        raise RuntimeError('Native camera is not a horizontal principal-axis view after orientation request')
+    requested_axis=CAMERA_POSITION_AXES[camera_orientation]
+    for value,expected in zip(direction,requested_axis):
+        if expected==0 and abs(value)>tolerance or expected and value*expected<=tolerance:
+            raise RuntimeError('Native camera signed direction differs from requested '+camera_orientation)
+    up=point(camera.UpVector)
+    if up[2]<=1e-6 or max(abs(up[0]),abs(up[1]))>abs(up[2])*1e-6+1e-5:
+        raise RuntimeError('Native camera up vector is not global positive Z')
+    return {'orientation':camera_orientation,'projection':'parallel','projection_native':int(camera.Projection),
+            'position':position,'focus_point':focus,
+            'up_vector':up,'interface_route':route,'signed_orientation_verified':True,
+            'framing':'whole_scene_empty_selection','sheet_elevation_created':False}
+
+def render(s,output,entity_id=None,width=1024,height=768,*,camera_orientation=None):
+    """Render a native view; optional parallel main-camera route needs native QA.
+
+    The camera option produces an external PNG, not a sheet elevation object.
+    It uses only documented camera enums from the installed type library.
+    """
+    validate_camera_orientation(camera_orientation,entity_id)
     output=checked_path(output,write=True,new=True)
     if output.suffix.lower()!='.png' or not 64<=width<=4096 or not 64<=height<=4096:raise ValueError('PNG and64..4096 pixel dimensions required')
     s.app.Visible=True
-    view=s.app.OpenViewByEntity(entity_id) if entity_id is not None else s.app.ActiveView
-    try:
-        service=view.QueryInterface(s.r.IScreenshotService);route='typed'
-    except Exception as exc:
-        if getattr(exc,'hresult',None)!=-2147467262:raise
-        # Documented IDispatch route avoids missing custom-IID proxy registration.
-        from comtypes.client.dynamic import Dispatch
-        service=Dispatch(view.QueryInterface(s.r.IModelView).GetInterfaceByName('IScreenshotService'));route='named_dispatch'
+    view=s.app.OpenViewByEntity(s.project.BuildingInfo.Id) if camera_orientation is not None else s.app.OpenViewByEntity(entity_id) if entity_id is not None else s.app.ActiveView
+    camera=orient_parallel_camera(s,view,camera_orientation) if camera_orientation is not None else None
+    service,route=_view_interface(s,view,'IScreenshotService')
     settings=service.CreateSettings();settings.Width=width;settings.Height=height
     native=service.MakeScreenshot(settings);output.parent.mkdir(parents=True,exist_ok=True);native.SaveToFile(str(output),s.r.ImageFormat_PNG)
     if not output.is_file() or not output.read_bytes().startswith(b'\x89PNG\r\n\x1a\n'):raise RuntimeError('Native renderer output invalid')
-    event('native_view_render_verified',output=str(output),sha256=fingerprint(output),computer_use_calls=0)
-    return {'output':str(output),'width':width,'height':height,'route':route,'computer_use_calls':0}
+    result={'output':str(output),'width':width,'height':height,'route':route,'computer_use_calls':0}
+    if camera is not None:result['camera']=camera
+    event('native_view_render_verified',**result,sha256=fingerprint(output))
+    return result

@@ -109,5 +109,6 @@ def assert_pose_matches(expected, actual, *, abs_tol=1e-6):
             raise NativePlacementVerificationError("Native placement lacks " + field)
         observed = _vector3(actual[field], "native " + field)
         if not all(_close(a, b, abs_tol) for a, b in zip(wanted, observed)):
-            raise NativePlacementVerificationError("Native placement differs from requested " + field)
+            raise NativePlacementVerificationError("Native placement differs from requested " + field
+                + "; expected=" + repr(list(wanted)) + "; actual=" + repr(list(observed)))
     return {"compared_fields": list(expected), "persistence_verified_by_this_helper": False}

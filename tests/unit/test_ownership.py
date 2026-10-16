@@ -223,6 +223,55 @@ def test_quit_returned_registration_is_not_terminated_by_later_timeout(owned):
     assert (owned.renga.pid, True) not in owned.backend.opened
 
 
+def test_failed_quit_record_never_claims_success_or_terminates_by_recording(owned):
+    ownership.release_owned_renga(owned.registration, quit_returned=False)
+    entry = owned.lease.read()["renga"][0]
+    assert entry["identity"] == asdict(owned.renga)
+    assert entry["state"] == "quit_failed"
+    assert "released_utc" in entry
+    assert owned.backend.terminated == []
+
+
+def test_failed_quit_remains_eligible_only_for_confirmed_owned_timeout_cleanup(owned):
+    ownership.release_owned_renga(owned.registration, quit_returned=False)
+    result = ownership.cleanup_after_timeout(owned.lease, owned.worker, backend=owned.backend)
+    assert owned.backend.terminated == [owned.worker, owned.renga]
+    assert owned.unrelated not in owned.backend.terminated
+    assert (owned.unrelated.pid, True) not in owned.backend.opened
+    assert result["terminated"] == [asdict(owned.renga)]
+    assert result["refused"] == [] and result["outcome"] == "unknown"
+
+
+@pytest.mark.parametrize("replacement_field", ["creation_time", "executable"])
+def test_failed_quit_does_not_weaken_pid_creation_time_or_executable_check(owned, replacement_field):
+    ownership.release_owned_renga(owned.registration, quit_returned=False)
+    replacement = ownership.ProcessIdentity(
+        owned.renga.pid,
+        owned.renga.creation_time + int(replacement_field == "creation_time"),
+        r"C:\Synthetic\unrelated.exe" if replacement_field == "executable" else owned.renga.executable,
+    )
+    owned.backend.identities[replacement.pid] = replacement
+    result = ownership.cleanup_after_timeout(owned.lease, owned.worker, backend=owned.backend)
+    assert result["refused"] and result["terminated"] == []
+    assert owned.backend.terminated == [owned.worker]
+    assert replacement in owned.backend.closed
+    assert result["outcome"] == "unknown"
+
+
+def test_repeated_release_does_not_upgrade_failed_quit_to_returned(owned):
+    ownership.release_owned_renga(owned.registration, quit_returned=False)
+    before = owned.lease.read()["renga"][0]
+    ownership.release_owned_renga(owned.registration)
+    assert owned.lease.read()["renga"][0] == before
+
+
+@pytest.mark.parametrize("invalid", [None, 0, 1, "false"])
+def test_quit_outcome_requires_an_explicit_boolean(owned, invalid):
+    with pytest.raises(ValueError, match="strict boolean"):
+        ownership.release_owned_renga(owned.registration, quit_returned=invalid)
+    assert owned.lease.read()["renga"][0]["state"] == "active"
+
+
 def test_repeated_timeout_cleanup_does_not_repeat_termination(owned):
     ownership.cleanup_after_timeout(owned.lease, owned.worker, backend=owned.backend)
     result = ownership.cleanup_after_timeout(owned.lease, owned.worker, backend=owned.backend)

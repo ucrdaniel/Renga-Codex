@@ -1,7 +1,7 @@
 import math
 import uuid
 from .session import Session
-from .model import object_by_id,create,set_parameter,inventory,baseline,parameters,placement,curve_points
+from .model import object_by_id,create,set_parameter,inventory,baseline,parameters,placement,curve_points,verify_filling_host
 from .validation import validate_plan,execution_batches
 from .audit import event,save_plan
 from .orientation import validate_creation_axes,assert_pose_matches
@@ -12,10 +12,26 @@ def matches(actual,expected):
         return actual is not None and math.isclose(float(actual),expected,abs_tol=1e-6)
     return actual==expected
 
+def read_roof_slope_check(s,obj,edges):
+    """Read requested slope fields after reopen; parameters are not whole-solid QA."""
+    slopes=obj.QueryInterface(s.r.IRoofSlopes);actual=[]
+    for edge in edges:
+        index=edge['index'];row={'index':index,'shape':slopes.GetRoofEdgeShape(index)}
+        if row['shape']!=edge['shape']:raise RuntimeError('Roof edge shape mismatch')
+        if 'angle' in edge:
+            row['angle']=slopes.GetSlopeAngle(index)
+            if not matches(row['angle'],edge['angle']):raise RuntimeError('Roof angle mismatch')
+        if 'overhang' in edge:
+            row['overhang']=slopes.GetOverhang(index)
+            if not matches(row['overhang'],edge['overhang']):raise RuntimeError('Roof overhang mismatch')
+        actual.append(row)
+    return {'uuid':obj.UniqueIdS.strip('{}').lower(),'edges':actual,'persistence_verified_by_this_reader':True,
+            'scope':'requested_native_slope_parameters_not_full_roof_geometry'}
+
 def apply_plan(path,operations,*,new=False):
     validate_plan(operations)
     plan_path=save_plan({'project':str(path),'new':new,'units':'mm','operations':operations})
-    refs={};requests={};property_checks={};pose_checks={};curves={};curves3d={};roof_checks={};marker_checks={}
+    refs={};requests={};property_checks={};pose_checks={};curves={};curves3d={};roof_checks={};marker_checks={};host_checks={};native_facing={}
     with Session(path,create=new,write=True) as s:
         def resolve(value):return refs[value] if isinstance(value,str) and value in refs else object_by_id(s,value).Id
         for batch in execution_batches(operations):
@@ -32,12 +48,15 @@ def apply_plan(path,operations,*,new=False):
                         for key in ('host','level'):
                             if key in args:args[key]=resolve(args[key])
                         requested_parameters=dict(args.get('parameters',{}))
-                        if item['kind'] in {'Beam','Stair'}:args['parameters']={k:v for k,v in requested_parameters.items() if k==item['kind']+'StyleId'}
+                        if item['kind'] in {'Beam','Stair','Ramp'}:args['parameters']={k:v for k,v in requested_parameters.items() if k==item['kind']+'StyleId'}
                         obj=create(s,item['kind'],**args)
+                        if item['kind'] in {'Door','Window'}:
+                            host_checks[obj.UniqueIdS]=object_by_id(s,args['host']).UniqueIdS
+                            if args.get('native_default_facing'):native_facing[obj.UniqueIdS]={}
                         if item.get('ref'):refs[item['ref']]=obj.Id
                         for name,value in requested_parameters.items():
                             requests[(obj.UniqueIdS,name)]=value
-                            if item['kind'] in {'Beam','Stair'} and name!=item['kind']+'StyleId':deferred.append((obj.UniqueIdS,name,value))
+                            if item['kind'] in {'Beam','Stair','Ramp'} and name!=item['kind']+'StyleId':deferred.append((obj.UniqueIdS,name,value))
                         if args.get('host') is not None and item['kind'] in {'Door','Window','Opening'}:
                             requests[(obj.UniqueIdS,'Offset')]=args.get('parameters',{}).get('Offset',args.get('origin',[0,0,0])[2])
                         if args.get('points') is not None:curves[obj.UniqueIdS]=args['points']
@@ -72,6 +91,7 @@ def apply_plan(path,operations,*,new=False):
                                 if key[0]==uid:del table[key]
                         curves.pop(uid,None);curves3d.pop(uid,None);pose_checks.pop(uid,None);roof_checks.pop(uid,None)
                         marker_checks.pop(uid,None)
+                        host_checks.pop(uid,None);native_facing.pop(uid,None)
                     elif action=='room_marker':
                         set_room_marker(s,obj,item['point']);marker_checks[uid]=item['point']
                         event('room_marker_requested',uuid=uid,point=item['point'],status='provisional')
@@ -117,6 +137,13 @@ def apply_plan(path,operations,*,new=False):
             curves[uid]=actual
         for uid,expected_pose in pose_checks.items():assert_pose_matches(expected_pose,placement(s,object_by_id(s,uid)))
         for uid,point in marker_checks.items():assert_room_marker_matches(s,object_by_id(s,uid),point)
+        for uid,host_uid in host_checks.items():
+            host_observation=verify_filling_host(s,object_by_id(s,uid),host_uid)
+            if uid in native_facing:
+                native_facing[uid]={'committed_placement':placement(s,object_by_id(s,uid)),
+                                    'committed_host_observation':host_observation}
+                event('native_default_facing_observed',uuid=uid,mode='native_default',
+                      phase='committed',requested_swing_verified=False,**native_facing[uid])
         s.save()
     with Session(path) as reopened:
         after=inventory(reopened);by_uid={row['uuid']:row for row in after}
@@ -132,13 +159,8 @@ def apply_plan(path,operations,*,new=False):
             actual=curve_points(reopened,object_by_id(reopened,uid))
             if len(actual)!=len(points) or not all(matches(a,b) for pa,pb in zip(actual,points) for a,b in zip(pa,pb)):
                 raise RuntimeError('Saved contour changed')
-        for uid,edges in roof_checks.items():
-            slopes=object_by_id(reopened,uid).QueryInterface(reopened.r.IRoofSlopes)
-            for edge in edges:
-                i=edge['index']
-                if slopes.GetRoofEdgeShape(i)!=edge['shape']:raise RuntimeError('Roof edge shape mismatch')
-                if 'angle' in edge and not matches(slopes.GetSlopeAngle(i),edge['angle']):raise RuntimeError('Roof angle mismatch')
-                if 'overhang' in edge and not matches(slopes.GetOverhang(i),edge['overhang']):raise RuntimeError('Roof overhang mismatch')
+        roof_slope_checks=[read_roof_slope_check(reopened,object_by_id(reopened,uid),edges) for uid,edges in roof_checks.items()]
+        for roof_check in roof_slope_checks:event('native_roof_slope_parameters_reopened_verified',**roof_check)
         for uid,points in curves3d.items():
             cs=reopened.r.Placement3D(reopened.r.Point3D(0,0,0),reopened.r.Vector3D(1,0,0),reopened.r.Vector3D(0,0,1))
             curve=object_by_id(reopened,uid).QueryInterface(reopened.r.IBaseline3DObject).GetBaselineInCS(cs)
@@ -146,7 +168,18 @@ def apply_plan(path,operations,*,new=False):
             if not all(matches(a,b) for pa,pb in zip(actual,points) for a,b in zip(pa,pb)):raise RuntimeError('Saved3D baseline differs from requested points')
         markers=[assert_room_marker_matches(reopened,object_by_id(reopened,uid),point) for uid,point in marker_checks.items()]
         for marker in markers:marker['persistence_verified_by_this_reader']=True
-        result={'status':'saved_reopened_verified','room_marker_checks':markers,'plan':plan_path,'refs':{k:by_uid[v.strip('{}').lower()]['id'] for k,v in ref_uids.items()},
+        facing_observations=[];saved_hosts={}
+        for uid,host_uid in host_checks.items():
+            saved_hosts[uid]=verify_filling_host(reopened,object_by_id(reopened,uid),host_uid)
+            if uid in native_facing:
+                facing_observations.append({'uuid':uid.strip('{}').lower(),'mode':'native_default',
+                    **native_facing[uid],'actual_placement':placement(reopened,object_by_id(reopened,uid)),
+                    'saved_host_observation':saved_hosts[uid],'requested_swing_verified':False,
+                    'requested_origin_verified':uid in pose_checks and 'origin' in pose_checks[uid],
+                    'saved_offset_verified':(uid,'Offset') in requests})
+                event('native_default_facing_reopened_observed',**facing_observations[-1])
+        result={'status':'saved_reopened_verified','room_marker_checks':markers,'roof_slope_checks':roof_slope_checks,'native_facing_observations':facing_observations,
+                'filling_host_checks':saved_hosts,'plan':plan_path,'refs':{k:by_uid[v.strip('{}').lower()]['id'] for k,v in ref_uids.items()},
                 'persistent_refs':{k:v.strip('{}').lower() for k,v in ref_uids.items()},'objects':after,'computer_use_calls':0}
         event('reopen_verified',path=str(reopened.path),sha256=reopened.initial_sha,objects=len(after),plan=plan_path,computer_use_calls=0)
         return result

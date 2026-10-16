@@ -42,11 +42,39 @@ Core modules: session/safety/audit, SDK loading, BIM operations, geometry,
 catalogs, native drawings/exports, verification, deterministic plan helpers.
 API coordinates are millimeters; area m² and volume m³ are labelled explicitly.
 
-The 21 MCP tools cover status and capabilities; inspection and catalogs;
+The frozen 0.2.0 preview's 21 MCP tools cover status and capabilities; inspection and catalogs;
 validated plans and disposable-copy previews; geometry and area verification;
 project copy, SaveAs and metadata; native drawing content, PDF, IFC and view
 rendering; rectangle plans and facade spacing. The complete names and verified
 boundaries are in [CAPABILITIES.md](docs/CAPABILITIES.md).
+
+Development source now declares **28 tools**, adding resource inspection,
+resource authoring, native presentations, filling-panel inspection and editing
+of existing sheet metadata and supported sheet contents. Native development probes have
+saved/reopened 9 ordinary materials, 4 rectangular beam styles, 2 door styles,
+1 window style, and 7 Drawings with text, an AR Topic and 9 embedded views.
+Four original STEP fixtures also passed saved ElementStyle geometry checks;
+91 native fillings passed saved host/origin/Offset/style-reference checks.
+Door/window `native_default_facing`, native mesh-part labels and safe Session
+identity/definition caches are additional implemented contracts with explicit
+verification limits. Fresh API and real stdio MCP checks also read native panel
+meshes and title-block cells, and saved/reopened five existing-sheet metadata
+fields with preserved identities and resource UUIDs. The panel reader correctly
+reported 38 doors without panels and 53 windows with panels in that scenario;
+it does not create door leaves. See [panel verification](docs/DOOR-PANELS.md),
+[sheet metadata](docs/SHEET_METADATA_API.md),
+[existing sheet contents](docs/PRESENTATION-EDITS.md) and
+[development additions](docs/API-HW2-EXTENSIONS.md).
+These additions do not change the frozen 0.2.0 release evidence. A current chat
+with a cached 20-tool catalogue needs an MCP restart/reconnect and catalogue
+refresh before it can expose the new tools. A fresh standalone stdio server
+returned 27 tools, validated their schemas and executed the three new panel and
+sheet-metadata tools through native workers. The subsequent 28th tool,
+`bridge_update_sheet_contents`, passed a separate 12-check native worker fixture
+for an existing model view and DrawingText edits. A later discovery-only stdio
+run returned all 28 tools with valid schemas and no native tool calls.
+Current-chat discovery,
+standalone protocol checks and native execution remain separate evidence.
 
 New in 0.2: `bridge_create_levels_project` creates a **new** native project with
 explicit nonzero levels and an optional orthogonal native Axis grid through
@@ -57,6 +85,18 @@ tested Axis has no supported direct baseline getter. This bootstrap does not
 merge levels/axes into an existing project or move existing level elevations.
 The `room_marker` plan action positions a Room's intrinsic marker in global XY;
 it does not create a standalone Tag. See [level/grid plans](docs/OPERATION_PLANS.md).
+
+Roof operations return `roof_slope_checks` with the requested edge fields read
+from the saved native `IRoofSlopes` object. These checks verify edge parameters;
+complete roof geometry, drainage and contact with surrounding elements require
+separate mesh and design checks.
+
+Development renderer option: `render --camera-orientation front` (also `back`,
+`left`, `right`) requests a parallel camera in the owned whole-building 3D
+view. The optional MCP argument is `camera_orientation`; omit `entity_id`.
+This produces an external native PNG for geometry QA and creates no elevation
+on a sheet. Separate real Renga front/left renders passed position, focus and
+parallel-camera readback and visual review. Back/right remain native unverified.
 
 ```powershell
 .\.venv\Scripts\renga-bridge.exe doctor

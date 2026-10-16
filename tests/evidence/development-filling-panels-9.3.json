@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "evidence_id": "DEV-NATIVE-FILLING-PANELS-20261016",
+  "status": "scoped_native_saved_panel_presence_verified",
+  "tested_at_utc": "2026-10-16T18:51:17.762575Z",
+  "renga_version": "9.3.32980.0",
+  "sdk_api_reference": "2.50",
+  "execution": "public apply and filling_panels worker commands in fresh owned COM STA sessions",
+  "module_sha256": {
+    "src/renga_codex_bridge/filling_panels.py": "1850700e547189d39cfd9a0de00baea63504749715936d4230cb6d26e748e1f4"
+  },
+  "fixture": {
+    "source": "independently installed native standard-template resources; not redistributed",
+    "model_objects": {"Level": 1, "Wall": 1, "Door": 4},
+    "wall_baseline_mm": [[0, 0], [24000, 0]],
+    "wall_height_mm": 3000,
+    "wall_thickness_mm": 300
+  },
+  "saved_panel_requirements": {"requested": 4, "passed": 4, "failed": 0, "not_verified": 0},
+  "door_observations": [
+    {"existing_stock_style": "single hinged opaque light", "width_mm": 900, "height_mm": 2400, "panel_mesh_count": 1, "nondegenerate_panel_triangles": 12},
+    {"existing_stock_style": "single hinged opaque dark", "width_mm": 900, "height_mm": 2400, "panel_mesh_count": 1, "nondegenerate_panel_triangles": 12},
+    {"existing_stock_style": "single sliding glazed", "width_mm": 1800, "height_mm": 2400, "panel_mesh_count": 1, "nondegenerate_panel_triangles": 34},
+    {"existing_stock_style": "rotating glazed", "width_mm": 4200, "height_mm": 2400, "panel_mesh_count": 1, "nondegenerate_panel_triangles": 132}
+  ],
+  "persistence_checks": [
+    "New objects created using inspected existing full native styles",
+    "Requested DoorWidth, DoorHeight, style references and filling host checks passed apply/save/close/reopen",
+    "A separate readonly worker opened the saved project and observed genuine native DoorPanel-classified nondegenerate triangles for all four requested persistent UUIDs",
+    "Template resource UUID/name collections retained, including six Tables, four Schedules and four LayoutStyles",
+    "Protected template source and unrelated working project hashes remained unchanged"
+  ],
+  "retained_failures": [
+    "The installed template contained no exact two-leaf sliding-glazed preset; selection stopped before mutation and a truthfully labelled single-sliding basis was used instead",
+    "An additional DoorPositionRelativeToBaseline setter returned native server fault before save; unsaved edits were discarded and a backed-up retry omitted that optional setter"
+  ],
+  "computer_use_calls": 0,
+  "pdf_exports": 0,
+  "not_verified": [
+    "Creating or transferring a full custom DoorStyle panel tree through the public COM API",
+    "Exact physical leaf count, opening direction, closure and manufacturer assembly conformity",
+    "A prescribed two-leaf 80/20 sliding-fixed layout or a three-leaf hinged/rotating/hinged custom layout",
+    "This fixture covers explicit UUID selection, not automatic discovery, WindowPanel or all native style categories",
+    "The optional DoorPositionRelativeToBaseline setter remains a retained native failure for this creation scenario"
+  ]
+}
