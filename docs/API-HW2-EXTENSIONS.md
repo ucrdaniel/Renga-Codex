@@ -1,6 +1,6 @@
 # Additional resource and presentation operations
 
-Development update, 2026-10-15–16, API 2.50 / Renga Professional 9.3.32980.0.
+Development update, 2026-10-15–18, API 2.50 / Renga Professional 9.3.32980.0.
 These additions follow the frozen 0.2.0 preview. They are not a new release or
 a replacement for its source fingerprint and native-test evidence. Private
 models, drawings, task inputs, local paths and raw logs are not redistributed.
@@ -21,6 +21,10 @@ models, drawings, task inputs, local paths and raw logs are not redistributed.
 | `bridge_inspect_filling_panels` | Read actual classified DoorPanel/WindowPanel meshes, nondegenerate triangles, surface area and bounds for inspected filling UUIDs or all native doors/windows | Fresh direct API and real stdio MCP reads inspected **38 Doors and 53 Windows**. All 38 doors correctly failed the panel-presence requirement; all 53 windows had panel geometry. The reader does not author panels or certify physical leaf count/opening direction; see [panel verification](DOOR-PANELS.md) |
 | `bridge_inspect_sheet_metadata` / `bridge_update_sheet_metadata` | Read saved sheet metadata, resource identities and native stamp cells; update existing sheet name, format, orientation, layout and topic after preflight, backup and save/reopen | Direct API and real stdio MCP fixture verified **five fields**, preserved all building/drawing/content UUID/types and read **three native title blocks per fixture sheet**. Native getter failures without assigned layouts are returned explicitly. No arbitrary stamp-cell setter is claimed; see [sheet metadata](SHEET_METADATA_API.md) |
 | `bridge_update_sheet_contents` | Update supported existing embedded-view center/crop/fit/scale and DrawingText bounds/content/font, retaining object identities and source bindings | **12 native worker checks passed** across two save/reopen updates of an EmbeddedModelView and DrawingText: center [140,100] mm, scale 1:50 by UUID, 2 mm fit inset followed by explicit [75,205,90,110] mm crop, two-paragraph text/font replacement, clearing text and bounds-only token preservation. Other embedded kinds and visual composition remain separate; see [presentation edits](PRESENTATION-EDITS.md) |
+| `bridge_update_window_styles` | Existing WindowStyle UUID/exact-name edits: six common length fields, optional EntityName/material UUID and inspected file SHA256 | Two existing styles passed all 12 length values at 50 mm and two saved ordinary-material UUID references. The fixture's pane trees pre-existed; no tree/per-node material authoring. See [style edits and sanitized native evidence](RESOURCE-EDITS.md) |
+| `bridge_update_existing_properties` | Existing registered/assigned String properties on Project/Drawing/Topic UUIDs, optional exact before/after title-block getter assertions | Two direct-helper native runs each persisted ten Drawing String values, with definitions/assignments/identities preserved. Zero exact author-value matches in resolved cells; no positive native cell-binding assertion. Project/Topic mutation remains native unverified. No registration, expression changes or cell setter; see [property contracts and evidence](EXISTING-PROPERTIES.md) |
+| `bridge_append_sheet_schedules` | Embed existing Schedule resources into existing Drawing UUIDs, fitted within explicit available sheet bounds | Current adapter and resource-identity subset guard passed one genuine existing Room Schedule insertion on a disposable existing Drawing, save/close/reopen, fitted bounds and preserved catalog identities. Four earlier pre-guard embeddings are separate. No schedule/filter/row/cell authoring; see [sheet additions and evidence](EXISTING-SHEET-ADDITIONS.md) |
+| `bridge_append_sheet_views` | Append model/entity views from existing inspected sources/scales, explicit origin/crop/view parameters | Two direct-helper native runs each saved/reopened two Level, one Section and two Elevation views. Source/resource identities, bounds and actual three-point native transforms at 1:100/1:150 passed. Entity insertion through this new adapter remains native unverified; no source constructors/plane setters or visual/projection-completeness claim. See [sheet additions and evidence](EXISTING-SHEET-ADDITIONS.md) |
 
 The native counts above are scoped development observations. No complete
 architectural package or new release aggregate is claimed. The fresh standalone
@@ -164,11 +168,44 @@ See [presentation API research](PRESENTATION_API_RESEARCH.md),
 
 ## MCP catalogue refresh
 
-The development source declares **28 tools**: the frozen 0.2.0 set of 21 plus
+The development source declares **32 tools**: the frozen 0.2.0 set of 21 plus
 `bridge_inspect_resources`, `bridge_author_resources`,
 `bridge_create_presentations`, `bridge_inspect_filling_panels`,
 `bridge_inspect_sheet_metadata`, `bridge_update_sheet_metadata` and
-`bridge_update_sheet_contents`.
+`bridge_update_sheet_contents`, `bridge_update_window_styles`,
+`bridge_update_existing_properties`, `bridge_append_sheet_schedules` and
+`bridge_append_sheet_views`.
+
+The four latest tools use closed structural request schemas: unknown fields,
+out-of-range IDs and batch sizes, wrong primitive types and unsupported
+per-kind parameter names are rejected. The same public Python validators also
+check normalized UUIDs, duplicate requests and positive/order-dependent
+geometry. Some constraints cannot be expressed by an ordinary JSON schema:
+for example, `[left,right,bottom,top]` still requires `left < right` and
+`bottom < top` at runtime. JSON Schema considers `1.0` an integer by
+mathematical value, whereas native integer IDs still require an actual Python
+integer; runtime validation remains authoritative.
+
+CLI routes are `update_window_styles`, `update_existing_properties`,
+`append_sheet_schedules` and `append_sheet_views`. `--plan` is the request
+array, under `changes` or `additions` respectively in the worker contract.
+Style edits optionally accept `--expected-project-sha256`; properties optionally
+accept `--cell-checks` with a separate assertion array. Neither option is
+accepted on unrelated commands. All four operations retain the normal
+write-root, backup, isolated Session and saved-result rules and export no PDF.
+
+`scripts/check_mcp_catalogue.py` starts a fresh stdio frontend, checks the exact
+current tool set and all advertised input/output schemas, and calls only pure
+capability metadata. It never calls a native reader, mutation, status probe or
+export. Use this protocol check separately from genuine native test suites.
+
+The final development run initialized protocol `2025-11-25`, discovered all
+**32 unique tools**, validated every advertised input/output schema and called
+only `bridge_capabilities`. Native tool calls, Computer Use and PDF exports
+were zero. The matching portable suite reported **1333 passed, 1 skipped and
+1 opt-in integration test deselected**. The
+[sanitized protocol evidence](../tests/evidence/development-mcp-catalogue-32.json)
+records relevant source digests; pending native scopes remain pending.
 
 A **fresh real stdio server** was initialized from the then-current source on
 2026-10-15 and returned all 24 unique tool names.

@@ -37,6 +37,18 @@ def execute(command,arguments):
     if command=='update_sheet_contents':
         from .presentation_edits import update_sheet_contents
         return update_sheet_contents(arguments['project'],arguments['changes'])
+    if command=='update_window_styles':
+        from .resource_edits import update_window_styles
+        return update_window_styles(arguments['project'],arguments['changes'],arguments.get('expected_project_sha256'))
+    if command=='update_existing_properties':
+        from .existing_properties import update_existing_properties
+        return update_existing_properties(arguments['project'],arguments['changes'],cell_checks=arguments.get('cell_checks'))
+    if command=='append_sheet_schedules':
+        from .sheet_additions import append_sheet_schedules
+        return append_sheet_schedules(arguments['project'],arguments['additions'])
+    if command=='append_sheet_views':
+        from .sheet_views import append_sheet_views
+        return append_sheet_views(arguments['project'],arguments['additions'])
     if command in {'copy','preview_copy'}:
         source=checked_path(arguments['project']);target=checked_path(arguments['output'],write=True,new=True)
         if source.suffix.lower()!='.rnp' or target.suffix.lower()!='.rnp':raise ValueError('Native project extension .rnp required')

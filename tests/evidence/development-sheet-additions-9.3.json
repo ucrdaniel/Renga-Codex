@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "evidence_id": "DEV-EXISTING-SHEET-ADDITIONS-20261018",
+  "status": "scoped_native_saved_results_verified",
+  "evidence_type": "development_public_python_helpers_not_mcp_execution",
+  "tested_on": "2026-10-18",
+  "renga_version": "9.3.32980.0",
+  "sdk_api_reference": "2.50",
+  "execution": "direct public helpers, serialized fresh owned COM STA sessions",
+  "module_sha256": {
+    "src/renga_codex_bridge/sheet_additions.py": "8c952969c3eee7020d96aa52a68ff92bb824b1267b4ab503674874d6fdc3739b",
+    "src/renga_codex_bridge/sheet_views.py": "5647ffc6b0e67e09a84f9e18011c185dfee17a50c063c7a7c23048ba9312992a",
+    "src/renga_codex_bridge/presentation.py": "96ec002ea319a402912871c5aeee283f897cd03350452419365899b44262c113",
+    "src/renga_codex_bridge/sheet_metadata.py": "3c363b425b7cd9bb9b9d74338b6f5bffea9448c51140bbc1e4100c76523af5bf",
+    "src/renga_codex_bridge/session.py": "a86532ee24295aada3246a12da442e476f3066f4ae0c8f7a1fa264e2eea63392"
+  },
+  "fixture_scope": "controlled copies of an authorized local model with pre-existing native Level, Section, Elevation, Schedule and Drawing resources; private geometry and identities are not distributed",
+  "existing_schedule_append_current_revision": {
+    "saved_reopened_runs": 1,
+    "new_EmbeddedSchedule_count": 1,
+    "changed_existing_Drawings": 1,
+    "existing_native_schedule_kind": "Room Schedule",
+    "fitted_bounds_and_content_origin_verified": true,
+    "saved_schedule_resource_identity_verified": true,
+    "all_available_catalog_identity_subsets_preserved": true,
+    "old_building_drawing_content_identities_preserved": true,
+    "extra_schedule_added_only_to_disposable_copy": true,
+    "earlier_pre_guard_scope": "four existing Schedule resources embedded on four existing sheets and saved/reopened; separate from the current-guard run"
+  },
+  "existing_model_view_append_current_revision": {
+    "saved_reopened_runs": 2,
+    "new_EmbeddedModelView_count_per_run": 5,
+    "source_types_per_run": {"Level": 2, "Section": 1, "Elevation": 2},
+    "native_scale_denominators": [100, 150],
+    "saved_source_and_resource_identities_verified": true,
+    "fitted_bounds_and_requested_content_origins_verified": true,
+    "old_building_drawing_content_identities_preserved": true,
+    "unchanged_exposed_source_parameters_verified": true,
+    "native_transform_getter": "IDrawing.GetTransformFromEmbeddedModelView, part 0",
+    "sheet_input_points_per_view": [[0, 0], [1, 0], [0, 1]],
+    "finite_perpendicular_native_basis_at_requested_scale": true,
+    "source_view_opens": 0,
+    "render_calls": 0,
+    "architectural_projection_correctness_verified": false,
+    "visual_layout_verified": false
+  },
+  "returned_reference_ids": {
+    "source_revision_returns_observed_saved_values": true,
+    "portable_renumbering_regression_passed": true,
+    "portable_test_scope": "changed numeric source and scale IDs must return their saved values while persistent source/resource identities remain equal"
+  },
+  "computer_use_calls_during_helpers_and_readback": 0,
+  "pdf_exports": 0,
+  "not_verified": [
+    "Source objects and definitions existed before the helpers; their creation is not API-only evidence",
+    "Entity-by-mark insertion through the new existing-sheet adapter has portable tests only",
+    "A finite saved transform and nonempty HasContent do not establish visible geometry completeness, required section cut or architectural viewing side",
+    "No Section/Elevation constructor or source-plane setter is provided by these helpers",
+    "Catalog UUID/type subset preservation does not certify resource definitions, Schedule rows, filters or cells",
+    "No associative dimensions, Tags, regulatory layout conformity or source-view rendering are certified",
+    "The new MCP routes have protocol and portable routing coverage; this record does not establish native execution through them",
+    "This development evidence does not replace or extend the immutable frozen release evidence"
+  ]
+}

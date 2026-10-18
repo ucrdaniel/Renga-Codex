@@ -22,6 +22,8 @@ EXPECTED_TOOLS=frozenset({
     'bridge_facade_spacing','bridge_capabilities',
     'bridge_inspect_filling_panels','bridge_inspect_sheet_metadata','bridge_update_sheet_metadata',
     'bridge_update_sheet_contents',
+    'bridge_update_window_styles','bridge_update_existing_properties',
+    'bridge_append_sheet_schedules','bridge_append_sheet_views',
 })
 
 def assert_tool_catalogue(tools):

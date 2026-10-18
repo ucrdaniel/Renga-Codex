@@ -48,7 +48,7 @@ project copy, SaveAs and metadata; native drawing content, PDF, IFC and view
 rendering; rectangle plans and facade spacing. The complete names and verified
 boundaries are in [CAPABILITIES.md](docs/CAPABILITIES.md).
 
-Development source now declares **28 tools**, adding resource inspection,
+Development source now declares **32 tools**, adding resource inspection,
 resource authoring, native presentations, filling-panel inspection and editing
 of existing sheet metadata and supported sheet contents. Native development probes have
 saved/reopened 9 ordinary materials, 4 rectangular beam styles, 2 door styles,
@@ -65,6 +65,18 @@ it does not create door leaves. See [panel verification](docs/DOOR-PANELS.md),
 [sheet metadata](docs/SHEET_METADATA_API.md),
 [existing sheet contents](docs/PRESENTATION-EDITS.md) and
 [development additions](docs/API-HW2-EXTENSIONS.md).
+Four further development routes edit existing WindowStyle common parameters,
+edit existing registered String properties, and append existing native
+schedules or model/entity views to existing sheets. Their strict input schemas
+and portable routing checks do not imply equal native coverage. Scoped native
+runs saved/reopened WindowStyle common parameters, existing Drawing String
+values, an existing Schedule with the current catalog identity guard, and
+five existing Level/Section/Elevation views with three-point native transform
+readback. No resolved title-block author cell was found: property persistence
+does not fill a visible stamp field. Project/Topic property mutation and entity
+insertion through the new view adapter remain native unverified. See [style edits](docs/RESOURCE-EDITS.md),
+[existing properties](docs/EXISTING-PROPERTIES.md) and
+[existing-sheet additions](docs/EXISTING-SHEET-ADDITIONS.md).
 These additions do not change the frozen 0.2.0 release evidence. A current chat
 with a cached 20-tool catalogue needs an MCP restart/reconnect and catalogue
 refresh before it can expose the new tools. A fresh standalone stdio server
@@ -73,6 +85,12 @@ sheet-metadata tools through native workers. The subsequent 28th tool,
 `bridge_update_sheet_contents`, passed a separate 12-check native worker fixture
 for an existing model view and DrawingText edits. A later discovery-only stdio
 run returned all 28 tools with valid schemas and no native tool calls.
+The latest fresh stdio check returned **32 tools**, validated every advertised
+input/output schema and called only pure capability metadata; native calls,
+Computer Use and PDF exports were zero. The matching portable suite passed
+1333 tests (1 skipped, 1 opt-in integration test deselected).
+[Protocol evidence](tests/evidence/development-mcp-catalogue-32.json) identifies
+the tested source digests and retains the native-coverage limits.
 Current-chat discovery,
 standalone protocol checks and native execution remain separate evidence.
 

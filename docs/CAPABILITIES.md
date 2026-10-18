@@ -36,7 +36,7 @@ integration evidence.
 
 ## Development additions after the frozen 0.2 preview
 
-The current source declares **28 MCP tools**, adding resource inspection,
+The current source declares **32 MCP tools**, adding resource inspection,
 resource authoring, native presentations, panel inspection, existing-sheet
 metadata and supported existing-sheet-content edits. The existing chat's catalogue may
 still contain 20 cached tools; restart/reconnect MCP and refresh the session.
@@ -54,6 +54,21 @@ The [development update](API-HW2-EXTENSIONS.md) records precise request contract
 and the scoped native outcomes; these additions have not been promoted to a
 new release or folded into the immutable 0.2 source fingerprint below.
 
+The latest four routes are `bridge_update_window_styles`,
+`bridge_update_existing_properties`, `bridge_append_sheet_schedules` and
+`bridge_append_sheet_views`. They advertise strict structural input schemas
+and delegate batch/crossfield/native checks to the same public validators as
+Python/CLI. No PDF is exported by those operations. Protocol discovery and
+portable routing tests are separate from native evidence; current revision
+coverage is stated below.
+
+A later [32-tool fresh stdio check](../tests/evidence/development-mcp-catalogue-32.json)
+validated all advertised input/output schemas and called only pure capability
+metadata. Native tool calls, Computer Use and PDF exports were zero; the
+matching portable suite passed 1333 tests, with one skip and one opt-in
+integration deselection. This does not promote pending native operations or
+establish that an existing chat refreshed its catalogue.
+
 | Addition | Current development status | Actual scope / remaining checks |
 |---|---|---|
 | Create ordinary materials and rectangular beam styles | `IMPLEMENTED_AND_TESTED` within the scoped native development probe | 9 ordinary materials and 4 rectangular BeamStyles retained after save/reopen; not layered stacks/custom profiles |
@@ -61,7 +76,7 @@ new release or folded into the immutable 0.2 source fingerprint below.
 | Create rectangular ColumnStyle | `NOT_VERIFIED` | Implemented resource path; no separate native ColumnStyle fixture in this update |
 | Blank Drawing, DrawingText, named Topic and positioned native Level view | `IMPLEMENTED_AND_TESTED` within the scoped native development probes | Initial Drawing/text/AR Topic/Level probe; later 7 saved Drawings and 9 views (3 Level, 6 entity) with text/font/reference/center/bounds readback; 7-page native PDF structure checked, not a general visual-layout guarantee |
 | Embed existing entity-by-mark through the new helper | `IMPLEMENTED_AND_TESTED` within the scoped native development run | 6 embedded entity views persisted; final binding is by mark, and arbitrary shared-mark semantics are not uniquely certified |
-| Embed existing Section/Elevation or configured Table through the new helper | `NOT_VERIFIED` | Implemented, preflighted native references; not Section/Elevation or table-definition creation |
+| Embed existing Section/Elevation or configured Table through presentation helpers | Scoped existing-source native coverage; configured Table path remains `NOT_VERIFIED` | Existing Section/Elevation source insertion passed through the later existing-sheet adapter below. No Section/Elevation or table-definition creation; coverage does not transfer to every helper or Table |
 | Door/Window `native_default_facing` | `IMPLEMENTED_AND_TESTED` within the scoped development scenario | 91 saved fillings passed host/origin/Offset/style-reference checks. Actual native axes are reported; requested opening direction, custom panel divisions and full panel meshes are separate |
 | Mesh part/type labels and Session plain-data caches | Scoped native classification plus portable cache contracts | 53 Windows have native panel geometry; 38 Doors gained frames/thresholds but no DoorPanel. UUID→ID hits revalidate native identity; definition caches never substitute parameter values/state |
 | Import a STEP/STP file as a new native ElementStyle | `IMPLEMENTED_AND_TESTED` within the scoped development fixtures | 4 original local STEP fixtures saved/reopened, source SHA256 and independent native mesh dimensions/volume/surface/minimum-triangle checks passed before save and after reopen; not all STEP files or full BRep equivalence |
@@ -70,6 +85,10 @@ new release or folded into the immutable 0.2 source fingerprint below.
 | Read actual native DoorPanel/WindowPanel geometry | `IMPLEMENTED_AND_TESTED` within the scoped native and real stdio development probes | [Panel reader](DOOR-PANELS.md): 38 doors correctly failed panel-presence checks; 53 windows had nondegenerate classified panel triangles. A working reader does not create a leaf or certify swing/leaf count |
 | Read existing sheet metadata/title-block cells and edit five supported metadata fields | `IMPLEMENTED_AND_TESTED` within the scoped native and real stdio development probes | [Sheet metadata](SHEET_METADATA_API.md): name, page format/orientation, existing layout and topic survived save/reopen on a disposable fixture; resource UUIDs and all building/drawing/content UUID/types retained. Three native title blocks read per fixture sheet; explicit getter failures retained for sheets without layouts |
 | Edit existing native sheet contents | `IMPLEMENTED_AND_TESTED` within the scoped native model-view/text fixture | [Presentation edits](PRESENTATION-EDITS.md): 12 native checks passed across two save/reopen updates: model-view center [140,100] mm, scale 1:50 by UUID, fit inset 2 mm then explicit bounds [75,205,90,110] mm; two-paragraph replacement/font, clearing text and bounds-only token preservation. Other embedded kinds and visual layout remain separate |
+| Edit common parameters of existing WindowStyle resources | `IMPLEMENTED_AND_TESTED` within the scoped native development fixture | [Style edits](RESOURCE-EDITS.md): two existing styles passed 12 length checks at 50 mm plus two ordinary-material UUID reference checks after save/reopen. Separate probe windows had real panels/sills and complete black Frame triangle colour matches. Internal trees existed before this helper; no per-node authoring/undo-history claim |
+| Edit existing registered/assigned String properties of Project/Drawing/Topic | `IMPLEMENTED_AND_TESTED` for Drawing String values only | [Existing properties](EXISTING-PROPERTIES.md) and [native evidence](../tests/evidence/development-existing-properties-9.3.json): two runs each persisted ten Drawing values with preserved definitions/assignments/identities. Resolved author-cell matches were zero; visible field binding and native cell assertions remain unverified. Project/Topic mutation remains native unverified. No registration, expression changes or cell setter |
+| Append existing Schedule resources to existing Drawing sheets | `IMPLEMENTED_AND_TESTED` within the current scoped native fixture | [Existing-sheet additions](EXISTING-SHEET-ADDITIONS.md) and [native evidence](../tests/evidence/development-sheet-additions-9.3.json): one genuine existing Room Schedule passed the current resource-identity subset guard, fitted bounds and save/close/reopen. Four earlier pre-guard embeddings are separate evidence. No schedule/filter/row/cell authoring or general layout guarantee |
+| Append existing model/entity views to existing Drawing sheets | `IMPLEMENTED_AND_TESTED` for existing Level/Section/Elevation sources only | [Existing-sheet additions](EXISTING-SHEET-ADDITIONS.md) and [native evidence](../tests/evidence/development-sheet-additions-9.3.json): two runs each saved/reopened two Level, one Section and two Elevation views. Actual three-point transforms, 1:100/1:150 scales, bounds and source/resource identities passed. Entity insertion through this new adapter remains native unverified; no source constructors/plane setters, complete projection or visual-layout guarantee |
 
 ## Frozen 0.2 evidence and release boundary
 

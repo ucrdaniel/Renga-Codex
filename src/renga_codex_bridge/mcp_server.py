@@ -3,15 +3,37 @@ import asyncio
 import json
 import sys
 import os
+from typing import Annotated
+from pydantic import Field
 from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
 from .planning import rectangle_plan,facade_spacing
 from .validation import validate_plan
 from .audit import event
 from .ownership import create_ownership_lease,command_timeout_seconds,cleanup_after_timeout
+from .tool_contracts import (WindowStyleChange,ExistingPropertyChange,TitleBlockCellCheck,
+                             ScheduleAddition,ViewAddition,plain_requests)
 
 server=MCPServer('Renga Codex Bridge')
 gate=asyncio.Lock()
+
+def _strict_tool():
+    """Close only the new request contracts on the pinned MCP 2.3 registry.
+
+    MCPServer.tool has no argument-model configuration hook in 2.3. Rebuild
+    its generated Pydantic argument model rather than merely publishing a
+    stricter schema while silently dropping extra top-level input fields.
+    Portable and fresh stdio tests cover this small version-specific seam.
+    """
+    def register(function):
+        server.add_tool(function)
+        tool=server._tool_manager.get_tool(function.__name__)
+        model=tool.fn_metadata.arg_model
+        model.model_config={**model.model_config,'extra':'forbid','strict':True}
+        model.model_rebuild(force=True)
+        tool.parameters=model.model_json_schema(by_alias=True)
+        return function
+    return register
 
 async def run(command,**arguments):
     async with gate:
@@ -105,6 +127,45 @@ async def bridge_update_sheet_metadata(project:str,changes:list[dict])->dict:
 async def bridge_update_sheet_contents(project:str,changes:list[dict])->dict:
     """Reposition existing embedded views/tables and DrawingText by inspected drawing/object UUIDs. Optional existing native scale and explicit plain text/font replacement; backup/save/reopen/identity and saved-content checks. No new objects, dimensions, tags or table definitions; no PDF export."""
     return await run('update_sheet_contents',project=project,changes=changes)
+
+@_strict_tool()
+async def bridge_update_window_styles(project:str,
+        changes:Annotated[list[WindowStyleChange],Field(min_length=1,max_length=100)],
+        expected_project_sha256:Annotated[str,Field(pattern=r'^[0-9a-fA-F]{64}$')]|None=None)->dict:
+    """Edit existing WindowStyle UUIDs only: six common lengths in mm, optional EntityName and ordinary material_uuid. Pin inspected name/hash; backup, project operation, save/reopen and persistent-reference checks. Resource undo history is unsupported; no pane-tree/per-node authoring or PDF export."""
+    from .resource_edits import validate_window_style_changes
+    rows=plain_requests(changes)
+    validate_window_style_changes(rows,expected_project_sha256)
+    return await run('update_window_styles',project=project,changes=rows,expected_project_sha256=expected_project_sha256)
+
+@_strict_tool()
+async def bridge_update_existing_properties(project:str,
+        changes:Annotated[list[ExistingPropertyChange],Field(min_length=1,max_length=1000)],
+        cell_checks:Annotated[list[TitleBlockCellCheck],Field(max_length=1000)]|None=None)->dict:
+    """Edit already registered/assigned String properties on inspected Project/Drawing/Topic UUIDs. Optional exact before/after native title-block cell assertions; backup/save/reopen. Does not register properties, alter assignments/expressions, write cells, or export PDF. Native support remains scenario-specific."""
+    from .existing_properties import validate_existing_property_changes
+    rows=plain_requests(changes)
+    checks=plain_requests(cell_checks) if cell_checks is not None else None
+    validate_existing_property_changes(rows,checks)
+    return await run('update_existing_properties',project=project,changes=rows,cell_checks=checks)
+
+@_strict_tool()
+async def bridge_append_sheet_schedules(project:str,
+        additions:Annotated[list[ScheduleAddition],Field(min_length=1,max_length=100)])->dict:
+    """Append existing native Schedule resources to existing Drawing UUIDs inside explicit available sheet-mm bounds. Backup, undo, save/reopen and source UUID checks; refuses duplicates/overflow. Does not define schedules, filters, rows/cells or new sheets; no PDF export."""
+    from .sheet_additions import validate_schedule_additions
+    rows=plain_requests(additions)
+    validate_schedule_additions(rows)
+    return await run('append_sheet_schedules',project=project,additions=rows)
+
+@_strict_tool()
+async def bridge_append_sheet_views(project:str,
+        additions:Annotated[list[ViewAddition],Field(min_length=1,max_length=100)])->dict:
+    """Append model/entity views from inspected native source/scale IDs to existing Drawing UUIDs, with explicit center/bounds in sheet mm. Backup/save/reopen and saved binding checks. Does not create sheets/Section/Elevation/source planes or certify projection/visual layout; no PDF export."""
+    from .sheet_views import validate_view_additions
+    rows=plain_requests(additions)
+    validate_view_additions(rows)
+    return await run('append_sheet_views',project=project,additions=rows)
 
 @server.tool()
 async def bridge_author_resources(project:str,resources:list[dict])->dict:

@@ -1,0 +1,50 @@
+{
+  "status": "passed",
+  "evidence_type": "development_native_probe_not_portable_test",
+  "renga_version": "9.3.32980.0",
+  "api_version": "2.50",
+  "module": "resource_edits.py",
+  "module_sha256": "3ee122b945ee955f064be4c9fb01556118f68077aa635e30b47d87bd2f9001a1",
+  "computer_use_calls_in_resource_edit_and_instance_probe": 0,
+  "fixture_scope": "two_existing_native_WindowStyles_with_pre_authored_pane_trees_not_API_tree_creation",
+  "style_count": 2,
+  "length_checks_passed": 12,
+  "length_value_mm": 50,
+  "ordinary_material_references_reopened_verified": 2,
+  "project_resource_undo_history_supported": false,
+  "building_drawing_resource_identities_preserved_during_style_edit": true,
+  "unrequested_exposed_style_parameters_preserved": true,
+  "existing_native_model_geometry_preserved_during_style_edit": true,
+  "created_probe_Window_count": 2,
+  "saved_reopened_WindowPanel_presence_passed": 2,
+  "all_existing_Door_geometry_preserved": true,
+  "exported_Frame_color_rgba": [
+    0,
+    0,
+    0,
+    255
+  ],
+  "complete_unambiguous_frame_triangle_color_matches": [
+    192,
+    132
+  ],
+  "sill_triangles_per_window": [
+    20,
+    20
+  ],
+  "outward_sill_triangles_per_window": [
+    12,
+    12
+  ],
+  "glass_regions_per_window": [
+    3,
+    2
+  ],
+  "public_scope": "existing_common_parameters_and_material_reference; exported_colour_validation_is_separate_private_probe",
+  "limitations": [
+    "Fixture pane trees existed before the helper; their creation is not API-only evidence",
+    "Exported frame triangle color is not proof of private per-node material identity",
+    "Native project resource undo history is unsupported by the SDK",
+    "Two development fixtures do not establish compatibility with all Renga versions and all style trees"
+  ]
+}
