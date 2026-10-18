@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "evidence_id": "DEV-EXISTING-DRAWING-PROPERTIES-20261018",
+  "status": "scoped_native_saved_results_verified",
+  "evidence_type": "development_public_python_helper_not_mcp_execution",
+  "tested_on": "2026-10-18",
+  "renga_version": "9.3.32980.0",
+  "sdk_api_reference": "2.50",
+  "execution": "direct public helper, fresh owned COM STA sessions",
+  "module_sha256": {
+    "src/renga_codex_bridge/existing_properties.py": "5f05e3e9b110279b8a1134435ee0eca831ac06b4e5148c42f65770775a38605b",
+    "src/renga_codex_bridge/sheet_metadata.py": "3c363b425b7cd9bb9b9d74338b6f5bffea9448c51140bbc1e4100c76523af5bf",
+    "src/renga_codex_bridge/session.py": "a86532ee24295aada3246a12da442e476f3066f4ae0c8f7a1fa264e2eea63392"
+  },
+  "fixture_scope": "controlled copies of an authorized local model with pre-existing assigned String properties; private source and values are not distributed",
+  "saved_reopened_edit_runs": 2,
+  "drawing_property_targets_per_run": 10,
+  "native_verified_target_kinds": ["Drawing"],
+  "native_verified_property_types": ["String"],
+  "requested_values_persisted": true,
+  "existing_definition_and_assignment_preserved": true,
+  "building_drawing_content_identities_preserved": true,
+  "exact_author_value_matches_in_resolved_title_blocks_per_run": 0,
+  "resolved_title_block_cell_assertions_executed": 0,
+  "visible_author_field_filled": false,
+  "title_block_source_binding_proven": false,
+  "computer_use_calls_during_helper_and_readback": 0,
+  "pdf_exports": 0,
+  "native_visual_layout_verified": false,
+  "retained_failures": [
+    "A private continuation initially used an overlong Windows ownership-state path and failed before project open; retry used a shorter state root",
+    "An earlier private selector did not handle an unassigned Topic reference; it failed before property edits and was corrected"
+  ],
+  "not_verified": [
+    "Project and Topic edits through this helper have portable tests but no native mutation scenario in this evidence",
+    "Optional resolved-cell before/after assertions have portable coverage, not a positive native binding scenario here",
+    "Persisted property values do not establish a visible title-block field binding or a cell setter",
+    "No property registration, type assignment, expression authoring or direct title-block writing is supported",
+    "The new MCP route has protocol and portable routing coverage; this record does not establish native execution through it",
+    "This development evidence does not replace or extend the immutable frozen release evidence"
+  ]
+}

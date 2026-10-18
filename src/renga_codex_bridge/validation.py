@@ -32,6 +32,10 @@ def validate_plan(operations):
     for item in operations:
         if not isinstance(item,dict) or not isinstance(item.get('action'),str) or item['action'] not in MODEL_ACTIONS:raise ValueError('Unknown operation action')
         action=item['action']
+        if 'native_default_facing' in item:
+            if not isinstance(item['native_default_facing'],bool):raise ValueError('native_default_facing must be a strict boolean')
+            if action!='create' or not isinstance(item.get('kind'),str) or item['kind'] not in {'Door','Window'}:raise ValueError('native_default_facing is only available for Door/Window creation')
+            if item['native_default_facing'] and ('x_axis' in item or 'z_axis' in item):raise ValueError('native_default_facing cannot accompany explicit x_axis/z_axis')
         if 'origin' in item:finite_vector(item['origin'],3)
         def valid_id(value):
             if isinstance(value,bool):return False

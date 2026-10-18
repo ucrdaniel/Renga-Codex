@@ -115,3 +115,21 @@ automatically certify clearances, structural rules or accessibility. Geometry
 verification compares measured areas with explicit independent targets.
 Bounding-box intersection candidates are not exact solid clashes. Use the
 capability map and returned `not_verified` values to retain these boundaries.
+
+For a fresh read-only check after changing Door/Window styles, `bridge_verify`
+and the worker `verify` command accept an optional `expected_filling_hosts`
+dictionary mapping each inspected filling UUID to its inspected Wall UUID.
+This argument is separate from the model-action plan array. The verifier reads
+actual native affected-wall IDs and any exposed parent UUID, returns both
+expected and actual host identities for successful checks, and raises on
+missing/wrong objects or disagreeing bindings. Numeric IDs are not accepted
+in this map. This does not certify leaf/panel geometry or opening direction.
+
+Area results name the actual `quantity_key`: Room comparisons sum all horizontal
+downward faces of a closed, outward-wound mesh (including interior-floor cuts)
+against native `GrossFloorArea`, while Room `expected_areas` targets continue
+to use native `NetFloorArea`. Door/opening and boundary rules can make these
+quantities differ. An unavailable gross quantity yields `unverified_checks`
+and `not_verified`; exported room geometry alone is not an independent net-area
+calculation. Unknown winding/closure and sloping-downface semantics remain
+unverified. Floor mesh/target checks continue to use `NetArea`.

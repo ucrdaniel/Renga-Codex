@@ -4,11 +4,45 @@ import uuid
 from .audit import event
 from .orientation import DEFAULT_X_AXIS,DEFAULT_Z_AXIS,validate_creation_axes,validate_wall_host_orientation
 
+_AXIS_UNSET=object()
+
+def creation_axes(kind,x_axis=_AXIS_UNSET,z_axis=_AXIS_UNSET,*,native_default_facing=False):
+    """An explicit native default makes no promise about a filling's outer side."""
+    if not isinstance(native_default_facing,bool):raise ValueError('native_default_facing must be a strict boolean')
+    if native_default_facing:
+        if not isinstance(kind,str) or kind not in {'Door','Window'}:raise ValueError('native_default_facing is only available for Door/Window')
+        if x_axis is not _AXIS_UNSET or z_axis is not _AXIS_UNSET:
+            raise ValueError('native_default_facing cannot accompany explicit x_axis/z_axis')
+    return validate_creation_axes(DEFAULT_X_AXIS if x_axis is _AXIS_UNSET else x_axis,
+                                  DEFAULT_Z_AXIS if z_axis is _AXIS_UNSET else z_axis,kind=kind)
+
 def parameter_value(parameter):
     if not parameter.HasValue:return None
     method={1:'GetBoolValue',2:'GetIntValue',3:'GetDoubleValue',4:'GetStringValue'}.get(parameter.ValueType)
     if method is None:raise NotImplementedError('Unsupported native parameter type')
     return getattr(parameter,method)()
+
+def parameter_definition_metadata(s,guid,parameter):
+    """Cache definition-only data on this Session, never native value/state.
+
+    IParameterDefinition exposes the description/type/reference/enum metadata.
+    These describe the parameter GUID within this session's project/locale;
+    IsReadOnly, HasValue, ValueType and the actual value are read on each visit.
+    Cache plain data only, avoiding long-lived COM interface references.
+    """
+    cache=getattr(s,'_parameter_definition_metadata_cache',None)
+    if cache is None:
+        cache={};s._parameter_definition_metadata_cache=cache
+    key=guid.upper()
+    if key not in cache:
+        definition=parameter.Definition
+        cache[key]={'text':definition.Text,'definition_name':definition.Name,
+                    'parameter_type':definition.ParameterType,'referenced_entity_type':definition.ReferencedEntityTypeS,
+                    'enumeration_texts':tuple(definition.EnumerationItemTexts or [])}
+    stored=cache[key]
+    # Return an independent list/dict: caller mutation must not poison later
+    # observations or silently alter another object's reported definition.
+    return {**stored,'enumeration_texts':list(stored['enumeration_texts'])}
 
 def parameters(s,entity):
     pc=entity.GetParameters() if hasattr(entity,'GetParameters') else entity.QueryInterface(s.r.IParameterContainer)
@@ -17,12 +51,9 @@ def parameters(s,entity):
     identifiers=pc.GetIds();names={v:k for k,v in s.sdk.parameters.items()}
     for i in range(identifiers.Count):
         guid=identifiers.GetS(i);name=names.get(guid.upper(),guid)
-        p=pc.GetS(guid);definition=p.Definition
+        p=pc.GetS(guid);definition=parameter_definition_metadata(s,guid,p)
         result[name]={'guid':guid,'value':parameter_value(p),'has_value':p.HasValue,
-                      'readonly':p.IsReadOnly,'type':p.ValueType,'text':definition.Text,
-                      'definition_name':definition.Name,'parameter_type':definition.ParameterType,
-                      'referenced_entity_type':definition.ReferencedEntityTypeS,
-                      'enumeration_texts':list(definition.EnumerationItemTexts or [])}
+                      'readonly':p.IsReadOnly,'type':p.ValueType,**definition}
     return result
 
 def set_parameter(s,entity,name,value):
@@ -38,6 +69,13 @@ def set_parameter(s,entity,name,value):
     getattr(p,{1:'SetBoolValue',2:'SetIntValue',3:'SetDoubleValue',4:'SetStringValue'}[p.ValueType])(value)
     event('set_parameter_requested',uuid=entity.UniqueIdS,parameter=name,value=value,status='provisional')
 
+def _cache_object_identity(s,obj):
+    """Remember plain identities only; every later hit validates native state."""
+    cache=getattr(s,'_object_id_cache',None)
+    if cache is None:
+        cache={};s._object_id_cache=cache
+    cache[str(uuid.UUID(obj.UniqueIdS.strip('{}')))]=obj.Id
+
 def object_by_id(s,identifier):
     if isinstance(identifier,int):
         obj=s.model.GetObjects().GetById(identifier)
@@ -45,9 +83,21 @@ def object_by_id(s,identifier):
         return obj
     target=str(uuid.UUID(identifier.strip('{}')))
     objs=s.model.GetObjects()
+    cache=getattr(s,'_object_id_cache',None)
+    if cache is not None and target in cache:
+        obj=objs.GetById(cache[target])
+        if obj and str(uuid.UUID(obj.UniqueIdS.strip('{}')))==target:return obj
+    # Numeric IDs can move on SaveAs or be reused after deletion. Rebuild from
+    # the current model on a miss/stale hit; do not retain COM objects or negative
+    # results. This also handles a Session whose model has been reopened/replaced.
+    cache={}
     for i in range(objs.Count):
         obj=objs.GetByIndex(i)
-        if obj.UniqueIdS.strip('{}').lower()==target:return obj
+        cache[str(uuid.UUID(obj.UniqueIdS.strip('{}')))]=obj.Id
+    s._object_id_cache=cache
+    if target in cache:
+        obj=objs.GetById(cache[target])
+        if obj and str(uuid.UUID(obj.UniqueIdS.strip('{}')))==target:return obj
     raise KeyError(identifier)
 
 def baseline(s,obj,points,closed=False):
@@ -76,7 +126,8 @@ def curve_points(s,obj):
     except Exception:
         return [[curve.GetBeginPoint().X,curve.GetBeginPoint().Y],[curve.GetEndPoint().X,curve.GetEndPoint().Y]]
 
-def create(s,kind,*,points=None,closed=False,origin=(0,0,0),host=None,level=None,parameters=None,x_axis=DEFAULT_X_AXIS,z_axis=DEFAULT_Z_AXIS):
+def create(s,kind,*,points=None,closed=False,origin=(0,0,0),host=None,level=None,parameters=None,x_axis=_AXIS_UNSET,z_axis=_AXIS_UNSET,native_default_facing=False):
+    axes=creation_axes(kind,x_axis,z_axis,native_default_facing=native_default_facing)
     if kind not in s.sdk.types:raise ValueError('Unknown SDK entity type: '+kind)
     if kind in {'Axis','LinearDimension','Tag','DrawingAxis'}:
         raise NotImplementedError('No verified public constructor/feature binding for '+kind+'; inspect capabilities')
@@ -84,7 +135,6 @@ def create(s,kind,*,points=None,closed=False,origin=(0,0,0),host=None,level=None
     values=dict(parameters or {})
     if kind in {'Beam','Element'} and (isinstance(values.get(kind+'StyleId'),bool) or not isinstance(values.get(kind+'StyleId'),int) or values[kind+'StyleId']<=0):
         raise ValueError(kind+' requires an inspected existing '+kind+'StyleId')
-    axes=validate_creation_axes(x_axis,z_axis,kind=kind)
     args=s.model.CreateNewEntityArgs();args.TypeIdS=s.sdk.types[kind]
     args.Placement3D=s.r.Placement3D(s.r.Point3D(*origin),s.r.Vector3D(*axes['x_axis']),s.r.Vector3D(*axes['z_axis']))
     if kind+'StyleId' in values:args.StyleId=values.pop(kind+'StyleId')
@@ -98,14 +148,40 @@ def create(s,kind,*,points=None,closed=False,origin=(0,0,0),host=None,level=None
         curve=wall.QueryInterface(s.r.IBaseline2DObject).GetBaselineInCS(cs)
         if curve.Curve2DType!=s.r.Curve2DType_LineSegment:raise NotImplementedError('Hosted-side placement currently requires a straight Wall')
         a=curve.GetBeginPoint();b=curve.GetEndPoint()
-        validate_wall_host_orientation(axes['x_axis'],axes['z_axis'],[b.X-a.X,b.Y-a.Y,0])
+        if not native_default_facing:validate_wall_host_orientation(axes['x_axis'],axes['z_axis'],[b.X-a.X,b.Y-a.Y,0])
     obj=s.model.CreateObject(args)
     if not obj:raise RuntimeError('Native CreateObject failed: '+kind+'; LastError='+str(s.app.LastError))
+    _cache_object_identity(s,obj)
     if points is not None:baseline(s,obj,points,closed)
     if host is not None and kind in {'Door','Window','Opening'}:set_parameter(s,obj,'Offset',origin[2])
     for name,value in values.items():set_parameter(s,obj,name,value)
     event('create_object_requested',kind=kind,uuid=obj.UniqueIdS,status='provisional')
     return obj
+
+def verify_filling_host(s,obj,host_uuid):
+    """Check the inspected host's persistent identity against actual native cuts.
+
+    A stored constructor argument is not saved-output evidence. A nonempty
+    exposed ParentObjectUniqueId additionally has to agree with the same wall.
+    """
+    host=object_by_id(s,host_uuid)
+    if host.ObjectTypeS.upper()!=s.sdk.types['Wall']:raise RuntimeError('Saved filling host is not a native Wall')
+    if obj.ObjectTypeS.upper()==s.sdk.types['Door']:interface=s.r.IDoorParams
+    elif obj.ObjectTypeS.upper()==s.sdk.types['Window']:interface=s.r.IWindowParams
+    else:raise ValueError('Filling host verification requires Door/Window')
+    affected=set(obj.QueryInterface(interface).GetAffectedObjectIds() or [])
+    if host.Id not in affected:raise RuntimeError('Saved filling no longer affects the requested Wall host')
+    parent_guid=s.sdk.parameters.get('ParentObjectUniqueId')
+    parent=None;container=obj.GetParameters()
+    if parent_guid and container and container.ContainsS(parent_guid):
+        parameter=container.GetS(parent_guid)
+        if parameter.HasValue:
+            value=parameter.GetStringValue()
+            if value:
+                parent=str(uuid.UUID(value.strip('{}')))
+                if parent!=str(uuid.UUID(host_uuid.strip('{}'))):raise RuntimeError('Saved filling ParentObjectUniqueId differs from requested Wall')
+    return {'host_uuid':str(uuid.UUID(host.UniqueIdS.strip('{}'))),'affected_wall_verified':True,
+            'parent_uuid':parent,'parent_uuid_verified':parent is not None}
 
 def placement(s,obj):
     p=obj.QueryInterface(s.r.ILevelObject).GetPlacement()

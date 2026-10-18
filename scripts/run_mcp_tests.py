@@ -12,6 +12,28 @@ from renga_codex_bridge.config import settings
 from mcp import ClientSession,StdioServerParameters
 from mcp.client.stdio import stdio_client
 
+EXPECTED_TOOLS=frozenset({
+    'bridge_status','bridge_inspect','bridge_apply_plan','bridge_create_levels_project',
+    'bridge_validate_plan','bridge_preview_on_copy','bridge_geometry','bridge_verify',
+    'bridge_catalogs','bridge_inspect_resources','bridge_author_resources',
+    'bridge_create_drawings','bridge_create_presentations','bridge_inspect_drawings',
+    'bridge_export_pdf','bridge_export_ifc','bridge_render_view','bridge_copy_project',
+    'bridge_save_as','bridge_project_info','bridge_set_project_info','bridge_rectangle_plan',
+    'bridge_facade_spacing','bridge_capabilities',
+    'bridge_inspect_filling_panels','bridge_inspect_sheet_metadata','bridge_update_sheet_metadata',
+    'bridge_update_sheet_contents',
+    'bridge_update_window_styles','bridge_update_existing_properties',
+    'bridge_append_sheet_schedules','bridge_append_sheet_views',
+})
+
+def assert_tool_catalogue(tools):
+    names=[tool.name for tool in tools]
+    missing=EXPECTED_TOOLS-set(names);unexpected=set(names)-EXPECTED_TOOLS
+    assert not missing and not unexpected and len(names)==len(EXPECTED_TOOLS), (
+        'Unexpected MCP catalogue; missing='+repr(sorted(missing))
+        +'; unexpected='+repr(sorted(unexpected))+'; actual_count='+str(len(names)))
+    return names
+
 async def run():
     folder=settings().write_root/('mcp-'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ'))
     folder.mkdir(parents=True)
@@ -24,7 +46,7 @@ async def run():
             async with ClientSession(*streams,read_timeout_seconds=360) as client:
                 await client.initialize();passed('initialize_protocol')
                 tools=(await client.list_tools()).tools
-                assert len(tools)==21;passed('discover_tools',count=len(tools),names=[tool.name for tool in tools])
+                names=assert_tool_catalogue(tools);passed('discover_tools',count=len(tools),names=names)
                 async def call(name,**arguments):
                     result=await client.call_tool(name,arguments)
                     if result.is_error:raise RuntimeError(str(result.content))

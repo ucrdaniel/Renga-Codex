@@ -1,0 +1,120 @@
+{
+  "status": "saved_reopened_verified",
+  "evidence_type": "development_direct_standalone_example_native_test_not_MCP_route",
+  "timestamp_utc": "2026-10-18T17:00:22.823942+00:00",
+  "renga_version": "9.3.32980.0",
+  "api_version": "2.50",
+  "example": "examples/native_beam_assembly.py",
+  "tested_source_sha256": "95eefa6ae97eb4e1faea7efe7f9267f818f2d9a400ec34f80c7819ce64332103",
+  "new_project_only": true,
+  "created_native_entities": {
+    "Assembly_definition": 1,
+    "BeamStyle": 1,
+    "Beam_child": 1,
+    "AssemblyInstance": 1
+  },
+  "automatic_Level_per_Assembly": 1,
+  "native_profile": "installed_SDK_stock_Ellipse",
+  "requested_mm": {
+    "length_mm": 1000.0,
+    "width_mm": 18.0,
+    "depth_mm": 18.0
+  },
+  "actual_profile_dimensions_mm": {
+    "width": 18.0,
+    "depth": 18.0
+  },
+  "actual_baseline_mm": [
+    [
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      1000.0,
+      0.0,
+      0.0
+    ]
+  ],
+  "actual_mesh_bounds_mm": {
+    "min": [
+      0.0,
+      -9.0,
+      -18.0
+    ],
+    "max": [
+      1000.0,
+      9.0,
+      0.0
+    ],
+    "size": [
+      1000.0,
+      18.0,
+      18.0
+    ],
+    "triangle_count": 28,
+    "nondegenerate_triangle_count": 28,
+    "scope": "finite_mesh_presence_and_extents_not_closed_solid_or_full_shape_equivalence"
+  },
+  "building_object_count": 2,
+  "assembly_child_count": 2,
+  "save_close_reopen_performed": true,
+  "persistent_identity_type_checks_passed": true,
+  "BeamStyle_Assembly_profile_references_checked_by_UUID": true,
+  "computer_use_calls": 0,
+  "PDF_exports": 0,
+  "native_creation_run_count": 1,
+  "portable_tests_passed": 33,
+  "full_graph_transfer_verified": false,
+  "limitations": [
+    "Single straight Beam with stock Ellipse at constructor default orientation only",
+    "Not cross-project resource transfer or multi-component assembly cloning",
+    "Custom profile contours, curved Beam authoring, nested assemblies and group semantics remain separate",
+    "Finite mesh/extents checks do not prove closed solidity or complete shape equivalence",
+    "Not a native invocation through MCP"
+  ],
+  "post_probe_docstring_only_source_sha256": "a0907bfa4af6cb7590011536074dfbe87edbdcb77fd1f5bf42a9c53a984237ca",
+  "post_probe_change": "Only obsolete pending-test module docstring sentence replaced; no executable behavior edited",
+  "readonly_placement_level_recheck": {
+    "status": "readonly_saved_placement_level_recheck_passed",
+    "timestamp_utc": "20261018T170717516293Z",
+    "checked_source_sha256": "086fc03cc416e351854edb8e91a5fa496052d41221692a525348c1a612b81c8a",
+    "renga_version": "9.3.32980.0",
+    "original_saved_fixture_reused": true,
+    "actual_instance_placement": {
+      "origin_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "x_axis": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "z_axis": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "host_Level_persistent_UUID_and_native_type_matched_original_creation": true,
+    "actual_host_Level_elevation_mm": 0.0,
+    "original_building_and_assembly_child_UUID_types_preserved": true,
+    "profile_baseline_mesh_checks_repeated_by_current_reader": true,
+    "file_sha256_unchanged": true,
+    "create_project_called": false,
+    "save_called": false,
+    "setters_called": 0,
+    "computer_use_calls": 0,
+    "PDF_exports": 0,
+    "portable_guard_tests_passed": 42,
+    "scope": "current _inspect including instance ILevelObject placement and persistent host Level UUID/type/elevation on the original saved fixture",
+    "creation_entrypoint_rerun_after_guard_change": false
+  },
+  "post_probe_change_history": [
+    "The initial post-probe edit replaced only an obsolete module docstring sentence; its source digest is recorded separately.",
+    "Review found missing instance pose/host Level checks. Added actual ILevelObject.GetPlacement origin/axes, LevelId-to-persistent-Level-UUID/type/elevation guards and explicit plan axes.",
+    "The updated reader was exercised read-only on the original saved native fixture. No additional creation run or Save was performed; the updated creation entrypoint itself was not rerun."
+  ]
+}

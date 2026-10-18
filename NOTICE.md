@@ -21,6 +21,8 @@ uses the following components:
 | [comtypes](https://github.com/enthought/comtypes) | Typed COM interop | MIT |
 | [pywin32](https://github.com/mhammond/pywin32) | Windows process/COM diagnostics | Mixed component licenses; see the inventory below |
 | [MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk) | Local stdio MCP transport | MIT |
+| [Pydantic](https://github.com/pydantic/pydantic) | Strict transport request models; also required by MCP | MIT |
+| [jsonschema](https://github.com/python-jsonschema/jsonschema) | Protocol/schema verification scripts and tests; installed by MCP | MIT |
 | [pytest](https://github.com/pytest-dev/pytest) | Test-only dependency | MIT |
 | [pypdf](https://github.com/py-pdf/pypdf) | Test-only PDF verification | BSD-3-Clause |
 | [build](https://github.com/pypa/build) | Test-only package build frontend | MIT |
@@ -28,7 +30,8 @@ uses the following components:
 | [wheel](https://github.com/pypa/wheel) | Build dependency | MIT |
 
 Transitive dependency versions and licenses need review when dependency locks
-change. This table is an inventory of direct dependencies, not a sublicense of
+change. This table is an inventory of direct dependencies and explicitly used
+transitive schema-verification components, not a sublicense of
 their code. Full upstream research and commit identifiers are recorded in
 `docs/REPOSITORY_RESEARCH.md`.
 

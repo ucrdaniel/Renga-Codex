@@ -3,15 +3,37 @@ import asyncio
 import json
 import sys
 import os
+from typing import Annotated
+from pydantic import Field
 from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
 from .planning import rectangle_plan,facade_spacing
 from .validation import validate_plan
 from .audit import event
 from .ownership import create_ownership_lease,command_timeout_seconds,cleanup_after_timeout
+from .tool_contracts import (WindowStyleChange,ExistingPropertyChange,TitleBlockCellCheck,
+                             ScheduleAddition,ViewAddition,plain_requests)
 
 server=MCPServer('Renga Codex Bridge')
 gate=asyncio.Lock()
+
+def _strict_tool():
+    """Close only the new request contracts on the pinned MCP 2.3 registry.
+
+    MCPServer.tool has no argument-model configuration hook in 2.3. Rebuild
+    its generated Pydantic argument model rather than merely publishing a
+    stricter schema while silently dropping extra top-level input fields.
+    Portable and fresh stdio tests cover this small version-specific seam.
+    """
+    def register(function):
+        server.add_tool(function)
+        tool=server._tool_manager.get_tool(function.__name__)
+        model=tool.fn_metadata.arg_model
+        model.model_config={**model.model_config,'extra':'forbid','strict':True}
+        model.model_rebuild(force=True)
+        tool.parameters=model.model_json_schema(by_alias=True)
+        return function
+    return register
 
 async def run(command,**arguments):
     async with gate:
@@ -72,9 +94,9 @@ async def bridge_geometry(project:str)->dict:
     return await run('geometry',project=project)
 
 @server.tool()
-async def bridge_verify(project:str,expected_areas:dict|None=None,collision_types:list[str]|None=None)->dict:
-    """Compare native room/floor areas with triangle calculations and explicit targets; conservative AABB candidates only."""
-    return await run('verify',project=project,expected_areas=expected_areas,collision_types=collision_types)
+async def bridge_verify(project:str,expected_areas:dict|None=None,collision_types:list[str]|None=None,expected_filling_hosts:dict[str,str]|None=None)->dict:
+    """Read-only native area checks and optional Door/Window UUID-to-Wall UUID host checks using actual affected IDs/parent identity. Conservative AABB candidates only; host failures raise."""
+    return await run('verify',project=project,expected_areas=expected_areas,collision_types=collision_types,expected_filling_hosts=expected_filling_hosts)
 
 @server.tool()
 async def bridge_catalogs(project:str,collection:str|None=None)->dict:
@@ -82,9 +104,83 @@ async def bridge_catalogs(project:str,collection:str|None=None)->dict:
     return await run('catalogs',project=project,collection=collection)
 
 @server.tool()
+async def bridge_inspect_resources(project:str,collections:list[str]|None=None)->dict:
+    """Read actual material layers and native structural style profile dimensions/contours."""
+    return await run('resources',project=project,collections=collections)
+
+@server.tool()
+async def bridge_inspect_filling_panels(project:str,identifiers:list[str]|None=None)->dict:
+    """Read actual DoorPanel/WindowPanel meshes for persistent filling UUIDs (all doors/windows if omitted). Reports absence separately from unknown; does not certify leaf count or swing."""
+    return await run('filling_panels',project=project,identifiers=identifiers)
+
+@server.tool()
+async def bridge_inspect_sheet_metadata(project:str)->dict:
+    """Read existing native sheet metadata, drawing/resource UUIDs and title-block cells. Does not inspect model/content geometry or export PDF."""
+    return await run('sheet_metadata',project=project)
+
+@server.tool()
+async def bridge_update_sheet_metadata(project:str,changes:list[dict])->dict:
+    """Back up and update existing sheets by persistent UUID: name, page format/orientation, existing layout/topic. Save/reopen and verify identities, references and requested metadata. Does not author title-block cells or schedule definitions."""
+    return await run('update_sheets',project=project,changes=changes)
+
+@server.tool()
+async def bridge_update_sheet_contents(project:str,changes:list[dict])->dict:
+    """Reposition existing embedded views/tables and DrawingText by inspected drawing/object UUIDs. Optional existing native scale and explicit plain text/font replacement; backup/save/reopen/identity and saved-content checks. No new objects, dimensions, tags or table definitions; no PDF export."""
+    return await run('update_sheet_contents',project=project,changes=changes)
+
+@_strict_tool()
+async def bridge_update_window_styles(project:str,
+        changes:Annotated[list[WindowStyleChange],Field(min_length=1,max_length=100)],
+        expected_project_sha256:Annotated[str,Field(pattern=r'^[0-9a-fA-F]{64}$')]|None=None)->dict:
+    """Edit existing WindowStyle UUIDs only: six common lengths in mm, optional EntityName and ordinary material_uuid. Pin inspected name/hash; backup, project operation, save/reopen and persistent-reference checks. Resource undo history is unsupported; no pane-tree/per-node authoring or PDF export."""
+    from .resource_edits import validate_window_style_changes
+    rows=plain_requests(changes)
+    validate_window_style_changes(rows,expected_project_sha256)
+    return await run('update_window_styles',project=project,changes=rows,expected_project_sha256=expected_project_sha256)
+
+@_strict_tool()
+async def bridge_update_existing_properties(project:str,
+        changes:Annotated[list[ExistingPropertyChange],Field(min_length=1,max_length=1000)],
+        cell_checks:Annotated[list[TitleBlockCellCheck],Field(max_length=1000)]|None=None)->dict:
+    """Edit already registered/assigned String properties on inspected Project/Drawing/Topic UUIDs. Optional exact before/after native title-block cell assertions; backup/save/reopen. Does not register properties, alter assignments/expressions, write cells, or export PDF. Native support remains scenario-specific."""
+    from .existing_properties import validate_existing_property_changes
+    rows=plain_requests(changes)
+    checks=plain_requests(cell_checks) if cell_checks is not None else None
+    validate_existing_property_changes(rows,checks)
+    return await run('update_existing_properties',project=project,changes=rows,cell_checks=checks)
+
+@_strict_tool()
+async def bridge_append_sheet_schedules(project:str,
+        additions:Annotated[list[ScheduleAddition],Field(min_length=1,max_length=100)])->dict:
+    """Append existing native Schedule resources to existing Drawing UUIDs inside explicit available sheet-mm bounds. Backup, undo, save/reopen and source UUID checks; refuses duplicates/overflow. Does not define schedules, filters, rows/cells or new sheets; no PDF export."""
+    from .sheet_additions import validate_schedule_additions
+    rows=plain_requests(additions)
+    validate_schedule_additions(rows)
+    return await run('append_sheet_schedules',project=project,additions=rows)
+
+@_strict_tool()
+async def bridge_append_sheet_views(project:str,
+        additions:Annotated[list[ViewAddition],Field(min_length=1,max_length=100)])->dict:
+    """Append model/entity views from inspected native source/scale IDs to existing Drawing UUIDs, with explicit center/bounds in sheet mm. Backup/save/reopen and saved binding checks. Does not create sheets/Section/Elevation/source planes or certify projection/visual layout; no PDF export."""
+    from .sheet_views import validate_view_additions
+    rows=plain_requests(additions)
+    validate_view_additions(rows)
+    return await run('append_sheet_views',project=project,additions=rows)
+
+@server.tool()
+async def bridge_author_resources(project:str,resources:list[dict])->dict:
+    """Create new ordinary Materials, rectangular BeamStyle/ColumnStyle, basic DoorStyle/WindowStyle, or STEP/STP ElementStyle with source SHA256 and independent mesh expectations. Back up, save/reopen and verify actual resources; custom layer/profile/panel-tree authoring is refused."""
+    return await run('author_resources',project=project,resources=resources)
+
+@server.tool()
 async def bridge_create_drawings(project:str,drawings:list[dict])->dict:
     """Create actual drawings with embedded level views and optional existing native schedules/text titles; no fake dimensions or tags."""
     return await run('documents',project=project,drawings=drawings)
+
+@server.tool()
+async def bridge_create_presentations(project:str,drawings:list[dict])->dict:
+    """Create native blank sheets/texts and embedded existing model/entity views with explicit placement; backup/save/reopen checks. No fake dimensions, tags or schedule cells."""
+    return await run('presentations',project=project,drawings=drawings)
 
 @server.tool()
 async def bridge_inspect_drawings(project:str)->list:
@@ -102,9 +198,9 @@ async def bridge_export_ifc(project:str,output:str)->dict:
     return await run('ifc',project=project,output=output)
 
 @server.tool()
-async def bridge_render_view(project:str,output:str,entity_id:int|None=None,width:int=1024,height:int=768)->dict:
-    """Render a native view through IScreenshotService; no mouse, keyboard or Computer Use calls."""
-    return await run('render',project=project,output=output,entity_id=entity_id,width=width,height=height)
+async def bridge_render_view(project:str,output:str,entity_id:int|None=None,width:int=1024,height:int=768,camera_orientation:str|None=None)->dict:
+    """Render native PNG. Optional front/back/left/right gives whole-building parallel camera; omit entity_id. No sheet elevation is created."""
+    return await run('render',project=project,output=output,entity_id=entity_id,width=width,height=height,camera_orientation=camera_orientation)
 
 @server.tool()
 async def bridge_copy_project(project:str,output:str)->dict:

@@ -76,4 +76,22 @@ The official API documentation is the primary interface specification; the SDK i
 
 Private research clones, raw issue snapshots and previous user models are not part of this repository. Public evidence here consists of commit-pinned references and independently written conclusions. Upstream test existence, README claims and successful COM return values never promote a Bridge feature to `IMPLEMENTED_AND_TESTED`; that status requires our own recorded native test and saved-output checks.
 
+## Development schema dependency review, 2026-10-17
+
+The four strict existing-resource/sheet-addition transport contracts use the
+separately installed Pydantic 2.14.1 public model/field/validator APIs. Its
+installed package metadata records the MIT license. This exact version was
+already present in the reference lock and is now explicit in the runtime
+requirements because Bridge source imports it directly. Schema verification
+uses installed jsonschema 4.26.0 (MIT package metadata), already required by
+MCP 2.3.0. No Pydantic/jsonschema source or binary is copied into this repository.
+
+The pinned MCP 2.3.0 tool decorator has no argument-model configuration hook.
+A narrow registration seam rebuilds only the four new generated argument
+models with `extra='forbid'` and `strict=True`, then regenerates their schemas.
+This prevents advertising closed schemas while silently dropping extra input.
+Portable registry tests and fresh stdio schema discovery cover that seam; a
+future MCP upgrade requires reviewing it. This uses installed SDK objects;
+it does not copy upstream implementation code.
+
 Краткий вывод: расширять архитектурные идеи rnpmcp полезно, но его ROT-сессии и позднее связывание не заменяют проверенный жизненный цикл и точную геометрию. Для 0.1 выбран собственный Python-мост с типизированным COM; C# возможен как следующий адаптер. Код без лицензии, Qt-компоненты, SDK и пользовательские модели в публичную поставку не входят.

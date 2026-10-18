@@ -1,0 +1,20 @@
+[
+  {
+    "kind": "Material",
+    "ref": "insulation",
+    "name": "Bridge insulation",
+    "color_rgba": [180, 210, 240, 255]
+  },
+  {
+    "kind": "BeamStyle",
+    "ref": "beam_rect_300_400",
+    "name": "Bridge rectangular 300x400",
+    "profile": {"kind": "Rectangle", "width_mm": 300, "height_mm": 400}
+  },
+  {
+    "kind": "ColumnStyle",
+    "ref": "column_rect_300_300",
+    "name": "Bridge rectangular 300x300",
+    "profile": {"kind": "Rectangle", "width_mm": 300, "height_mm": 300}
+  }
+]
