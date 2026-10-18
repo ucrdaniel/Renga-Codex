@@ -42,6 +42,11 @@ Core modules: session/safety/audit, SDK loading, BIM operations, geometry,
 catalogs, native drawings/exports, verification, deterministic plan helpers.
 API coordinates are millimeters; area m² and volume m³ are labelled explicitly.
 
+A standalone [native assembly example](docs/native-assembly-example.md) creates
+one editable Beam assembly and instance in a new disposable project, with saved
+geometry and identity checks. Its native evidence covers a 1000×18×18 mm stock
+Ellipse scenario; it is not a new MCP tool or a general assembly import command.
+
 The frozen 0.2.0 preview's 21 MCP tools cover status and capabilities; inspection and catalogs;
 validated plans and disposable-copy previews; geometry and area verification;
 project copy, SaveAs and metadata; native drawing content, PDF, IFC and view
