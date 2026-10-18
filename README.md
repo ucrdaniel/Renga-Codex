@@ -82,6 +82,13 @@ does not fill a visible stamp field. Project/Topic property mutation and entity
 insertion through the new view adapter remain native unverified. See [style edits](docs/RESOURCE-EDITS.md),
 [existing properties](docs/EXISTING-PROPERTIES.md) and
 [existing-sheet additions](docs/EXISTING-SHEET-ADDITIONS.md).
+The Python-only `sheet_texts.append_sheet_texts` helper appends explicit native
+DrawingText to existing sheets, with duplicate guards and save/close/reopen
+checks. It creates ordinary sheet text rather than title-block bindings or
+associative annotations. Its scoped [native fixture](tests/evidence/development-sheet-texts-9.3.json)
+saved/reopened 30 texts across ten existing sheets with text/font/bounds and old
+identity preservation checks; selected A3/A4 text placement was visually reviewed.
+No additional MCP tool or CLI command is advertised for this helper.
 These additions do not change the frozen 0.2.0 release evidence. A current chat
 with a cached 20-tool catalogue needs an MCP restart/reconnect and catalogue
 refresh before it can expose the new tools. A fresh standalone stdio server

@@ -1,5 +1,10 @@
 # Adding native contents to existing sheets
 
+The Python-only `sheet_texts.append_sheet_texts(project, additions)` adapter also
+appends editable native `DrawingText` to inspected existing Drawing UUIDs. It
+has no new CLI or MCP route. Its scoped native fixture is recorded below;
+portable duplicate-guard tests remain a separate form of evidence.
+
 Two Python adapters extend existing Drawing sheets without creating duplicate
 sheets. Development MCP routes are `bridge_append_sheet_schedules` and
 `bridge_append_sheet_views`, each taking `project` and `additions`. CLI commands
@@ -114,3 +119,60 @@ verification must compare persistent identities and resolve fresh numeric IDs.
 No Computer Use or image substitute is part of these adapters. Visual sheet
 review, native source projection review, specification data and ГОСТ layout
 checks remain explicit follow-up work.
+
+## Plain text on existing sheets
+
+```python
+from renga_codex_bridge.sheet_texts import append_sheet_texts
+
+result = append_sheet_texts(project, [{
+    "drawing_uuid": inspected_drawing_uuid,
+    "text": "General note\nSecond paragraph",
+    "bounds_mm": [20, 120, 200, 215],
+    "font_family": "Arial",
+    "cap_size_mm": 2.5,
+}])
+```
+
+All five fields are required. Bounds and capital-letter height are sheet
+millimeters; bounds are `[left,right,bottom,top]`. Each batch contains 1..1000
+explicit additions. Unicode text may contain LF between paragraphs, but empty
+text and other control characters are rejected. The helper writes plain black
+regular rich-text tokens with the requested family and height.
+
+The whole request is validated before a native session starts. Duplicate text
+and bounds on the same drawing are rejected even if the requested fonts differ.
+Preflight also reads existing native DrawingText and rejects a repeat of the
+same text at the same bounds, using the native readback tolerance of 1e-6 mm.
+The same note at another position or on another sheet is allowed. A rejected
+saved duplicate does not save or append anything.
+
+The adapter uses a saved JSON plan, the normal confined write root, a verified
+existing-file backup, owned STA sessions and native undo operations. After
+saving and closing it reopens the file and checks every old building, drawing
+and content UUID/type plus exactly the requested new DrawingText identities.
+The saved text, every nonempty token's font family/height/plain black style,
+and native bounds must match. It returns `added_objects` and
+`identity_type_preservation_verified`; `visual_layout_verified` remains false.
+
+**These texts are ordinary DrawingText.** Placing one next to a form does not
+edit a title-block cell or create a property/form binding. The adapter creates
+no associative dimensions, Tags, axes or specification cells, and exports no
+PDF. The caller must inspect the actual sheet for overlap, clipping, font
+availability and readability. Native coverage of this new entry point remains
+limited to its [own disposable fixture](../tests/evidence/development-sheet-texts-9.3.json):
+Renga9.3.32980.0/API2.50 saved and reopened 30 native texts on ten existing
+Drawing sheets. Requested text, font family/height, plain black regular tokens,
+bounds and exact old/new persistent UUID/type accounting passed. A separate
+owned readonly audit retained 838 building objects and 11 Drawings, with sheet
+contents increasing only from 274 to 304. Existing sheet metadata and actual
+title-block cells remained unchanged; ordinary text did not populate their
+bindings.
+
+Native Drawing PNGs of selected A3/A4 landscape sheets were visually reviewed
+for added-text fit in the chosen regions. This spot check does not certify
+the rest of the pre-existing sheet layout, all fonts or regulatory conformity;
+the helper still returns `visual_layout_verified: false`. Request/saved-duplicate
+guards have portable-test coverage; the native run exercised positive insertion.
+No private text values, identities, source files or images are distributed in
+the sanitized record. This is direct Python evidence, not native MCP execution.

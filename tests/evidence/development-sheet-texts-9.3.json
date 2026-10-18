@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "evidence_id": "DEV-EXISTING-SHEET-TEXTS-20261018",
+  "status": "scoped_native_saved_results_verified",
+  "evidence_type": "development_public_python_helper_not_mcp_execution",
+  "tested_on": "2026-10-18",
+  "renga_version": "9.3.32980.0",
+  "sdk_api_reference": "2.50",
+  "entrypoint": "renga_codex_bridge.sheet_texts.append_sheet_texts",
+  "module_sha256": {
+    "src/renga_codex_bridge/sheet_texts.py": "a591762a9a89b6d0b09216671b266ffc79c9915c35efed7fb2d998b206f9b310"
+  },
+  "execution": "direct public Python helper with owned COM STA write/save/close/reopen, followed by a separate owned readonly audit",
+  "fixture_scope": "one disposable copy containing existing native Drawing sheets; source geometry, text values, private identities and images are not distributed",
+  "native_helper_calls": 1,
+  "new_DrawingText_count": 30,
+  "existing_Drawings_receiving_text": 10,
+  "before_counts": {
+    "building_objects": 838,
+    "drawings": 11,
+    "drawing_contents": 274
+  },
+  "after_counts": {
+    "building_objects": 838,
+    "drawings": 11,
+    "drawing_contents": 304
+  },
+  "saved_checks": {
+    "old_building_drawing_content_uuids_and_types_preserved": true,
+    "exactly_requested_new_native_DrawingText_identities": true,
+    "requested_text_read_after_close_and_reopen": true,
+    "requested_font_family_and_cap_size_read_after_reopen": true,
+    "plain_black_regular_nonempty_tokens_verified": true,
+    "requested_native_bounds_read_after_reopen": true,
+    "independent_readonly_counts_and_identity_comparison_passed": true,
+    "existing_sheet_metadata_preserved": true,
+    "existing_titleblock_cells_preserved_without_new_bindings": true,
+    "owned_sessions_closed": true
+  },
+  "native_visual_spot_check": {
+    "sheet_formats_reviewed": ["A3 landscape", "A4 landscape"],
+    "native_Drawing_PNGs_reviewed": true,
+    "added_text_fit_in_selected_fixture_regions": true,
+    "scope": "selected A3/A4 fixture sheets and added text only; not complete sheet composition or regulatory conformity",
+    "automated_layout_verified": false
+  },
+  "computer_use_calls_during_helper_and_readback": 0,
+  "pdf_exports": 0,
+  "mcp_native_calls": 0,
+  "titleblock_cell_authoring": false,
+  "titleblock_form_binding": false,
+  "not_verified": [
+    "No title-block cell values or property/form bindings are created",
+    "The adapter creates ordinary DrawingText, not associative dimensions, Tags, axes or Schedule cells",
+    "Request and saved-duplicate rejection guards have portable tests; this native run exercised positive text insertion",
+    "The native fixture covers one existing-sheet scenario, not every font or layout",
+    "Visual checks of selected A3/A4 text placement do not certify unrelated pre-existing sheet contents",
+    "No new CLI or MCP route is advertised or natively certified",
+    "This development evidence does not replace or extend immutable frozen release evidence"
+  ]
+}
